@@ -1,35 +1,24 @@
-export type OrganizationIndicators = {
-  totalUsers: number;
-  tightPercentage: number;
-  moodTrend: number;
-  reach: number;
-  adherence: number;
-  frequency: number;
-  evolution: number;
-};
+import { requestJson } from "@/lib/http/client";
+import {
+  unitIndicatorsSchema,
+  type UnitIndicators,
+} from "@/schemas/organization";
 
 /**
- * Mock service for GET /organizations/current/indicators
- * This should be replaced with `requestJson` when the endpoint #35 is ready.
+ * Só `ADMIN`. A unidade sai da sessão: não existe parâmetro de empresa, e o
+ * mês é o do relógio do servidor.
  */
-export async function getOrganizationIndicators(
+export async function fetchUnitIndicators(
   token: string,
-): Promise<OrganizationIndicators> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  // Change this to test the < 5 users suppression logic
-  const MOCK_TOTAL_USERS = 12;
-
-  if (!token) throw new Error("Unauthorized");
-
-  return {
-    totalUsers: MOCK_TOTAL_USERS,
-    tightPercentage: 0.35, // 35%
-    moodTrend: 3.8, // 1 to 5 scale
-    reach: 42, // 42 people
-    adherence: 28, // 28 people
-    frequency: 4.2, // 4.2 days/person
-    evolution: 3.5, // previous month reading
-  };
+  signal: AbortSignal,
+): Promise<UnitIndicators> {
+  const result = await requestJson("/organizations/current/indicators", {
+    method: "GET",
+    signal,
+    headers: { authorization: `Bearer ${token}` },
+  });
+  const indicators = unitIndicatorsSchema.safeParse(result);
+  if (!indicators.success)
+    throw new Error("O serviço retornou indicadores inválidos.");
+  return indicators.data;
 }
