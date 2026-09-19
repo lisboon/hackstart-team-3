@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/auth/use-auth";
 import { LoginForm } from "./login-form";
 import { AiPanel } from "@/components/ai/ai-panel";
+import { PersonalSummary } from "@/components/financial-health/personal-summary";
 import { Button } from "@/components/ui/button";
 
 export function Workspace() {
@@ -23,6 +24,7 @@ export function Workspace() {
       >
         Sair
       </Button>
+      <PersonalSummary token={token} onUnauthorized={logout} />
       <AiPanel token={token} onUnauthorized={logout} />
     </div>
   );
