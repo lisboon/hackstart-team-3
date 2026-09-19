@@ -11,6 +11,10 @@ allowBuilds:
   unrs-resolver: false
 overrides:
   body-parser: 2.3.0
-  fast-uri: 3.1.5
+  # 3.1.5 era a versao vulneravel (GHSA-f65p-4m7j-42xc e outros tres); o patch e 3.1.6.
+  # Chega por apps/web > @hookform/resolvers > ajv.
+  fast-uri: 3.1.8
   multer: 2.3.0
   qs: 6.16.0
+  # Chega por apps/web > next > styled-jsx > @babel/core. Patch a partir de 4.28.7.
+  browserslist: 4.28.9
