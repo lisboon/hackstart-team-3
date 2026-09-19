@@ -1,5 +1,9 @@
 import { FindCompanyByIdUseCaseInputDto } from "../usecase/find-by-id/find-by-id.usecase.dto";
 import {
+  GetUnitIndicatorsUseCaseInputDto,
+  GetUnitIndicatorsUseCaseOutputDto,
+} from "../usecase/get-indicators/get-indicators.usecase.dto";
+import {
   UpdateCompanyUseCaseInputDto,
   UpdateCompanyUseCaseOutputDto,
 } from "../usecase/update-company/update-company.usecase.dto";
@@ -18,6 +22,9 @@ export interface FindCompanyByIdFacadeOutputDto {
 export type UpdateCompanyFacadeInputDto = UpdateCompanyUseCaseInputDto;
 export type UpdateCompanyFacadeOutputDto = UpdateCompanyUseCaseOutputDto;
 
+export type UnitIndicatorsFacadeInputDto = GetUnitIndicatorsUseCaseInputDto;
+export type UnitIndicatorsFacadeOutputDto = GetUnitIndicatorsUseCaseOutputDto;
+
 export interface CompanyFacadeInterface {
   findById(
     data: FindCompanyByIdFacadeInputDto,
@@ -25,4 +32,7 @@ export interface CompanyFacadeInterface {
   update(
     data: UpdateCompanyFacadeInputDto,
   ): Promise<UpdateCompanyFacadeOutputDto>;
+  indicators(
+    data: UnitIndicatorsFacadeInputDto,
+  ): Promise<UnitIndicatorsFacadeOutputDto>;
 }

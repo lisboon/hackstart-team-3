@@ -10,10 +10,14 @@ const makeSut = () => {
   const updateCompanyUseCase = {
     execute: jest.fn().mockResolvedValue(company.toJSON()),
   };
+  const getUnitIndicatorsUseCase = {
+    execute: jest.fn().mockResolvedValue({ suppressed: true }),
+  };
 
   const facade = new CompanyFacade(
     findCompanyByIdUseCase as any,
     updateCompanyUseCase as any,
+    getUnitIndicatorsUseCase as any,
   );
 
   return {
@@ -21,6 +25,7 @@ const makeSut = () => {
     company,
     findCompanyByIdUseCase,
     updateCompanyUseCase,
+    getUnitIndicatorsUseCase,
   };
 };
 
@@ -44,5 +49,18 @@ describe("CompanyFacade", () => {
     await facade.update(input);
 
     expect(updateCompanyUseCase.execute).toHaveBeenCalledWith(input);
+  });
+
+  it("indicators delegates to its use case", async () => {
+    const { facade, company, getUnitIndicatorsUseCase } = makeSut();
+    const today = new Date(Date.UTC(2026, 8, 19));
+
+    const output = await facade.indicators({ companyId: company.id, today });
+
+    expect(getUnitIndicatorsUseCase.execute).toHaveBeenCalledWith({
+      companyId: company.id,
+      today,
+    });
+    expect(output).toEqual({ suppressed: true });
   });
 });

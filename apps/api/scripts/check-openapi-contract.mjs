@@ -35,6 +35,8 @@ try {
     "UsersPageResponseDto",
     "UpdateCompanyBodyDto",
     "CompanyResponseDto",
+    "UnitIndicatorsResponseDto",
+    "UnitPeriodIndicatorsResponseDto",
     "RecordSelfReportBodyDto",
     "SelfReportResponseDto",
     "SelfReportSummaryResponseDto",

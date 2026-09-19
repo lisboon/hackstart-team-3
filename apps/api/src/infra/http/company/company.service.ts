@@ -3,6 +3,7 @@ import CompanyFacade from "@/modules/company/facade/company.facade";
 import {
   FindCompanyByIdFacadeInputDto,
   UpdateCompanyFacadeInputDto,
+  UnitIndicatorsFacadeInputDto,
 } from "@/modules/company/facade/company.facade.dto";
 
 @Injectable()
@@ -16,5 +17,9 @@ export class CompanyService {
 
   async update(input: UpdateCompanyFacadeInputDto) {
     return this.companyFacade.update(input);
+  }
+
+  async indicators(input: UnitIndicatorsFacadeInputDto) {
+    return this.companyFacade.indicators(input);
   }
 }

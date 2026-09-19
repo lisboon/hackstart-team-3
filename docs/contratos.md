@@ -181,6 +181,62 @@ A decisão sobre a peça do dia.
 
 ---
 
+## `GET /organizations/current/indicators`
+
+O painel do gestor. **Só `ADMIN`** — um `USER` recebe `403`. A unidade sai da sessão; não existe parâmetro de empresa, e o mês é o do relógio do servidor.
+
+```json
+{
+  "suppressed": false,
+  "headcount": 20,
+  "reach": 14,
+  "active": 10,
+  "frequency": 4.2,
+  "tightRatio": 0.375,
+  "averageMood": 3.5,
+  "previous": { "tightRatio": 0.7, "averageMood": 2.5 }
+}
+```
+
+| Campo | O quê |
+|---|---|
+| `headcount` | pessoas `USER` ativas na unidade |
+| `reach` | quantas já registraram alguma coisa, em qualquer data |
+| `active` | quantas registraram alguma coisa neste mês |
+| `frequency` | dias com registro por pessoa **que manteve diário** no mês |
+| `tightRatio` | fração **de quem declarou o mês** em `SLIGHT_SHORTFALL` ou `SEVERE_SHORTFALL` |
+| `averageMood` | média de `mood` no mês, de 1 a 5 |
+| `previous` | os dois indicadores do mês anterior, para a evolução |
+
+Alcance e adesão são **divisões que a tela faz**: `reach / headcount` e `active / headcount`. A API devolve as contagens cruas para não criar um quarto campo que diz a mesma coisa.
+
+### A supressão vem pronta do servidor, em dois níveis
+
+**Nível da tela.** Abaixo de **5 pessoas com qualquer registro no mês**, a resposta é:
+
+```json
+{ "suppressed": true, "headcount": null, "reach": null, "active": null,
+  "frequency": null, "tightRatio": null, "averageMood": null, "previous": null }
+```
+
+Todos os campos vêm `null`, inclusive o tamanho do grupo. A tela testa `suppressed`, não `active < 5`.
+
+**Nível do indicador.** Cada número tem a sua própria população, e elas não coincidem: quem declarou o mês não é quem registrou humor. Um indicador cuja população fique abaixo de 5 volta `null` **mesmo com o painel aberto**.
+
+Dez pessoas ativas das quais só três declararam produzem uma proporção de três pessoas. Publicá-la porque *outras sete* registraram humor seria o mesmo vazamento entrando pela porta de trás — então `tightRatio` vem `null` e `averageMood` vem preenchido.
+
+O mesmo portão vale para `previous`.
+
+### `null` quer dizer "não dá para mostrar"
+
+Não separamos "sem dado" de "suprimido": dizer qual dos dois é já entrega o tamanho do grupo. Para o gestor a ação é a mesma nos dois casos, então a tela trata todo `null` como **"ainda não há dado suficiente"** — nunca como zero.
+
+### O que nunca vem
+
+Nenhum `userId`, nenhum nome, nenhuma lista, nenhum humor individual, nenhuma declaração. Só contagens. O e2e `unit-indicators.e2e-spec.ts` serializa a resposta e falha se `userId` ou um nome de pessoa aparecer.
+
+---
+
 ## Endpoints já existentes, para referência
 
 | Rota | O quê |

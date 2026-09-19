@@ -2,6 +2,7 @@ import prisma from "@/infra/database/prisma.instance";
 import CompanyRepository from "../repository/company.repository";
 import FindCompanyByIdUseCase from "../usecase/find-by-id/find-by-id.usecase";
 import UpdateCompanyUseCase from "../usecase/update-company/update-company.usecase";
+import GetUnitIndicatorsUseCase from "../usecase/get-indicators/get-indicators.usecase";
 import CompanyFacade from "../facade/company.facade";
 
 export default class CompanyFacadeFactory {
@@ -10,6 +11,7 @@ export default class CompanyFacadeFactory {
     return new CompanyFacade(
       new FindCompanyByIdUseCase(companyRepository),
       new UpdateCompanyUseCase(companyRepository),
+      new GetUnitIndicatorsUseCase(companyRepository),
     );
   }
 }

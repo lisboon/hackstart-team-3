@@ -1,5 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { CompanyGateway } from "../gateway/company.gateway";
+import {
+  UnitPeriod,
+  UnitPopulation,
+  UnitTally,
+} from "../domain/unit-indicators";
+import { SelfReportSituation, UserRole } from "@/modules/@shared/domain/enums";
 import { Company } from "../domain/company.entity";
 import { TransactionContext } from "@/modules/@shared/domain/transaction/transaction-manager.interface";
 import { normalizeSlug } from "@/modules/@shared/domain/utils/slug";
@@ -7,6 +13,22 @@ import { resolvePrismaClient } from "@/infra/database/prisma-transaction.context
 import { CompanyModelMapper } from "./company.model.mapper";
 import { EntityValidationError } from "@/modules/@shared/domain/errors/validation.error";
 import { executeWithUniqueConstraintTranslation } from "@/infra/database/prisma-operation";
+
+const SHORTFALL = [
+  SelfReportSituation.SLIGHT_SHORTFALL,
+  SelfReportSituation.SEVERE_SHORTFALL,
+];
+
+/**
+ * O painel mede quem percorre a jornada. Contar administradores e editores
+ * infla o denominador da adesão com gente que nunca teve a tela do dia.
+ */
+const member = (companyId: string) => ({
+  companyId,
+  role: UserRole.USER,
+  active: true,
+  deletedAt: null,
+});
 
 const slugAlreadyInUse = () =>
   new EntityValidationError([
@@ -72,5 +94,70 @@ export default class CompanyRepository implements CompanyGateway {
       "slug",
       slugAlreadyInUse,
     );
+  }
+
+  async findTally(companyId: string, period: UnitPeriod): Promise<UnitTally> {
+    const window = { gte: period.from, lt: period.to };
+    const reports = { companyId, deletedAt: null, referenceMonth: window };
+    const entries = { companyId, deletedAt: null, entryDate: window };
+    const unit = member(companyId);
+
+    // Cada indicador vem com o tamanho da própria população, porque é ela que
+    // decide se ele pode ser publicado. Tudo contado no banco: nenhuma linha
+    // individual sobe para a memória.
+    const [active, declarers, tightDeclarers, moodPeople, mood, entryCount] =
+      await Promise.all([
+        this.prisma.user.count({
+          where: {
+            ...unit,
+            OR: [
+              { dailyEntries: { some: entries } },
+              { selfReports: { some: reports } },
+            ],
+          },
+        }),
+        this.prisma.user.count({
+          where: { ...unit, selfReports: { some: reports } },
+        }),
+        this.prisma.user.count({
+          where: {
+            ...unit,
+            selfReports: { some: { ...reports, situation: { in: SHORTFALL } } },
+          },
+        }),
+        this.prisma.user.count({
+          where: { ...unit, dailyEntries: { some: entries } },
+        }),
+        this.prisma.dailyEntry.aggregate({
+          _avg: { mood: true },
+          where: entries,
+        }),
+        this.prisma.dailyEntry.count({ where: entries }),
+      ]);
+
+    return {
+      active,
+      declarers,
+      tightDeclarers,
+      moodPeople,
+      averageMood: mood._avg.mood,
+      entries: entryCount,
+    };
+  }
+
+  async countPopulation(companyId: string): Promise<UnitPopulation> {
+    const [headcount, reach] = await Promise.all([
+      this.prisma.user.count({ where: member(companyId) }),
+      this.prisma.user.count({
+        where: {
+          ...member(companyId),
+          OR: [
+            { dailyEntries: { some: { deletedAt: null } } },
+            { selfReports: { some: { deletedAt: null } } },
+          ],
+        },
+      }),
+    ]);
+    return { headcount, reach };
   }
 }
