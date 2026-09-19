@@ -42,6 +42,7 @@ model User {
   company Company @relation(fields: [companyId], references: [id])
   auditEvents AuditEvent[] @relation("AuditActor")
   selfReports SelfReport[]
+  dailyEntries DailyEntry[]
 
   @@index([role, active])
   @@index([companyId])
@@ -60,6 +61,7 @@ model Company {
   users User[]
   auditEvents AuditEvent[]
   selfReports SelfReport[]
+  dailyEntries DailyEntry[]
 
   @@index([active])
   @@map("companies")
@@ -100,4 +102,23 @@ model SelfReport {
   @@unique([userId, referenceMonth])
   @@index([companyId, referenceMonth])
   @@map("self_reports")
+}
+
+model DailyEntry {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  companyId String    @map("company_id")
+  entryDate DateTime  @map("entry_date") @db.Date
+  mood      Int
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entryDate])
+  @@index([companyId, entryDate])
+  @@map("daily_entries")
 }
