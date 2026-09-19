@@ -71,7 +71,7 @@ infra/http/<contexto>/           controller, module, service, dto
 
 Registre o module em `infra/http/app.module.ts`. Use `@UseGuards(AuthGuard)` e `@CurrentSession()`.
 
-**Migrations são escritas à mão** em `prisma/migrations/<timestamp>_<nome>/migration.sql` — as cinco existentes são manuais. A saída de `prisma:generate` em `apps/api/generated/prisma` é versionada.
+**Migrations são escritas à mão** em `prisma/migrations/<timestamp>_<nome>/migration.sql` — as existentes são manuais. A saída de `prisma:generate` em `apps/api/generated` **não** é versionada: ao puxar uma alteração de schema, rode `corepack pnpm --dir apps/api prisma:generate` antes do typecheck.
 
 ### Frontend — fronteiras verificadas por teste
 
