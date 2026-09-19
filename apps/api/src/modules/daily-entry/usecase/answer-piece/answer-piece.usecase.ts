@@ -30,6 +30,13 @@ export default class AnswerPieceUseCase implements AnswerPieceUseCaseInterface {
       throw new ConflictError("Today's mood has not been answered yet");
     }
 
+    // Antes de olhar a peca: se o dia ja foi respondido, nada mais importa.
+    // Validar a opcao primeiro faria um envio repetido responder 404 em vez
+    // de 409, escondendo o motivo real.
+    if (entry.pieceAnswered) {
+      throw new ConflictError("Today's piece is already answered");
+    }
+
     const piece = await this.contentPieceGateway.findById(data.contentPieceId);
     if (!piece) {
       throw new NotFoundError(data.contentPieceId, DailyEntry);

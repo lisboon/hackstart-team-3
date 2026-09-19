@@ -173,14 +173,16 @@ describe("Daily mood (e2e)", () => {
   });
 
   it("refuses a second answer to the piece on the same day", async () => {
-    const pieces = await prisma.contentPiece.findMany({ take: 1 });
+    // Qualquer peca e qualquer rotulo: com o dia fechado, a resposta e 409
+    // antes de o servidor olhar o conteudo do envio.
+    const [piece] = await prisma.contentPiece.findMany({
+      where: { stage: "SUSTENTAR" },
+      take: 1,
+    });
     await request(app.getHttpServer())
       .post("/me/today/answer")
       .set("Authorization", `Bearer ${workerToken}`)
-      .send({
-        contentPieceId: pieces[0].id,
-        answer: "Fecho e deixo para depois",
-      })
+      .send({ contentPieceId: piece.id, answer: "qualquer coisa" })
       .expect(409);
   });
 
