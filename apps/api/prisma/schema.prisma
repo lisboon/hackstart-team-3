@@ -7,6 +7,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ESelfReportSituation {
+  SURPLUS
+  BREAK_EVEN
+  SLIGHT_SHORTFALL
+  SEVERE_SHORTFALL
+
+  @@map("self_report_situation")
+}
+
 enum EUserRole {
   ADMIN
   EDITOR
@@ -32,6 +41,7 @@ model User {
 
   company Company @relation(fields: [companyId], references: [id])
   auditEvents AuditEvent[] @relation("AuditActor")
+  selfReports SelfReport[]
 
   @@index([role, active])
   @@index([companyId])
@@ -49,6 +59,7 @@ model Company {
 
   users User[]
   auditEvents AuditEvent[]
+  selfReports SelfReport[]
 
   @@index([active])
   @@map("companies")
@@ -70,4 +81,23 @@ model AuditEvent {
 
   @@index([companyId, createdAt])
   @@map("audit_events")
+}
+
+model SelfReport {
+  id             String               @id @default(uuid())
+  userId         String               @map("user_id")
+  companyId      String               @map("company_id")
+  referenceMonth DateTime             @map("reference_month") @db.Date
+  situation      ESelfReportSituation
+  active         Boolean              @default(true)
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  deletedAt      DateTime?            @map("deleted_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, referenceMonth])
+  @@index([companyId, referenceMonth])
+  @@map("self_reports")
 }

@@ -6,6 +6,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { UserModule } from "./user/user.module";
 import { CompanyModule } from "./company/company.module";
+import { SelfReportModule } from "./self-report/self-report.module";
 import { loadApplicationConfig } from "@/infra/config/application.config";
 import prisma from "@/infra/database/prisma.instance";
 import { PRISMA_CLIENT } from "@/infra/database/prisma.provider";
@@ -30,6 +31,7 @@ const config = loadApplicationConfig();
     AuthModule,
     UserModule,
     CompanyModule,
+    SelfReportModule,
     AiModule,
   ],
   controllers: [AppController, HealthController],
