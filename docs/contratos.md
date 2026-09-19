@@ -105,6 +105,55 @@ Comparar é o objetivo, mas **a tela nunca acusa**. `recentAverage` menor que `p
 
 ---
 
+## `GET /me/today`
+
+Chamado **ao abrir o app**. Diz se o dia já foi respondido, para a tela saber o que mostrar.
+
+**Response `200`**
+
+```json
+{ "entryDate": "2026-09-19T00:00:00.000Z", "answered": false, "mood": null }
+```
+
+| `answered` | O que a tela faz |
+|---|---|
+| `false` | mostra **só** a pergunta de humor, ocupando a tela |
+| `true` | mostra o app |
+
+---
+
+## `POST /me/today/mood`
+
+Como a pessoa está hoje. Um toque, sem texto.
+
+**Uma resposta por dia, sem correção.** A pergunta é como ela está agora; deixar reescrever convidaria a ajustar a resposta ao que ela acha que deveria sentir. A próxima chance é amanhã.
+
+**Request**
+
+```json
+{ "mood": 3 }
+```
+
+`mood` é um inteiro de **1 a 5**, onde **1 é o pior**. Fora disso, ou fracionado, é 422.
+
+> A escala é interna, para a média agregada. **Não aparece na tela** — quem responde escolhe um emoji, não um número.
+
+**Response `201`**
+
+```json
+{ "entryDate": "2026-09-19T00:00:00.000Z", "mood": 3 }
+```
+
+**`409` quando o dia já foi respondido.** Não deve acontecer no fluxo normal, porque a tela consulta `GET /me/today` antes — é a rede de segurança para toque duplo e corrida.
+
+### O que ainda não existe
+
+**Não há encaminhamento.** Marcar o pior nível registra e mais nada — a rota de apoio depende de saber quais canais existem de verdade, e isso ainda não foi validado com a Sicredi (issue #17).
+
+O que **deve** existir na tela desde já é o acesso ao **CVV 188**, a um toque, de qualquer lugar (issue #13). É serviço público e não depende de integração nenhuma.
+
+---
+
 ## Endpoints já existentes, para referência
 
 | Rota | O quê |

@@ -38,6 +38,9 @@ try {
     "RecordSelfReportBodyDto",
     "SelfReportResponseDto",
     "SelfReportSummaryResponseDto",
+    "RecordMoodBodyDto",
+    "DailyMoodResponseDto",
+    "TodayEntryResponseDto",
   ];
 
   for (const name of requiredSchemas) {
@@ -70,6 +73,8 @@ try {
     ["/organizations/current", "patch", "200"],
     ["/me/self-report", "post", "201"],
     ["/me/summary", "get", "200"],
+    ["/me/today/mood", "post", "201"],
+    ["/me/today", "get", "200"],
   ];
 
   const streamOperation = document.paths["/ai/runs/stream"]?.post;
@@ -106,6 +111,8 @@ try {
     ["/ai/runs/stream", "post", ["401", "422", "429"]],
     ["/me/self-report", "post", ["401", "403", "422", "429"]],
     ["/me/summary", "get", ["401", "403", "422", "429"]],
+    ["/me/today/mood", "post", ["401", "403", "409", "422", "429"]],
+    ["/me/today", "get", ["401", "403", "422", "429"]],
   ];
 
   for (const [path, method, statuses] of documentedErrors) {

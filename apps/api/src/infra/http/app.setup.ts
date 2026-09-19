@@ -4,6 +4,7 @@ import { EntityValidationErrorFilter } from "./shared/errors/entity-validation.f
 import { NotFoundErrorFilter } from "./shared/errors/not-found.filter";
 import { UnauthorizedErrorFilter } from "./shared/errors/unauthorized.filter";
 import { ForbiddenErrorFilter } from "./shared/errors/forbidden.filter";
+import { ConflictErrorFilter } from "./shared/errors/conflict.filter";
 import { BadLoginErrorFilter } from "./shared/errors/bad-login.filter";
 import exceptionFactory from "./shared/errors/exception-factory";
 import { createHttpObservabilityMiddleware } from "./shared/observability/http-observability.middleware";
@@ -28,6 +29,7 @@ export function configureApp(app: INestApplication): void {
     new NotFoundErrorFilter(),
     new UnauthorizedErrorFilter(),
     new ForbiddenErrorFilter(),
+    new ConflictErrorFilter(),
     new BadLoginErrorFilter(),
     new TooManyRequestsFilter(),
   );
