@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePersonalSummary } from "@/hooks/financial-health/use-personal-summary";
 import type { SelfReportSituation } from "@/schemas/financial-health";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,16 @@ export function PersonalSummary({
   const { summary, error, loading, pending, declare, reload } =
     usePersonalSummary(token, onUnauthorized);
   const [correcting, setCorrecting] = useState(false);
+  const correctionRef = useRef<HTMLDivElement>(null);
+
+  // Asking to correct unmounts the button that had focus, which drops focus to
+  // the body: a keyboard or screen reader user is left with no idea that a form
+  // appeared. Moving focus into the form keeps the reading order intact. Only on
+  // an explicit correction, never on first load, so arriving on the screen does
+  // not yank focus away from the top.
+  useEffect(() => {
+    if (correcting) correctionRef.current?.focus();
+  }, [correcting]);
 
   async function submit(situation: SelfReportSituation) {
     if (await declare(situation)) setCorrecting(false);
@@ -89,11 +99,13 @@ export function PersonalSummary({
               Corrigir a declaração deste mês
             </Button>
           ) : (
-            <SelfReportForm
-              current={summary.currentSituation}
-              pending={pending}
-              onSubmit={submit}
-            />
+            <div ref={correctionRef} tabIndex={-1} className="min-w-0">
+              <SelfReportForm
+                current={summary.currentSituation}
+                pending={pending}
+                onSubmit={submit}
+              />
+            </div>
           )}
           <TrajectoryPanel summary={summary} />
         </>

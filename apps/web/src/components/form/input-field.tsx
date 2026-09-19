@@ -9,6 +9,7 @@ import {
 } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { describedBy } from "@/lib/a11y";
 
 export function InputField<T extends FieldValues>({
   control,
@@ -38,9 +39,10 @@ export function InputField<T extends FieldValues>({
         {...field}
         id={id}
         aria-invalid={!!error}
-        aria-describedby={
-          error ? id + "-error" : description ? id + "-description" : undefined
-        }
+        aria-describedby={describedBy(
+          description && id + "-description",
+          error && id + "-error",
+        )}
       />
       {description && (
         <p id={id + "-description"} className="text-sm text-muted-foreground">
