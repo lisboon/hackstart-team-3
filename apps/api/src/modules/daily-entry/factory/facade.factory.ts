@@ -3,6 +3,7 @@ import ContentPieceRepository from "@/modules/content-piece/repository/content-p
 import DailyEntryRepository from "../repository/daily-entry.repository";
 import AnswerPieceUseCase from "../usecase/answer-piece/answer-piece.usecase";
 import GetTodayEntryUseCase from "../usecase/get-today/get-today.usecase";
+import GetTrackUseCase from "../usecase/get-track/get-track.usecase";
 import RecordMoodUseCase from "../usecase/record-mood/record-mood.usecase";
 import DailyEntryFacade from "../facade/daily-entry.facade";
 
@@ -14,6 +15,7 @@ export default class DailyEntryFacadeFactory {
       new RecordMoodUseCase(dailyEntryRepository),
       new GetTodayEntryUseCase(dailyEntryRepository, contentPieceRepository),
       new AnswerPieceUseCase(dailyEntryRepository, contentPieceRepository),
+      new GetTrackUseCase(dailyEntryRepository, contentPieceRepository),
     );
   }
 }

@@ -181,6 +181,30 @@ A decisão sobre a peça do dia.
 
 ---
 
+## `GET /me/track`
+
+O progresso da pessoa pelas cinco etapas do COOPS. Alimenta a tela da trilha.
+
+```json
+{
+  "stages": [
+    { "stage": "CONSCIENTIZAR", "total": 6, "answered": 6 },
+    { "stage": "OBSERVAR",      "total": 6, "answered": 6 },
+    { "stage": "ORGANIZAR",     "total": 6, "answered": 6 },
+    { "stage": "PREPARAR",      "total": 6, "answered": 4 },
+    { "stage": "SUSTENTAR",     "total": 6, "answered": 0 }
+  ]
+}
+```
+
+**As cinco etapas vêm sempre, na ordem do método** — inclusive as que ainda não têm peça no catálogo (`total: 0`) e as que a pessoa nem começou (`answered: 0`). A trilha mostra o caminho inteiro: se uma etapa some da resposta, a pessoa deixa de saber que ela existe.
+
+`total` é do catálogo, igual para todo mundo. `answered` é só de quem pediu — a leitura exige dono e empresa juntos, como todo recurso pessoal.
+
+A tela deriva o que precisa: anel cheio quando `answered === total`, etapa atual na primeira com `answered < total`, e trancada nas seguintes.
+
+---
+
 ## `GET /organizations/current/indicators`
 
 O painel do gestor. **Só `ADMIN`** — um `USER` recebe `403`. A unidade sai da sessão; não existe parâmetro de empresa, e o mês é o do relógio do servidor.

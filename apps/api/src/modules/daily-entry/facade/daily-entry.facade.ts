@@ -1,5 +1,6 @@
 import { AnswerPieceUseCaseInterface } from "../usecase/answer-piece/answer-piece.usecase.dto";
 import { GetTodayEntryUseCaseInterface } from "../usecase/get-today/get-today.usecase.dto";
+import { GetTrackUseCaseInterface } from "../usecase/get-track/get-track.usecase.dto";
 import { RecordMoodUseCaseInterface } from "../usecase/record-mood/record-mood.usecase.dto";
 import {
   DailyEntryFacadeInterface,
@@ -9,6 +10,8 @@ import {
   GetTodayEntryFacadeOutputDto,
   RecordMoodFacadeInputDto,
   RecordMoodFacadeOutputDto,
+  GetTrackFacadeInputDto,
+  GetTrackFacadeOutputDto,
 } from "./daily-entry.facade.dto";
 
 export default class DailyEntryFacade implements DailyEntryFacadeInterface {
@@ -16,6 +19,7 @@ export default class DailyEntryFacade implements DailyEntryFacadeInterface {
     private readonly recordMoodUseCase: RecordMoodUseCaseInterface,
     private readonly getTodayUseCase: GetTodayEntryUseCaseInterface,
     private readonly answerPieceUseCase: AnswerPieceUseCaseInterface,
+    private readonly getTrackUseCase: GetTrackUseCaseInterface,
   ) {}
 
   async recordMood(
@@ -34,5 +38,11 @@ export default class DailyEntryFacade implements DailyEntryFacadeInterface {
     data: AnswerPieceFacadeInputDto,
   ): Promise<AnswerPieceFacadeOutputDto> {
     return this.answerPieceUseCase.execute(data);
+  }
+
+  async getTrack(
+    data: GetTrackFacadeInputDto,
+  ): Promise<GetTrackFacadeOutputDto> {
+    return this.getTrackUseCase.execute(data);
   }
 }

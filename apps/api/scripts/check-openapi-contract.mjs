@@ -43,6 +43,8 @@ try {
     "RecordMoodBodyDto",
     "DailyMoodResponseDto",
     "TodayEntryResponseDto",
+    "TrackResponseDto",
+    "TrackStageResponseDto",
     "TodayPieceDto",
     "AnswerPieceBodyDto",
     "AnswerPieceResponseDto",

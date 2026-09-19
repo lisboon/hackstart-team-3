@@ -24,6 +24,7 @@ import {
   DailyMoodResponseDto,
   TodayEntryResponseDto,
 } from "./dto/daily-entry.response.dto";
+import { TrackResponseDto } from "./dto/track.response.dto";
 import { AnswerPieceBodyDto } from "./dto/answer-piece.body.dto";
 import { RecordMoodBodyDto } from "./dto/record-mood.body.dto";
 
@@ -49,6 +50,20 @@ export class DailyEntryController {
       userId: session.userId,
       companyId: session.companyId,
       today: new Date(),
+    });
+  }
+
+  @Get("track")
+  @ApiOperation({
+    summary: "Progress through the five COOPS stages, for the track screen",
+    description:
+      "Every stage always comes back, in method order, including the ones with no answer yet.",
+  })
+  @ApiOkResponse({ type: TrackResponseDto })
+  getTrack(@CurrentSession() session: AuthenticatedSession) {
+    return this.dailyEntries.getTrack({
+      userId: session.userId,
+      companyId: session.companyId,
     });
   }
 
