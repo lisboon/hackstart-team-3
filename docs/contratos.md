@@ -201,7 +201,7 @@ O progresso da pessoa pelas cinco etapas do COOPS. Alimenta a tela da trilha.
 
 `total` é do catálogo, igual para todo mundo. `answered` é só de quem pediu — a leitura exige dono e empresa juntos, como todo recurso pessoal.
 
-A tela deriva o que precisa: anel cheio quando `answered === total`, etapa atual na primeira com `answered < total`, e trancada nas seguintes.
+A tela deriva o que precisa: anel cheio quando `answered === total`, etapa atual na primeira com `answered < total`, e trancada nas seguintes. O perfil e as conquistas derivadas (#8) usam essas mesmas contagens: nada de outras pessoas, o caminho da pessoa contra ela mesma.
 
 ---
 
