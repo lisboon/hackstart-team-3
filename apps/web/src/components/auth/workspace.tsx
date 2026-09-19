@@ -2,17 +2,17 @@
 
 import { useAuth } from "@/hooks/auth/use-auth";
 import { LoginForm } from "./login-form";
-import { AiPanel } from "@/components/ai/ai-panel";
-import { PersonalSummary } from "@/components/financial-health/personal-summary";
+import { DailyJourney } from "@/components/journey/daily-journey";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export function Workspace() {
   const { token, error, pending, signIn, logout } = useAuth();
   if (!token)
     return (
-      <section className="max-w-xl rounded-2xl border border-border bg-card p-6">
+      <Card className="max-w-xl p-6">
         <LoginForm onSubmit={signIn} pending={pending} error={error} />
-      </section>
+      </Card>
     );
   return (
     <div className="grid gap-4">
@@ -24,8 +24,7 @@ export function Workspace() {
       >
         Sair
       </Button>
-      <PersonalSummary token={token} onUnauthorized={logout} />
-      <AiPanel token={token} onUnauthorized={logout} />
+      <DailyJourney token={token} onUnauthorized={logout} />
     </div>
   );
 }
