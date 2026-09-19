@@ -29,6 +29,9 @@ export const viewport: Viewport = {
   // The journey has to survive a user who enlarges text: zoom stays available.
   maximumScale: 5,
   userScalable: true,
+  // Sem isto, o app instalado num celular com entalhe desenha por baixo do
+  // notch e da barra inferior. O AppShell compensa com env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

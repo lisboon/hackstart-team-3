@@ -10,7 +10,7 @@ export function Workspace() {
   const { token, error, pending, signIn, logout } = useAuth();
   if (!token)
     return (
-      <Card className="max-w-xl p-6">
+      <Card className="p-6">
         <LoginForm onSubmit={signIn} pending={pending} error={error} />
       </Card>
     );
