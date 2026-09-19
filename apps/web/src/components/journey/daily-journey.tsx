@@ -7,6 +7,7 @@ import { useDailyMood } from "@/hooks/wellbeing/use-daily-mood";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
+import { DailyCard } from "@/components/journey/daily-card";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
 import type { MoodScale } from "@/schemas/wellbeing";
 
@@ -22,10 +23,16 @@ export function DailyJourney({
   token: string;
   onUnauthorized: () => void;
 }) {
-  const { today, error, loading, pending, record, reload } = useDailyMood(
-    token,
-    onUnauthorized,
-  );
+  const {
+    today,
+    answer: pieceAnswer,
+    error,
+    loading,
+    pending,
+    record,
+    decide,
+    reload,
+  } = useDailyMood(token, onUnauthorized);
   const [lessonSkipped, setLessonSkipped] = useState(false);
   const [answeredNow, setAnsweredNow] = useState(false);
 
@@ -76,6 +83,14 @@ export function DailyJourney({
           takeFocus={answeredNow}
           onSkipLesson={() => setLessonSkipped(true)}
           onResumeLesson={() => setLessonSkipped(false)}
+        />
+      )}
+      {!lessonSkipped && today.piece && (
+        <DailyCard
+          piece={today.piece}
+          answer={pieceAnswer}
+          pending={pending}
+          onDecide={(label) => void decide(today.piece!.id, label)}
         />
       )}
       <PersonalSummary token={token} onUnauthorized={onUnauthorized} />
