@@ -41,6 +41,7 @@ const dailyGateway = (existing: DailyEntry | null): DailyEntryGateway => ({
 const contentGateway = (next: ContentPiece | null): ContentPieceGateway => ({
   findById: jest.fn().mockResolvedValue(next),
   findNext: jest.fn().mockResolvedValue(next),
+  countByStage: jest.fn(),
 });
 
 const entryWithMood = () =>

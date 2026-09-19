@@ -3,6 +3,7 @@ import DailyEntryFacade from "@/modules/daily-entry/facade/daily-entry.facade";
 import {
   AnswerPieceFacadeInputDto,
   GetTodayEntryFacadeInputDto,
+  GetTrackFacadeInputDto,
   RecordMoodFacadeInputDto,
 } from "@/modules/daily-entry/facade/daily-entry.facade.dto";
 
@@ -21,5 +22,9 @@ export class DailyEntryService {
 
   async answerPiece(input: AnswerPieceFacadeInputDto) {
     return this.dailyEntryFacade.answerPiece(input);
+  }
+
+  async getTrack(input: GetTrackFacadeInputDto) {
+    return this.dailyEntryFacade.getTrack(input);
   }
 }
