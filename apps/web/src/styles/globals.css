@@ -22,7 +22,10 @@
   --primary-foreground: #07100f;
   --muted: #162521;
   --muted-foreground: #acbdb7;
-  --border: #355148;
+  /* Visual boundary of inputs, cards and selectable options. WCAG 2.1 AA asks
+     for 3:1 on that outline (SC 1.4.11); the previous value scored 2.03:1 over
+     --card. tests/contrast.test.mjs guards the palette. */
+  --border: #54786a;
   --destructive: #ffaaaa;
 }
 body {
@@ -30,4 +33,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, sans-serif;
+  /* The journey has to hold at 390px. A single long unbroken string — a source
+     URL, an e-mail, a pasted answer — is the usual reason a phone layout starts
+     scrolling sideways, and it only shows up with real data. Breaking as a last
+     resort costs nothing and removes the whole class of bug for screens that
+     have not been written yet. */
+  overflow-wrap: break-word;
 }

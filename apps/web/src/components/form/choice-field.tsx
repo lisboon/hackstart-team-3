@@ -8,6 +8,7 @@ import {
   type Path,
   type PathValue,
 } from "react-hook-form";
+import { describedBy } from "@/lib/a11y";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,9 +42,10 @@ export function ChoiceField<T extends FieldValues, N extends Path<T>>({
   return (
     <fieldset
       className="m-0 grid min-w-0 gap-3 border-0 p-0"
-      aria-describedby={
-        error ? id + "-error" : description ? id + "-description" : undefined
-      }
+      aria-describedby={describedBy(
+        description && id + "-description",
+        error && id + "-error",
+      )}
     >
       <legend className="text-sm font-medium">{legend}</legend>
       {description && (
