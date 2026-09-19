@@ -89,10 +89,10 @@ export const TRAJECTORY_MESSAGE: Readonly<Record<Trajectory, string>> = {
 
 /** Traduz a média para as palavras da própria pessoa, sem expor a escala. */
 export function describeAverage(average: number): string {
-  if (average >= 2.5) return "meses em que sobrou";
-  if (average >= 1.5) return "meses que fecharam no limite";
-  if (average >= 0.5) return "meses em que faltou um pouco";
-  return "meses em que faltou bastante";
+  if (average >= 2.5) return "fecharam com sobra";
+  if (average >= 1.5) return "fecharam no limite";
+  if (average >= 0.5) return "fecharam com pouca falta";
+  return "fecharam com bastante falta";
 }
 
 const HIGHEST_SITUATION_SCORE = 3;

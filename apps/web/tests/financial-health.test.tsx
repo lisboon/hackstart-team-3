@@ -44,10 +44,10 @@ it("only compares when both averages are numbers", () => {
 it("describes the month in UTC and the average without the scale", () => {
   expect(formatMonth("2026-09-01T00:00:00.000Z")).toBe("Setembro de 2026");
   expect(formatMonth("2026-01-01T00:00:00.000Z")).toBe("Janeiro de 2026");
-  expect(describeAverage(3)).toMatch(/sobrou/);
+  expect(describeAverage(3)).toMatch(/sobra/);
   expect(describeAverage(2)).toMatch(/limite/);
-  expect(describeAverage(1)).toMatch(/faltou um pouco/);
-  expect(describeAverage(0)).toMatch(/faltou bastante/);
+  expect(describeAverage(1)).toMatch(/pouca falta/);
+  expect(describeAverage(0)).toMatch(/bastante falta/);
   expect(averageWidth(3)).toBe("100%");
   expect(averageWidth(0)).toBe("0%");
   expect(averageWidth(-1)).toBe("0%");
