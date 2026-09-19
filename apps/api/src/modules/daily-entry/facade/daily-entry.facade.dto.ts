@@ -1,4 +1,8 @@
 import {
+  AnswerPieceUseCaseInputDto,
+  AnswerPieceUseCaseOutputDto,
+} from "../usecase/answer-piece/answer-piece.usecase.dto";
+import {
   GetTodayEntryUseCaseInputDto,
   GetTodayEntryUseCaseOutputDto,
 } from "../usecase/get-today/get-today.usecase.dto";
@@ -9,6 +13,9 @@ import {
 
 export type RecordMoodFacadeInputDto = RecordMoodUseCaseInputDto;
 export type RecordMoodFacadeOutputDto = RecordMoodUseCaseOutputDto;
+export type AnswerPieceFacadeInputDto = AnswerPieceUseCaseInputDto;
+export type AnswerPieceFacadeOutputDto = AnswerPieceUseCaseOutputDto;
+
 export type GetTodayEntryFacadeInputDto = GetTodayEntryUseCaseInputDto;
 export type GetTodayEntryFacadeOutputDto = GetTodayEntryUseCaseOutputDto;
 
@@ -19,4 +26,7 @@ export interface DailyEntryFacadeInterface {
   getToday(
     data: GetTodayEntryFacadeInputDto,
   ): Promise<GetTodayEntryFacadeOutputDto>;
+  answerPiece(
+    data: AnswerPieceFacadeInputDto,
+  ): Promise<AnswerPieceFacadeOutputDto>;
 }

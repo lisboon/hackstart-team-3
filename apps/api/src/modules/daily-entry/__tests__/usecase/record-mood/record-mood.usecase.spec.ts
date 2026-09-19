@@ -9,6 +9,7 @@ const lateInTheDay = new Date(Date.UTC(2026, 8, 19, 22, 40));
 
 const gatewayWith = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
+  findAnsweredPieceIds: jest.fn().mockResolvedValue([]),
   create: jest.fn(),
   update: jest.fn(),
 });

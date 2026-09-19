@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import DailyEntryFacade from "@/modules/daily-entry/facade/daily-entry.facade";
 import {
+  AnswerPieceFacadeInputDto,
   GetTodayEntryFacadeInputDto,
   RecordMoodFacadeInputDto,
 } from "@/modules/daily-entry/facade/daily-entry.facade.dto";
@@ -16,5 +17,9 @@ export class DailyEntryService {
 
   async getToday(input: GetTodayEntryFacadeInputDto) {
     return this.dailyEntryFacade.getToday(input);
+  }
+
+  async answerPiece(input: AnswerPieceFacadeInputDto) {
+    return this.dailyEntryFacade.answerPiece(input);
   }
 }

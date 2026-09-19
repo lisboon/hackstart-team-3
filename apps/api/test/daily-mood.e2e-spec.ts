@@ -8,6 +8,35 @@ import { AppModule } from "../src/infra/http/app.module";
 import { configureApp } from "../src/infra/http/app.setup";
 import prisma from "../src/infra/database/prisma.instance";
 import { UserRole } from "../src/modules/@shared/domain/enums";
+import {
+  CONTENT_PIECES,
+  CONTENT_SOURCE_URL,
+} from "../prisma/content-pieces.seed";
+
+/** O catalogo e global: a trilha precisa existir antes de qualquer resposta. */
+async function seedContentPieces(): Promise<void> {
+  for (const piece of CONTENT_PIECES) {
+    await prisma.contentPiece.upsert({
+      where: {
+        stage_orderInStage: {
+          stage: piece.stage,
+          orderInStage: piece.orderInStage,
+        },
+      },
+      update: {},
+      create: {
+        id: randomUUID(),
+        stage: piece.stage,
+        orderInStage: piece.orderInStage,
+        title: piece.title,
+        body: piece.body,
+        prompt: piece.prompt,
+        options: piece.options as unknown as object,
+        sourceUrl: CONTENT_SOURCE_URL,
+      },
+    });
+  }
+}
 
 const PASSWORD = "Sup3rSecret!";
 const SLUG = "e2e-daily-mood-company";
@@ -38,6 +67,7 @@ describe("Daily mood (e2e)", () => {
 
     await prisma.user.deleteMany({ where: { email: { in: EMAILS } } });
     await prisma.company.deleteMany({ where: { slug: SLUG } });
+    await seedContentPieces();
 
     const company = await prisma.company.create({
       data: { id: randomUUID(), name: "Daily Mood Co", slug: SLUG },
@@ -99,6 +129,61 @@ describe("Daily mood (e2e)", () => {
     const stored = await prisma.dailyEntry.findMany({ where: { companyId } });
     expect(stored).toHaveLength(1);
     expect(stored[0].mood).toBe(2);
+  });
+
+  it("offers no content until the mood opens the day", async () => {
+    const response = await request(app.getHttpServer())
+      .get("/me/today")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .expect(200);
+
+    expect(response.body).toMatchObject({ answered: false, piece: null });
+  });
+
+  it("walks the COOPS track and hides the outcome until the choice", async () => {
+    const today = await request(app.getHttpServer())
+      .get("/me/today")
+      .set("Authorization", `Bearer ${workerToken}`)
+      .expect(200);
+
+    expect(today.body.pieceAnswered).toBe(false);
+    expect(today.body.piece.stage).toBe("CONSCIENTIZAR");
+    expect(today.body.piece.sourceUrl).toContain("napontadolapis");
+    for (const option of today.body.piece.options) {
+      expect(Object.keys(option)).toEqual(["label"]);
+    }
+
+    const answered = await request(app.getHttpServer())
+      .post("/me/today/answer")
+      .set("Authorization", `Bearer ${workerToken}`)
+      .send({
+        contentPieceId: today.body.piece.id,
+        answer: today.body.piece.options[0].label,
+      })
+      .expect(201);
+
+    expect(answered.body.outcome).toEqual(expect.any(String));
+    expect(answered.body.comprehended).toBe(true);
+
+    const after = await request(app.getHttpServer())
+      .get("/me/today")
+      .set("Authorization", `Bearer ${workerToken}`)
+      .expect(200);
+    expect(after.body).toMatchObject({ pieceAnswered: true, piece: null });
+  });
+
+  it("refuses a second answer to the piece on the same day", async () => {
+    // Qualquer peca e qualquer rotulo: com o dia fechado, a resposta e 409
+    // antes de o servidor olhar o conteudo do envio.
+    const [piece] = await prisma.contentPiece.findMany({
+      where: { stage: "SUSTENTAR" },
+      take: 1,
+    });
+    await request(app.getHttpServer())
+      .post("/me/today/answer")
+      .set("Authorization", `Bearer ${workerToken}`)
+      .send({ contentPieceId: piece.id, answer: "qualquer coisa" })
+      .expect(409);
   });
 
   it("tells the screen whether today is already answered", async () => {

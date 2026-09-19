@@ -25,6 +25,22 @@ export default class DailyEntryRepository implements DailyEntryGateway {
     return row ? DailyEntryModelMapper.toEntity(row) : null;
   }
 
+  async findAnsweredPieceIds(
+    owner: DailyEntryOwner,
+    trx?: TransactionContext,
+  ): Promise<string[]> {
+    const rows = await resolvePrismaClient(
+      this.prisma,
+      trx,
+    ).dailyEntry.findMany({
+      where: { ...owner, contentPieceId: { not: null }, deletedAt: null },
+      select: { contentPieceId: true },
+    });
+    return rows
+      .map((row) => row.contentPieceId)
+      .filter((id): id is string => id !== null);
+  }
+
   async create(entry: DailyEntry, trx?: TransactionContext): Promise<void> {
     await resolvePrismaClient(this.prisma, trx).dailyEntry.create({
       data: {
@@ -45,6 +61,9 @@ export default class DailyEntryRepository implements DailyEntryGateway {
       where: { id: entry.id },
       data: {
         mood: entry.mood,
+        contentPieceId: entry.contentPieceId,
+        answer: entry.answer,
+        comprehended: entry.comprehended,
         active: entry.active,
         updatedAt: entry.updatedAt,
         deletedAt: entry.deletedAt,

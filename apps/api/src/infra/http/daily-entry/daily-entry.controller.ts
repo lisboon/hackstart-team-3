@@ -4,6 +4,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -19,9 +20,11 @@ import {
 } from "../shared/errors/error.response.dto";
 import { DailyEntryService } from "./daily-entry.service";
 import {
+  AnswerPieceResponseDto,
   DailyMoodResponseDto,
   TodayEntryResponseDto,
 } from "./dto/daily-entry.response.dto";
+import { AnswerPieceBodyDto } from "./dto/answer-piece.body.dto";
 import { RecordMoodBodyDto } from "./dto/record-mood.body.dto";
 
 @ApiTags("Daily entry")
@@ -65,6 +68,29 @@ export class DailyEntryController {
       companyId: session.companyId,
       entryDate: new Date(),
       mood: body.mood,
+    });
+  }
+
+  @Post("today/answer")
+  @ApiOperation({
+    summary: "Answer today's piece and see what the choice does",
+  })
+  @ApiCreatedResponse({ type: AnswerPieceResponseDto })
+  @ApiNotFoundResponse({ type: HttpErrorResponseDto })
+  @ApiConflictResponse({
+    type: HttpErrorResponseDto,
+    description: "The mood is missing, or the piece is already answered",
+  })
+  answerPiece(
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: AnswerPieceBodyDto,
+  ) {
+    return this.dailyEntries.answerPiece({
+      userId: session.userId,
+      companyId: session.companyId,
+      today: new Date(),
+      contentPieceId: body.contentPieceId,
+      answer: body.answer,
     });
   }
 }
