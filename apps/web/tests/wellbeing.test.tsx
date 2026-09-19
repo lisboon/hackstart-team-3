@@ -7,6 +7,7 @@ import { Workspace } from "@/components/auth/workspace";
 
 const INVESTIGATION = /por que|porqu[eê]|motivo|explique|relate|conte o que/i;
 const ENTRY_DATE = "2026-09-19T00:00:00.000Z";
+const WELCOME = "Hoje não precisa ser produtivo";
 
 const summary = {
   currentMonth: "2026-09-01T00:00:00.000Z",
@@ -54,6 +55,7 @@ function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
   return render(
     <SupportPaths
       lessonSkipped={false}
+      takeFocus={false}
       onSkipLesson={vi.fn()}
       onResumeLesson={vi.fn()}
       {...overrides}
@@ -85,7 +87,7 @@ it("walking the scale with the keyboard records nothing", async () => {
   expect(onSelect).toHaveBeenCalledExactlyOnceWith(3);
 });
 
-it("states what is being recorded in words while it waits", () => {
+it("blocks the scale while it records and reports a failure", () => {
   render(<MoodPrompt pending error="" onSelect={vi.fn()} />);
   for (const option of screen.getAllByRole("button"))
     expect(option).toBeDisabled();
@@ -106,15 +108,6 @@ it("welcomes without investigating and lets the person choose", () => {
     "tel:188",
   );
   expect(screen.getByText(/não faz diagnóstico/)).toBeInTheDocument();
-});
-
-it("moves focus to the welcome so it is not missed", async () => {
-  supportPaths({});
-  await waitFor(() =>
-    expect(
-      screen.getByRole("heading", { name: "Hoje não precisa ser produtivo" }),
-    ).toHaveFocus(),
-  );
 });
 
 it("lets the person drop the lesson and take it back", async () => {
@@ -153,15 +146,22 @@ it("sends the chosen level and opens the app", async () => {
   );
   expect(post?.[1]?.method).toBe("POST");
   expect(JSON.parse(String(post?.[1]?.body))).toEqual({ mood: 4 });
-  expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+  expect(
+    screen.queryByRole("heading", { level: 1, name: "Como você está hoje?" }),
+  ).toBeNull();
+});
+
+it("keeps a page heading after the question leaves the screen", async () => {
+  stubApi({ answered: true, mood: 4 });
+  await signIn();
+  await screen.findByText("Seu mês");
+  expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
 });
 
 it("welcomes the two lowest levels and still shows her own content", async () => {
   stubApi({ answered: true, mood: 1 });
   await signIn();
-  expect(
-    await screen.findByText("Hoje não precisa ser produtivo"),
-  ).toBeInTheDocument();
+  expect(await screen.findByText(WELCOME)).toBeInTheDocument();
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
   expect(document.body.textContent).not.toMatch(INVESTIGATION);
 });
@@ -170,7 +170,24 @@ it("keeps the welcome away from a good day", async () => {
   stubApi({ answered: true, mood: 4 });
   await signIn();
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
-  expect(screen.queryByText("Hoje não precisa ser produtivo")).toBeNull();
+  expect(screen.queryByText(WELCOME)).toBeNull();
+});
+
+it("moves focus to the welcome when it answers a tap", async () => {
+  stubApi({ answered: false });
+  await signIn();
+  await screen.findByRole("heading", { level: 1 });
+  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: WELCOME })).toHaveFocus(),
+  );
+});
+
+it("leaves focus alone on a day that was already answered", async () => {
+  stubApi({ answered: true, mood: 1 });
+  await signIn();
+  await screen.findByText(WELCOME);
+  expect(screen.getByRole("heading", { name: WELCOME })).not.toHaveFocus();
 });
 
 it("treats a day already answered as answered, not as an error", async () => {
@@ -193,6 +210,13 @@ it("records one answer even under a double tap", async () => {
     String(url).endsWith("/me/today/mood"),
   );
   expect(posts).toHaveLength(1);
+});
+
+it("refuses a level outside the contract instead of rendering it", async () => {
+  stubApi({ answered: true, mood: 7 });
+  await signIn();
+  expect(await screen.findByRole("alert")).toHaveTextContent(/dia inválido/);
+  expect(screen.queryByText("Seu mês")).toBeNull();
 });
 
 it("returns to the access screen when the session expires", async () => {

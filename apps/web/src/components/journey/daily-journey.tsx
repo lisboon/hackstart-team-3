@@ -8,6 +8,7 @@ import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
+import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
  * `GET /me/today` decide a tela: dia sem resposta mostra só a pergunta; dia
@@ -26,8 +27,13 @@ export function DailyJourney({
     onUnauthorized,
   );
   const [lessonSkipped, setLessonSkipped] = useState(false);
+  const [answeredNow, setAnsweredNow] = useState(false);
 
-  if (!today)
+  async function answer(mood: MoodScale) {
+    if (await record(mood)) setAnsweredNow(true);
+  }
+
+  if (!today && loading)
     return (
       <Card>
         <p
@@ -35,34 +41,39 @@ export function DailyJourney({
           aria-live="polite"
           className="text-sm text-muted-foreground"
         >
-          {loading ? "Carregando o seu dia…" : ""}
+          Carregando o seu dia…
         </p>
-        {!loading && (
-          <>
-            <p role="alert" className="text-sm text-destructive">
-              {error || "Não foi possível carregar o seu dia."}
-            </p>
-            <Button
-              type="button"
-              variant="secondary"
-              className="w-full sm:w-auto sm:justify-self-start"
-              onClick={() => void reload()}
-            >
-              Tentar de novo
-            </Button>
-          </>
-        )}
       </Card>
     );
 
+  if (!today)
+    return error ? (
+      <Card>
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+        <Button
+          type="button"
+          variant="secondary"
+          className="w-full sm:w-auto sm:justify-self-start"
+          onClick={() => void reload()}
+        >
+          Tentar de novo
+        </Button>
+      </Card>
+    ) : null;
+
   if (!today.answered)
-    return <MoodPrompt pending={pending} error={error} onSelect={record} />;
+    return <MoodPrompt pending={pending} error={error} onSelect={answer} />;
 
   return (
     <>
+      {/* Depois da resposta a pergunta sai da tela e levaria o h1 com ela. */}
+      <h1 className="sr-only">Seu dia</h1>
       {today.mood !== null && isSuffering(today.mood) && (
         <SupportPaths
           lessonSkipped={lessonSkipped}
+          takeFocus={answeredNow}
           onSkipLesson={() => setLessonSkipped(true)}
           onResumeLesson={() => setLessonSkipped(false)}
         />

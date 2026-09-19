@@ -12,24 +12,28 @@ import {
 /**
  * Acolhe e encaminha. Não pergunta o motivo, não pede relato e não oferece
  * campo de texto: investigar sofrimento faria a pessoa parar de marcar.
+ *
+ * `takeFocus` só é verdadeiro quando o acolhimento nasce em resposta ao toque.
+ * Num dia já respondido ele aparece no carregamento, e roubar o foco aí seria
+ * desorientar quem não pediu nada.
  */
 export function SupportPaths({
   lessonSkipped,
+  takeFocus,
   onSkipLesson,
   onResumeLesson,
 }: {
   lessonSkipped: boolean;
+  takeFocus: boolean;
   onSkipLesson: () => void;
   onResumeLesson: () => void;
 }) {
   const id = useId();
   const heading = useRef<HTMLHeadingElement>(null);
 
-  /** O acolhimento nasce abaixo da escala; sem mover o foco, quem usa leitor de
-   * tela não saberia que ele apareceu. */
   useEffect(() => {
-    heading.current?.focus();
-  }, []);
+    if (takeFocus) heading.current?.focus();
+  }, [takeFocus]);
 
   return (
     <Card aria-labelledby={id}>
