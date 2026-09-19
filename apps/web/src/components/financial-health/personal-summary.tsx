@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePersonalSummary } from "@/hooks/financial-health/use-personal-summary";
 import type { SelfReportSituation } from "@/schemas/financial-health";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { SelfReportForm } from "./self-report-form";
 import { TrajectoryPanel } from "./trajectory-panel";
 import {
@@ -28,7 +29,7 @@ export function PersonalSummary({
   }
 
   return (
-    <section className="grid min-w-0 gap-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+    <Card className="gap-6">
       <header className="grid gap-1">
         <p className="text-sm text-muted-foreground">Seu mês</p>
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
@@ -97,6 +98,6 @@ export function PersonalSummary({
           <TrajectoryPanel summary={summary} />
         </>
       )}
-    </section>
+    </Card>
   );
 }
