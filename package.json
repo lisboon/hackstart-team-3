@@ -1,0 +1,11 @@
+{
+  "name": "hackathon-star-nest-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.1.1",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "check:api": "corepack pnpm --dir apps/api lint && corepack pnpm --dir apps/api typecheck && corepack pnpm --dir apps/api test --runInBand && corepack pnpm --dir apps/api build",
+    "check:web": "corepack pnpm --dir apps/web lint && corepack pnpm --dir apps/web typecheck && corepack pnpm --dir apps/web test && corepack pnpm --dir apps/web build",
+    "check": "corepack pnpm check:api && corepack pnpm check:web"
+  }
+}

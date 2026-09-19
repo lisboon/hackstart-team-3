@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EUserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+  USER
+
+  @@map("user_role")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  email           String    @unique
+  password        String
+  role            EUserRole @default(USER)
+  avatarUrl       String?   @map("avatar_url")
+  active          Boolean   @default(true)
+  tokenValidAfter DateTime? @map("token_valid_after")
+  companyId       String    @map("company_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  company Company @relation(fields: [companyId], references: [id])
+  auditEvents AuditEvent[] @relation("AuditActor")
+
+  @@index([role, active])
+  @@index([companyId])
+  @@map("users")
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  users User[]
+  auditEvents AuditEvent[]
+
+  @@index([active])
+  @@map("companies")
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid())
+  companyId    String   @map("company_id")
+  actorUserId  String?  @map("actor_user_id")
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  requestId    String?  @map("request_id")
+  metadata     Json     @default("{}")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  actor   User?   @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, createdAt])
+  @@map("audit_events")
+}

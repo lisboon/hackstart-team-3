@@ -1,0 +1,16 @@
+packages:
+  - apps/api
+  - apps/web
+
+allowBuilds:
+  '@prisma/engines': true
+  '@scarf/scarf': false
+  '@swc/core': true
+  bcrypt: true
+  prisma: true
+  unrs-resolver: false
+overrides:
+  body-parser: 2.3.0
+  fast-uri: 3.1.5
+  multer: 2.3.0
+  qs: 6.16.0

@@ -1,0 +1,104 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: backend_test
+          POSTGRES_PASSWORD: backend_test
+          POSTGRES_DB: backend_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U backend_test -d backend_test"
+          --health-interval 3s --health-timeout 3s --health-retries 15
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://backend_test:backend_test@localhost:5432/backend_test
+      JWT_SECRET: test-jwt-secret-not-for-production-0123456789
+    defaults: { run: { working-directory: apps/api } }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with: { version: 11.1.1 }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - run: pnpm audit --prod --audit-level=high
+        working-directory: .
+      - run: pnpm prisma:generate
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test --runInBand
+      - run: pnpm test:e2e --runInBand
+      - run: pnpm build
+      - run: pnpm test:openapi
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/web } }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with: { version: 11.1.1 }
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+  ai:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/ai } }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with: { python-version: "3.13" }
+      - run: pip install uv==0.12.15
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked pytest -q
+        env: { INTERNAL_TOKEN: test-internal-token-value, LLM_PROVIDER: fake }
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LLM_PROVIDER: fake
+      JWT_SECRET: smoke-only-secret-with-at-least-32-characters
+      AI_INTERNAL_TOKEN: smoke-internal-token-with-at-least-32-characters
+      SEED_ADMIN_PASSWORD: smoke-test-password
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - run: docker compose -p star-nest-smoke up -d --build
+      - run: node scripts/smoke.mjs
+      - run: docker build -f apps/api/Dockerfile --target runner -t star-nest-production-check .
+      - run: >-
+          docker run -d --name star-nest-production-check
+          --network star-nest-smoke_default
+          -e DATABASE_URL=postgresql://backend:backend@backend-db:5432/backend_db
+          -e JWT_SECRET -e AI_INTERNAL_TOKEN
+          -e AI_SERVICE_URL=http://ai:8000
+          star-nest-production-check
+      - run: docker cp scripts/smoke.mjs star-nest-production-check:/tmp/smoke.mjs
+      - run: >-
+          docker exec
+          -e SMOKE_API_URL=http://localhost:3001
+          -e SMOKE_WEB_URL=http://web:3000
+          -e SEED_ADMIN_PASSWORD
+          star-nest-production-check node /tmp/smoke.mjs
+      - if: failure()
+        run: docker logs star-nest-production-check
+        continue-on-error: true
+      - if: failure()
+        run: docker compose -p star-nest-smoke logs --tail=100
+      - if: always()
+        run: docker rm -f star-nest-production-check
+        continue-on-error: true
+      - if: always()
+        run: docker compose -p star-nest-smoke down -v

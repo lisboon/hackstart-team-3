@@ -1,0 +1,105 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    command: /bin/sh -c "pnpm --dir apps/api exec prisma migrate deploy && pnpm --dir apps/api prisma:generate && pnpm --dir apps/api prisma:seed && pnpm --dir apps/api start:dev"
+    volumes:
+      - ./apps/api:/app/apps/api
+      - /app/node_modules
+      - /app/apps/api/node_modules
+    ports:
+      - "127.0.0.1:3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://backend:backend@backend-db:5432/backend_db?schema=public
+      - CORS_ORIGINS=http://localhost:3000
+      - AI_SERVICE_URL=http://ai:8000
+      - AI_INTERNAL_TOKEN=${AI_INTERNAL_TOKEN:-dev-only-internal-service-token}
+      - AI_TIMEOUT_MS=60000
+      - JWT_SECRET=${JWT_SECRET:-dev-only-secret-change-me-please-0123456789}
+      - SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-admin@backend.com.br}
+      - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-change-me-strong-password}
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      backend-db:
+        condition: service_healthy
+      ai:
+        condition: service_healthy
+    restart: unless-stopped
+
+  ai:
+    build:
+      context: apps/ai
+      dockerfile: Dockerfile
+    environment:
+      PORT: "8000"
+      INTERNAL_TOKEN: ${AI_INTERNAL_TOKEN:-dev-only-internal-service-token}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      BEDROCK_REGION: ${BEDROCK_REGION:-us-east-1}
+      BEDROCK_MODEL: ${BEDROCK_MODEL:-openai.gpt-oss-120b}
+      # Only for trying bedrock locally. In AWS the task role supplies these and
+      # nothing is passed in; the container has no ~/.aws to fall back on.
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  backend-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: backend
+      POSTGRES_PASSWORD: backend
+      POSTGRES_DB: backend_db
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - backend_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backend -d backend_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend-test-db:
+    image: postgres:16-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: backend_test
+      POSTGRES_PASSWORD: backend_test
+      POSTGRES_DB: backend_test
+    ports:
+      - "127.0.0.1:5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backend_test -d backend_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  backend_db_data:
+    driver: local

@@ -1,0 +1,58 @@
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import {
+  ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiTooManyRequestsResponse,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
+import { AuthGuard, AuthenticatedSession } from "../auth/auth-guard";
+import { CurrentSession } from "../auth/current-session.decorator";
+import { RolesGuard } from "../auth/roles-guard";
+import { Roles } from "../shared/roles.decorator";
+import { UserRole } from "@/modules/@shared/domain/enums";
+import { UserService } from "./user.service";
+import { LoginBodyDto } from "./dto/login.body.dto";
+import { LoginResponseDto, UserResponseDto } from "./dto/user.response.dto";
+import {
+  HttpErrorResponseDto,
+  ValidationErrorResponseDto,
+} from "../shared/errors/error.response.dto";
+
+const AUTH_THROTTLE = { default: { limit: 5, ttl: 60_000 } } as const;
+
+@ApiTags("Auth")
+@ApiTooManyRequestsResponse({ type: HttpErrorResponseDto })
+@Controller("auth")
+export class AuthController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post("login")
+  @Throttle(AUTH_THROTTLE)
+  @ApiOperation({ summary: "Login with email and password" })
+  @ApiCreatedResponse({ type: LoginResponseDto })
+  @ApiBadRequestResponse({ type: HttpErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ValidationErrorResponseDto })
+  async login(@Body() body: LoginBodyDto) {
+    return this.userService.login(body);
+  }
+
+  @Get("me")
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles({ role: UserRole.USER })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get current authenticated user" })
+  @ApiOkResponse({ type: UserResponseDto })
+  @ApiUnauthorizedResponse({ type: HttpErrorResponseDto })
+  async me(@CurrentSession() session: AuthenticatedSession) {
+    return this.userService.findById({
+      id: session.userId,
+      companyId: session.companyId,
+    });
+  }
+}

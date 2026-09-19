@@ -1,0 +1,41 @@
+[project]
+name = "hackathon-star-ai"
+version = "0.1.0"
+description = "Internal AI execution service for the Hackathon Star templates"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+  # Mints the short-term bearer token Bedrock's OpenAI-compatible endpoint takes.
+  # Pulls botocore for SigV4 signing and the credential chain; there is no AWS
+  # SDK call behind it, the signing is local.
+  "aws-bedrock-token-generator>=1.1",
+  "fastapi>=0.115",
+  # Runtime, not just tests: the Bedrock provider needs its own client to carry
+  # the per-request auth hook.
+  "httpx>=0.28",
+  "openai>=1.68",
+  "pydantic-settings>=2.7",
+  "structlog>=25.1",
+  "uvicorn[standard]>=0.34",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.25", "ruff>=0.9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]
