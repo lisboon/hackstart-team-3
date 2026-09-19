@@ -42,6 +42,11 @@ function SafetyFooter() {
         {CRISIS_LINE.label} — {CRISIS_LINE.detail}
       </a>
       <p className="pt-1 text-xs text-muted-foreground">{CARE_DISCLAIMER}</p>
+      {/* Anexo V 4.4: a demonstração roda sobre histórico inventado, e quem vê
+          a tela precisa saber disso sem ter que perguntar. */}
+      <p className="text-xs text-muted-foreground">
+        Demonstração com dados fictícios.
+      </p>
     </footer>
   );
 }
