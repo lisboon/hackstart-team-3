@@ -28,6 +28,18 @@ describe("AppShell", () => {
     expect(screen.getByText(/não faz diagnóstico/i)).toBeInTheDocument();
   });
 
+  it("declares the data as fictional, as Anexo V 4.4 requires", () => {
+    render(
+      <AppShell>
+        <p>qualquer tela</p>
+      </AppShell>,
+    );
+
+    // O histórico da demonstração é inventado. Deixar isso implícito seria
+    // deixar o avaliador supor que os números vieram de gente real.
+    expect(screen.getByText(/dados fictícios/i)).toBeInTheDocument();
+  });
+
   it("holds the journey inside a phone-sized column", () => {
     const { container } = render(
       <AppShell>
