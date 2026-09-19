@@ -48,7 +48,9 @@ test("no element is pinned wider than a 390px viewport", () => {
   // Tailwind arbitrary values such as w-[420px] or min-w-[36rem]. A min-width
   // above the viewport forces the page to scroll sideways no matter what the
   // parent does.
-  const pattern = /\b(?:min-)?w-\[(\d+(?:\.\d+)?)(px|rem)\]/g;
+  // `max-w-` fica de fora: um teto de largura nunca forca rolagem lateral, e
+  // e justamente como a moldura de celular e construida.
+  const pattern = /(?<!max-)\b(?:min-)?w-\[(\d+(?:\.\d+)?)(px|rem)\]/g;
   const offenders = [];
 
   for (const { file, source } of FILES) {
