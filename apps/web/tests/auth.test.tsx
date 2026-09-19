@@ -7,7 +7,10 @@ const credentials = { email: "person@example.test", password: "password" };
 it("authenticates then clears the in-memory session", async () => {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () => Response.json({ accessToken: "session" })),
+    vi.fn(async () => Response.json({ 
+      accessToken: "session",
+      user: { id: "1", name: "Test User", email: "test@example.com", role: "USER" }
+    })),
   );
   const { result } = renderHook(() => useAuth());
   await act(() => result.current.signIn(credentials));
@@ -51,7 +54,10 @@ it("blocks concurrent login and ignores a late response after logout", async () 
   act(() => result.current.logout());
   expect(signal.aborted).toBe(true);
   await act(async () => {
-    resolve(Response.json({ accessToken: "late" }));
+    resolve(Response.json({ 
+      accessToken: "late",
+      user: { id: "1", name: "Test User", email: "test@example.com", role: "USER" }
+    }));
     await task;
   });
   expect(result.current.token).toBe("");

@@ -147,10 +147,20 @@ test("manifest satisfies the Android install requirements", () => {
 
 test("install precaches the offline screen and survives a missing icon", async () => {
   const worker = loadServiceWorker({
-    network: async ({ url }) =>
-      url.includes("/icons/")
+    network: async ({ url }) => {
+      if (url.includes("/auth/login")) {
+        return new Response(
+          JSON.stringify({
+            accessToken: "session",
+            user: { id: "1", name: "Test User", email: "test@test.com", role: "USER" },
+          }),
+          { status: 200, headers: { "content-type": "application/json" } }
+        );
+      }
+      return url.includes("/icons/")
         ? new Response("missing", { status: 404 })
-        : new Response("body", { status: 200 }),
+        : new Response("body", { status: 200 });
+    },
   });
 
   await worker.install();
