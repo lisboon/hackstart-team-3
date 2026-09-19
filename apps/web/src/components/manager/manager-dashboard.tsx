@@ -1,144 +1,195 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
-import { getOrganizationIndicators, type OrganizationIndicators } from "@/services/organization/organization-service";
+import { fetchUnitIndicators } from "@/services/organization/organization-service";
+import type { UnitIndicators } from "@/schemas/organization";
 import { Card } from "@/components/ui/card";
-import { 
-  Users, 
-  Smile, 
-  Activity, 
-  TrendingUp, 
+import {
+  Users,
+  Smile,
+  Activity,
+  TrendingUp,
   Wallet,
-  ShieldAlert
+  ShieldAlert,
 } from "lucide-react";
+
+/** Sem dado suficiente não é zero, e a tela não pode deixar parecer que é. */
+const EMPTY = "—";
+
+const percent = (value: number | null) =>
+  value === null ? EMPTY : `${Math.round(value * 100)}%`;
+
+const decimal = (value: number | null) =>
+  value === null ? EMPTY : value.toFixed(1);
+
+const whole = (value: number | null) =>
+  value === null ? EMPTY : String(value);
 
 export function ManagerDashboard() {
   const { token, user } = useAuth();
-  const [data, setData] = useState<OrganizationIndicators | null>(null);
+  const [data, setData] = useState<UnitIndicators | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!token) return;
 
-    let active = true;
-    getOrganizationIndicators(token)
-      .then((res) => {
-        if (active) {
-          setData(res);
-          setError("");
-        }
+    const controller = new AbortController();
+    fetchUnitIndicators(token, controller.signal)
+      .then((indicators) => {
+        setData(indicators);
+        setError("");
       })
-      .catch((err) => {
-        if (active) setError(err.message || "Erro ao carregar os dados.");
+      .catch((cause) => {
+        if (controller.signal.aborted) return;
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Não foi possível carregar o painel.",
+        );
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       });
 
-    return () => {
-      active = false;
-    };
+    return () => controller.abort();
   }, [token]);
 
   if (loading) {
-    return <div className="text-muted-foreground p-6 animate-pulse">Carregando painel...</div>;
+    return (
+      <p className="p-6 text-muted-foreground" role="status">
+        Carregando painel...
+      </p>
+    );
   }
 
   if (error) {
-    return <div className="text-destructive p-6">{error}</div>;
+    return (
+      <p className="p-6 text-destructive" role="alert">
+        {error}
+      </p>
+    );
   }
 
   if (!data) return null;
-
-  const isSuppressed = data.totalUsers < 5;
 
   return (
     <div className="grid gap-6">
       <header className="mb-4">
         <h1 className="text-2xl font-bold tracking-tight">Painel da Unidade</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="mt-1 text-muted-foreground">
           Visão agregada para gestores. Olá, {user?.name || "Gestor"}.
         </p>
       </header>
 
-      <Card className="bg-muted/30 border-primary/20">
+      <Card className="border-primary/20 bg-muted/30">
         <div className="flex items-start gap-4">
-          <ShieldAlert className="w-5 h-5 text-primary mt-0.5" />
+          <ShieldAlert className="mt-0.5 h-5 w-5 text-primary" />
           <div>
-            <h2 className="font-semibold text-lg mb-1">Atenção: Uso dos Dados</h2>
+            <h2 className="mb-1 text-lg font-semibold">Uso dos dados</h2>
             <p className="text-sm text-muted-foreground">
-              A ação sugerida pelos dados abaixo é estritamente de nível da unidade: 
-              levar um assessor de investimentos, marcar palestras de educação financeira 
-              ou revisar a jornada da equipe. <strong>Nunca convoque um indivíduo com base no uso do aplicativo.</strong>
+              A ação sugerida por estes números é de unidade: levar um assessor,
+              marcar palestra de educação financeira ou revisar a jornada da
+              equipe.{" "}
+              <strong>
+                Nunca convoque uma pessoa com base no uso do aplicativo.
+              </strong>
             </p>
           </div>
         </div>
       </Card>
 
-      {isSuppressed ? (
-        <Card className="flex flex-col items-center justify-center p-12 text-center">
-          <Users className="w-12 h-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">Dados insuficientes para preservar o anonimato</h3>
-          <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            A sua unidade atualmente possui dados insuficientes no escopo.
-            Para proteger a privacidade individual, os dados agregados só são exibidos quando há pelo menos 5 pessoas ativas.
-          </p>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <MetricCard
-            title="Aperto Financeiro"
-            value={`${(data.tightPercentage * 100).toFixed(0)}%`}
-            description="Declararam estar apertados neste mês."
-            icon={<Wallet className="w-4 h-4" />}
-          />
-          <MetricCard
-            title="Humor Agregado"
-            value={data.moodTrend.toFixed(1)}
-            description="Média de humor no período."
-            icon={<Smile className="w-4 h-4" />}
-          />
-          <MetricCard
-            title="Alcance"
-            value={String(data.reach)}
-            description="Pessoas que já usaram alguma vez."
-            icon={<Users className="w-4 h-4" />}
-          />
-          <MetricCard
-            title="Adesão"
-            value={String(data.adherence)}
-            description="Pessoas que usaram nos últimos 30 dias."
-            icon={<Activity className="w-4 h-4" />}
-          />
-          <MetricCard
-            title="Frequência"
-            value={data.frequency.toFixed(1)}
-            description="Média de dias com registro por pessoa."
-            icon={<TrendingUp className="w-4 h-4" />}
-          />
-          <MetricCard
-            title="Evolução"
-            value={data.evolution.toFixed(1)}
-            description="Média do mês anterior."
-            icon={<Activity className="w-4 h-4" />}
-          />
-        </div>
-      )}
+      {data.suppressed ? <Suppressed /> : <Indicators data={data} />}
     </div>
   );
 }
 
-function MetricCard({ title, value, description, icon }: { title: string; value: string; description: string; icon?: React.ReactNode }) {
+/**
+ * Abaixo do grupo mínimo o servidor não manda número nenhum, nem o tamanho da
+ * unidade. A tela conta por que, sem revelar quanta gente falta.
+ */
+function Suppressed() {
+  return (
+    <Card className="flex flex-col items-center justify-center p-12 text-center">
+      <Users className="mb-4 h-12 w-12 text-muted-foreground" />
+      <h3 className="text-lg font-medium">
+        Dados insuficientes para preservar o anonimato
+      </h3>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+        Os números da unidade só aparecem quando há pessoas suficientes para que
+        nenhuma delas seja identificável por trás da média.
+      </p>
+    </Card>
+  );
+}
+
+function Indicators({ data }: { data: UnitIndicators }) {
+  const evolution = data.previous?.averageMood ?? null;
+
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Metric
+        title="Aperto financeiro"
+        value={percent(data.tightRatio)}
+        description="De quem declarou o mês, quantos fecharam apertados."
+        icon={<Wallet className="h-4 w-4" />}
+      />
+      <Metric
+        title="Humor agregado"
+        value={decimal(data.averageMood)}
+        description="Média de 1 a 5 no mês."
+        icon={<Smile className="h-4 w-4" />}
+      />
+      <Metric
+        title="Alcance"
+        value={whole(data.reach)}
+        description={`Já usaram alguma vez, de ${whole(data.headcount)} na unidade.`}
+        icon={<Users className="h-4 w-4" />}
+      />
+      <Metric
+        title="Adesão"
+        value={whole(data.active)}
+        description="Registraram alguma coisa neste mês."
+        icon={<Activity className="h-4 w-4" />}
+      />
+      <Metric
+        title="Frequência"
+        value={decimal(data.frequency)}
+        description="Dias com registro por pessoa que manteve o diário."
+        icon={<TrendingUp className="h-4 w-4" />}
+      />
+      <Metric
+        title="Mês anterior"
+        value={decimal(evolution)}
+        description="Humor agregado do mês passado, para comparar."
+        icon={<TrendingUp className="h-4 w-4" />}
+      />
+    </div>
+  );
+}
+
+function Metric({
+  title,
+  value,
+  description,
+  icon,
+}: {
+  title: string;
+  value: string;
+  description: string;
+  icon: ReactNode;
+}) {
   return (
     <Card>
-      <div className="flex justify-between items-center text-muted-foreground mb-2">
+      <div className="mb-2 flex items-center justify-between text-muted-foreground">
         <h3 className="text-sm font-medium">{title}</h3>
         {icon}
       </div>
-      <div className="mt-1 text-3xl font-bold">{value}</div>
-      <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+      <p className="mt-1 text-3xl font-bold tabular-nums">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {value === EMPTY ? "Ainda não há dado suficiente." : description}
+      </p>
     </Card>
   );
 }
