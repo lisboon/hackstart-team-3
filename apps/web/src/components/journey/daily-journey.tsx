@@ -8,6 +8,7 @@ import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { DailyCard } from "@/components/journey/daily-card";
+import { PieceExplanation } from "@/components/journey/piece-explanation";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
 import type { MoodScale } from "@/schemas/wellbeing";
 
@@ -91,6 +92,13 @@ export function DailyJourney({
           answer={pieceAnswer}
           pending={pending}
           onDecide={(label) => void decide(today.piece!.id, label)}
+        />
+      )}
+      {!lessonSkipped && today.piece && (
+        <PieceExplanation
+          piece={today.piece}
+          token={token}
+          onUnauthorized={onUnauthorized}
         />
       )}
       <PersonalSummary token={token} onUnauthorized={onUnauthorized} />
