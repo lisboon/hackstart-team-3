@@ -1,0 +1,18 @@
+import type { DailyEntry as DailyEntryModel } from "@prisma/client";
+import { DailyEntry } from "../domain/daily-entry.entity";
+
+export class DailyEntryModelMapper {
+  static toEntity(data: DailyEntryModel): DailyEntry {
+    return new DailyEntry({
+      id: data.id,
+      userId: data.userId,
+      companyId: data.companyId,
+      entryDate: data.entryDate,
+      mood: data.mood,
+      active: data.active,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      deletedAt: data.deletedAt ?? undefined,
+    });
+  }
+}
