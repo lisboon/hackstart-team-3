@@ -3,16 +3,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HttpError } from "@/lib/http/client";
 import {
+  answerPiece,
   fetchToday,
   recordMood,
 } from "@/services/wellbeing/wellbeing-service";
-import type { DailyEntry, MoodScale } from "@/schemas/wellbeing";
+import type {
+  DailyEntry,
+  MoodScale,
+  PieceAnswer,
+} from "@/schemas/wellbeing";
 
 export function useDailyMood(token: string, onUnauthorized: () => void) {
   const [today, setToday] = useState<DailyEntry | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
+  const [answer, setAnswer] = useState<PieceAnswer | null>(null);
   const reading = useRef<AbortController | null>(null);
   const writing = useRef<AbortController | null>(null);
   const unauthorized = useRef(onUnauthorized);
@@ -89,9 +95,11 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
     setPending(true);
     setError("");
     try {
-      const entry = await recordMood(mood, token, controller.signal);
+      await recordMood(mood, token, controller.signal);
       if (writing.current !== controller) return false;
-      setToday(entry);
+      // O 201 confirma o humor mas não traz a peça: o dia só fica completo
+      // depois de recarregar.
+      await reload();
       return true;
     } catch (cause) {
       if (writing.current !== controller || controller.signal.aborted)
@@ -116,5 +124,51 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
     }
   }
 
-  return { today, error, loading, pending, record, reload };
+  /**
+   * A consequência aparece qualquer que seja a escolha, e escolher diferente do
+   * que a peça ensinou não é erro: `comprehended` falso não vira mensagem de
+   * erro em lugar nenhum.
+   */
+  async function decide(contentPieceId: string, label: string): Promise<boolean> {
+    if (writing.current) return false;
+    const controller = new AbortController();
+    writing.current = controller;
+    setPending(true);
+    setError("");
+    try {
+      const result = await answerPiece(
+        contentPieceId,
+        label,
+        token,
+        controller.signal,
+      );
+      if (writing.current !== controller) return false;
+      setAnswer(result);
+      return true;
+    } catch (cause) {
+      if (writing.current !== controller || controller.signal.aborted)
+        return false;
+      if (cause instanceof HttpError && cause.status === 401) {
+        unauthorized.current();
+        return false;
+      }
+      // 409 significa que a peça do dia já foi respondida, por toque duplo ou
+      // corrida. Recarregar mostra o dia completo em vez de acusar.
+      if (cause instanceof HttpError && cause.status === 409) {
+        await reload();
+        return false;
+      }
+      setError(
+        cause instanceof Error ? cause.message : "Falha ao registrar a escolha.",
+      );
+      return false;
+    } finally {
+      if (writing.current === controller && !controller.signal.aborted) {
+        writing.current = null;
+        setPending(false);
+      }
+    }
+  }
+
+  return { today, answer, error, loading, pending, record, decide, reload };
 }

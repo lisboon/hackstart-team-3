@@ -27,7 +27,10 @@ function sourceFiles(dir) {
 }
 
 const FILES = sourceFiles(ROOT).map((file) => ({
-  file: path.relative(ROOT, file),
+  // Separador normalizado: no Windows path.relative devolve "app\layout.tsx",
+  // e as comparacoes abaixo usam barra. Sem isto o guarda passa no CI e falha
+  // na maquina de quem desenvolve, que e onde ele precisa avisar.
+  file: path.relative(ROOT, file).split(path.sep).join("/"),
   source: readFileSync(file, "utf8"),
 }));
 

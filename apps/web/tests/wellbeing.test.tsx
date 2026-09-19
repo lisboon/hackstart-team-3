@@ -21,8 +21,15 @@ function stubApi({
   answered = false,
   mood = null as number | null,
   moodStatus = 201,
+  piece = null as object | null,
 }) {
-  const day = { entryDate: ENTRY_DATE, answered, mood };
+  const day = {
+    entryDate: ENTRY_DATE,
+    answered,
+    mood,
+    pieceAnswered: false,
+    piece,
+  };
   const fetch = vi.fn(async (url: string, options: RequestInit = {}) => {
     const { pathname } = new URL(String(url));
     if (pathname === "/auth/login")

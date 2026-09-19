@@ -14,16 +14,32 @@ test("the day accepts the published contract in both states", () => {
       entryDate: ENTRY_DATE,
       answered: false,
       mood: null,
+      pieceAnswered: false,
+      piece: null,
     }),
-    { entryDate: ENTRY_DATE, answered: false, mood: null },
+    {
+      entryDate: ENTRY_DATE,
+      answered: false,
+      mood: null,
+      pieceAnswered: false,
+      piece: null,
+    },
   );
   assert.deepEqual(
     dailyEntrySchema.parse({
       entryDate: ENTRY_DATE,
       answered: true,
       mood: 3,
+      pieceAnswered: false,
+      piece: null,
     }),
-    { entryDate: ENTRY_DATE, answered: true, mood: 3 },
+    {
+      entryDate: ENTRY_DATE,
+      answered: true,
+      mood: 3,
+      pieceAnswered: false,
+      piece: null,
+    },
   );
 });
 
@@ -41,6 +57,7 @@ test("the day rejects what the screen cannot trust", () => {
     { entryDate: "2026-09-19", answered: true, mood: 3 },
     { entryDate: ENTRY_DATE, mood: 3 },
     { answered: true, mood: 3 },
+    { entryDate: ENTRY_DATE, answered: true, mood: 3, piece: null },
   ])
     assert.equal(dailyEntrySchema.safeParse(invalid).success, false);
 });
