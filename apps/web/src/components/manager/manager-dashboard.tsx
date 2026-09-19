@@ -23,7 +23,6 @@ export function ManagerDashboard() {
     if (!token) return;
 
     let active = true;
-    setLoading(true);
     getOrganizationIndicators(token)
       .then((res) => {
         if (active) {

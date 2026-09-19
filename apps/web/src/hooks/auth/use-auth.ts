@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { login, type AuthSession, type AuthUser } from "@/services/auth/auth-service";
+import { login, type AuthUser } from "@/services/auth/auth-service";
 import type { LoginValues } from "@/schemas/auth";
 
 export function useAuth() {
@@ -17,11 +17,14 @@ export function useAuth() {
     try {
       const storedToken = sessionStorage.getItem("colheita_token");
       const storedUser = sessionStorage.getItem("colheita_user");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (storedToken) setToken(storedToken);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (storedUser) setUser(JSON.parse(storedUser));
     } catch {
       // ignore parsing errors
     } finally {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsInitialized(true);
     }
   }, []);
