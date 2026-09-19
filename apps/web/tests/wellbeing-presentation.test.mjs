@@ -6,20 +6,26 @@ import {
   MOOD_LEVELS,
   SUPPORT_PATHS,
   isSuffering,
+  moodLabel,
 } from "../src/components/wellbeing/mood-presentation.ts";
 
-test("the scale has five distinct levels", () => {
-  assert.equal(MOOD_LEVELS.length, 5);
-  assert.equal(new Set(MOOD_LEVELS.map((level) => level.value)).size, 5);
-  for (const level of MOOD_LEVELS) assert.ok(level.label.length > 0);
+test("the scale carries the contract values, one to five", () => {
+  assert.deepEqual(
+    MOOD_LEVELS.map((level) => level.value),
+    [1, 2, 3, 4, 5],
+  );
+  for (const level of MOOD_LEVELS) {
+    assert.ok(level.label.length > 0);
+    assert.equal(moodLabel(level.value), level.label);
+  }
 });
 
 test("the two lowest levels open support, the others do not", () => {
-  assert.equal(isSuffering("VERY_LOW"), true);
-  assert.equal(isSuffering("LOW"), true);
-  assert.equal(isSuffering("NEUTRAL"), false);
-  assert.equal(isSuffering("GOOD"), false);
-  assert.equal(isSuffering("VERY_GOOD"), false);
+  assert.equal(isSuffering(1), true);
+  assert.equal(isSuffering(2), true);
+  assert.equal(isSuffering(3), false);
+  assert.equal(isSuffering(4), false);
+  assert.equal(isSuffering(5), false);
 });
 
 test("the manager is on the list and is never the first option", () => {
@@ -27,7 +33,7 @@ test("the manager is on the list and is never the first option", () => {
     /gestor/i.test(path.title),
   );
   assert.ok(managerIndex > 0, "manager must be listed, never first");
-  assert.ok(SUPPORT_PATHS.length >= 5);
+  assert.equal(SUPPORT_PATHS.length, 5);
 });
 
 test("support never asks for a reason", () => {
@@ -35,6 +41,18 @@ test("support never asks for a reason", () => {
     .concat(CARE_DISCLAIMER, CRISIS_LINE.detail)
     .join(" ");
   assert.doesNotMatch(words, /por que|porqu[eê]|motivo|explique|relate/i);
+});
+
+test("unvalidated channels are offered as possibilities, not guarantees", () => {
+  const unvalidated = SUPPORT_PATHS.filter(
+    (path) => !/gestor/i.test(path.title),
+  );
+  for (const path of unvalidated)
+    assert.match(
+      path.detail,
+      /^(Se|Onde|Quando)\b/,
+      `${path.title} promete em vez de oferecer: "${path.detail}"`,
+    );
 });
 
 test("the crisis line is reachable with one tap", () => {

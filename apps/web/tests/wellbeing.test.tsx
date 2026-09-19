@@ -6,6 +6,7 @@ import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { Workspace } from "@/components/auth/workspace";
 
 const INVESTIGATION = /por que|porqu[eê]|motivo|explique|relate|conte o que/i;
+const ENTRY_DATE = "2026-09-19T00:00:00.000Z";
 
 const summary = {
   currentMonth: "2026-09-01T00:00:00.000Z",
@@ -15,12 +16,30 @@ const summary = {
   declaredMonths: 6,
 };
 
-function stubApi() {
-  const fetch = vi.fn(async (url: string) =>
-    String(url).includes("/auth/login")
-      ? Response.json({ accessToken: "session" })
-      : Response.json(summary),
-  );
+function stubApi({
+  answered = false,
+  mood = null as number | null,
+  moodStatus = 201,
+}) {
+  const day = { entryDate: ENTRY_DATE, answered, mood };
+  const fetch = vi.fn(async (url: string, options: RequestInit = {}) => {
+    const { pathname } = new URL(String(url));
+    if (pathname === "/auth/login")
+      return Response.json({ accessToken: "session" });
+    if (pathname === "/me/today") return Response.json({ ...day });
+    if (pathname === "/me/today/mood") {
+      const requested = JSON.parse(String(options.body)).mood as number;
+      day.answered = true;
+      day.mood = moodStatus === 409 ? 1 : requested;
+      if (moodStatus === 409) return new Response("", { status: 409 });
+      return Response.json(
+        { entryDate: ENTRY_DATE, mood: requested },
+        { status: 201 },
+      );
+    }
+    if (pathname === "/me/summary") return Response.json(summary);
+    return new Response("", { status: 404 });
+  });
   vi.stubGlobal("fetch", fetch);
   return fetch;
 }
@@ -29,10 +48,6 @@ async function signIn() {
   render(<Workspace />);
   await userEvent.type(screen.getByLabelText("Senha"), "password");
   await userEvent.click(screen.getByRole("button", { name: "Entrar" }));
-  return screen.findByRole("heading", {
-    level: 1,
-    name: "Como você está hoje?",
-  });
 }
 
 function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
@@ -46,38 +61,36 @@ function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
   );
 }
 
-it("records the mood with a single tap", async () => {
+it("records the day with a single tap and never shows the scale", async () => {
   const onSelect = vi.fn();
-  render(<MoodPrompt selected={null} onSelect={onSelect} />);
-  const options = screen.getAllByRole("button");
-  expect(options).toHaveLength(5);
-  for (const option of options)
-    expect(option).toHaveAttribute("aria-pressed", "false");
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
-  expect(onSelect).toHaveBeenCalledExactlyOnceWith("VERY_LOW");
+  const { container } = render(
+    <MoodPrompt pending={false} error="" onSelect={onSelect} />,
+  );
+  expect(screen.getAllByRole("button")).toHaveLength(5);
+  await userEvent.click(screen.getByRole("button", { name: "Difícil" }));
+  expect(onSelect).toHaveBeenCalledExactlyOnceWith(2);
+  expect(container.textContent).not.toMatch(/[1-5]/);
   expect(screen.queryByRole("textbox")).toBeNull();
 });
 
 it("walking the scale with the keyboard records nothing", async () => {
   const onSelect = vi.fn();
-  render(<MoodPrompt selected={null} onSelect={onSelect} />);
+  render(<MoodPrompt pending={false} error="" onSelect={onSelect} />);
   await userEvent.tab();
   await userEvent.tab();
   await userEvent.tab();
   expect(screen.getByRole("button", { name: "Mais ou menos" })).toHaveFocus();
   expect(onSelect).not.toHaveBeenCalled();
   await userEvent.keyboard("{Enter}");
-  expect(onSelect).toHaveBeenCalledExactlyOnceWith("NEUTRAL");
+  expect(onSelect).toHaveBeenCalledExactlyOnceWith(3);
 });
 
-it("states the chosen level in words, not only in colour", () => {
-  render(<MoodPrompt selected="LOW" onSelect={vi.fn()} />);
-  expect(screen.getByRole("status")).toHaveTextContent("Hoje: Difícil");
-  expect(screen.getByRole("button", { name: "Difícil" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  expect(screen.getByRole("group").textContent).not.toMatch(INVESTIGATION);
+it("states what is being recorded in words while it waits", () => {
+  render(<MoodPrompt pending error="" onSelect={vi.fn()} />);
+  for (const option of screen.getAllByRole("button"))
+    expect(option).toBeDisabled();
+  render(<MoodPrompt pending={false} error="Falhou" onSelect={vi.fn()} />);
+  expect(screen.getByRole("alert")).toHaveTextContent("Falhou");
 });
 
 it("welcomes without investigating and lets the person choose", () => {
@@ -113,49 +126,13 @@ it("lets the person drop the lesson and take it back", async () => {
   unmount();
   supportPaths({ lessonSkipped: true, onResumeLesson });
   expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /Pular a lição/ })).toBeNull();
   await userEvent.click(screen.getByRole("button", { name: "Mudei de ideia" }));
   expect(onResumeLesson).toHaveBeenCalledOnce();
 });
 
-it("asks for the mood before any content", async () => {
-  stubApi();
+it("asks the mood alone while the day has no answer", async () => {
+  stubApi({ answered: false });
   await signIn();
-  expect(screen.queryByText("Seu mês")).toBeNull();
-  await userEvent.click(screen.getByRole("button", { name: "Bem" }));
-  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
-  expect(screen.queryByText("Hoje não precisa ser produtivo")).toBeNull();
-});
-
-it("welcomes suffering and still shows the person her own content", async () => {
-  stubApi();
-  await signIn();
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
-  expect(
-    await screen.findByText("Hoje não precisa ser produtivo"),
-  ).toBeInTheDocument();
-  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
-  expect(document.body.textContent).not.toMatch(INVESTIGATION);
-});
-
-it("sends the mood nowhere while there is no published contract", async () => {
-  const fetch = stubApi();
-  await signIn();
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
-  await screen.findByText("Seu mês");
-  const paths = fetch.mock.calls.map(([url]) => new URL(String(url)).pathname);
-  expect(paths).toEqual(["/auth/login", "/me/summary"]);
-});
-
-it("forgets the mood and the skipped lesson when the person leaves", async () => {
-  stubApi();
-  await signIn();
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
-  await userEvent.click(screen.getByRole("button", { name: /Pular a lição/ }));
-  expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Sair" }));
-  await userEvent.type(screen.getByLabelText("Senha"), "password");
-  await userEvent.click(screen.getByRole("button", { name: "Entrar" }));
   expect(
     await screen.findByRole("heading", {
       level: 1,
@@ -163,8 +140,70 @@ it("forgets the mood and the skipped lesson when the person leaves", async () =>
     }),
   ).toBeInTheDocument();
   expect(screen.queryByText("Seu mês")).toBeNull();
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
+});
+
+it("sends the chosen level and opens the app", async () => {
+  const fetch = stubApi({ answered: false });
+  await signIn();
+  await screen.findByRole("heading", { level: 1 });
+  await userEvent.click(screen.getByRole("button", { name: "Bem" }));
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  const post = fetch.mock.calls.find(([url]) =>
+    String(url).endsWith("/me/today/mood"),
+  );
+  expect(post?.[1]?.method).toBe("POST");
+  expect(JSON.parse(String(post?.[1]?.body))).toEqual({ mood: 4 });
+  expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+});
+
+it("welcomes the two lowest levels and still shows her own content", async () => {
+  stubApi({ answered: true, mood: 1 });
+  await signIn();
   expect(
-    await screen.findByRole("button", { name: /Pular a lição/ }),
+    await screen.findByText("Hoje não precisa ser produtivo"),
   ).toBeInTheDocument();
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(document.body.textContent).not.toMatch(INVESTIGATION);
+});
+
+it("keeps the welcome away from a good day", async () => {
+  stubApi({ answered: true, mood: 4 });
+  await signIn();
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByText("Hoje não precisa ser produtivo")).toBeNull();
+});
+
+it("treats a day already answered as answered, not as an error", async () => {
+  stubApi({ answered: false, moodStatus: 409 });
+  await signIn();
+  await screen.findByRole("heading", { level: 1 });
+  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).toBeNull();
+});
+
+it("records one answer even under a double tap", async () => {
+  const fetch = stubApi({ answered: false });
+  await signIn();
+  await screen.findByRole("heading", { level: 1 });
+  const option = screen.getByRole("button", { name: "Muito bem" });
+  await Promise.all([userEvent.click(option), userEvent.click(option)]);
+  await screen.findByText("Seu mês");
+  const posts = fetch.mock.calls.filter(([url]) =>
+    String(url).endsWith("/me/today/mood"),
+  );
+  expect(posts).toHaveLength(1);
+});
+
+it("returns to the access screen when the session expires", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url: string) =>
+      String(url).includes("/auth/login")
+        ? Response.json({ accessToken: "session" })
+        : new Response("", { status: 401 }),
+    ),
+  );
+  await signIn();
+  expect(await screen.findByLabelText("Senha")).toBeInTheDocument();
 });

@@ -1,27 +1,38 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { MOOD_LEVELS, moodLabel, type MoodLevel } from "./mood-presentation";
+import type { MoodScale } from "@/schemas/wellbeing";
+import { MOOD_LEVELS, moodLabel } from "./mood-presentation";
 
 /**
  * Botão, não rádio: num grupo de rádios a seta do teclado troca a seleção, e
- * aqui selecionar já é registrar. Navegar pela escala não pode registrar humor.
+ * aqui selecionar já registra o dia. Navegar pela escala não pode registrar.
  *
- * A escolha é confirmada também em texto, porque cor sozinha não comunica
- * estado para quem não distingue o verde.
+ * A resposta é uma por dia e não se corrige, então a tela só existe enquanto o
+ * dia está sem resposta. O toque é confirmado em texto porque cor sozinha não
+ * comunica estado para quem não distingue o verde.
  */
 export function MoodPrompt({
-  selected,
+  pending,
+  error,
   onSelect,
 }: {
-  selected: MoodLevel | null;
-  onSelect: (mood: MoodLevel) => void;
+  pending: boolean;
+  error: string;
+  onSelect: (mood: MoodScale) => void;
 }) {
   const id = useId();
+  const [tapped, setTapped] = useState<MoodScale | null>(null);
+
+  function choose(mood: MoodScale) {
+    setTapped(mood);
+    onSelect(mood);
+  }
+
   return (
-    <Card aria-labelledby={id}>
+    <Card aria-labelledby={id} className="min-h-[60vh] place-content-center">
       <h1 id={id} className="text-xl font-semibold tracking-tight md:text-2xl">
         Como você está hoje?
       </h1>
@@ -33,14 +44,15 @@ export function MoodPrompt({
           <button
             key={level.value}
             type="button"
-            aria-pressed={selected === level.value}
-            onClick={() => onSelect(level.value)}
+            disabled={pending}
+            onClick={() => choose(level.value)}
             className={cn(
               "grid min-h-18 justify-items-center gap-1 rounded-xl border p-2 transition-colors",
               "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              selected === level.value
+              "disabled:pointer-events-none",
+              tapped === level.value
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:bg-muted",
+                : "border-border hover:bg-muted disabled:opacity-50",
             )}
           >
             <span aria-hidden className="text-2xl leading-none">
@@ -53,8 +65,13 @@ export function MoodPrompt({
         ))}
       </div>
       <p role="status" aria-live="polite" className="text-sm">
-        {selected ? `Hoje: ${moodLabel(selected)}` : ""}
+        {pending && tapped ? `Registrando: ${moodLabel(tapped)}` : ""}
       </p>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </Card>
   );
 }

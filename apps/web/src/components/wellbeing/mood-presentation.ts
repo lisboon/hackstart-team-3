@@ -1,50 +1,53 @@
+import type { MoodScale } from "@/schemas/wellbeing";
+
 /**
- * Cinco níveis, um toque. A escala mede o bem-estar da própria pessoa ao longo
- * do tempo; ela não ranqueia pessoas entre si.
+ * Cinco níveis, um toque. O número é o valor do contrato, de 1 a 5 com 1 no
+ * pior; a tela mostra só emoji e palavra.
  */
-export const MOOD_LEVELS = [
-  { value: "VERY_LOW", emoji: "😞", label: "Muito difícil" },
-  { value: "LOW", emoji: "😕", label: "Difícil" },
-  { value: "NEUTRAL", emoji: "😐", label: "Mais ou menos" },
-  { value: "GOOD", emoji: "🙂", label: "Bem" },
-  { value: "VERY_GOOD", emoji: "😄", label: "Muito bem" },
-] as const;
+export const MOOD_LEVELS: readonly {
+  value: MoodScale;
+  emoji: string;
+  label: string;
+}[] = [
+  { value: 1, emoji: "😞", label: "Muito difícil" },
+  { value: 2, emoji: "😕", label: "Difícil" },
+  { value: 3, emoji: "😐", label: "Mais ou menos" },
+  { value: 4, emoji: "🙂", label: "Bem" },
+  { value: 5, emoji: "😄", label: "Muito bem" },
+];
 
-export type MoodLevel = (typeof MOOD_LEVELS)[number]["value"];
-
-export function moodLabel(mood: MoodLevel): string {
+export function moodLabel(mood: MoodScale): string {
   return MOOD_LEVELS.find((level) => level.value === mood)?.label ?? "";
 }
 
 /** Na dúvida, acolher: os dois níveis mais baixos abrem o acolhimento. */
-const SUFFERING: readonly MoodLevel[] = ["VERY_LOW", "LOW"];
-
-export function isSuffering(mood: MoodLevel): boolean {
-  return SUFFERING.includes(mood);
+export function isSuffering(mood: MoodScale): boolean {
+  return mood <= 2;
 }
 
 /**
- * Quem escolhe com quem falar é a pessoa. O gestor está na lista porque às
- * vezes é com ele que ela quer falar, e nunca em primeiro lugar: se marcar
- * sofrimento abrir conversa com quem decide sobre a carreira dela, ela para de
- * marcar e o sensor morre.
+ * PENDENTE DE VALIDAÇÃO (#17). Ainda não confirmamos com a Sicredi quais
+ * destes canais existem. Confirmar antes da demo.
+ *
+ * Por isso cada linha descreve uma possibilidade, não uma garantia: oferecer
+ * apoio que não atende é pior que não oferecer.
  */
 export const SUPPORT_PATHS: readonly { title: string; detail: string }[] = [
   {
     title: "Assessor da agência",
-    detail: "Quem já acompanha a sua conta.",
+    detail: "Se você tem atendimento na sua agência.",
   },
   {
     title: "RH da sua empresa",
-    detail: "Para o que envolve trabalho e benefícios.",
+    detail: "Quando o assunto passa por trabalho ou benefícios.",
   },
   {
     title: "Canal confidencial",
-    detail: "Sem passar pela chefia.",
+    detail: "Onde existir, não passa pela chefia.",
   },
   {
     title: "Saúde ocupacional do SESI",
-    detail: "Atendimento de saúde, não de desempenho.",
+    detail: "Onde houver atendimento de saúde do SESI.",
   },
   {
     title: "Seu gestor",
@@ -52,6 +55,7 @@ export const SUPPORT_PATHS: readonly { title: string; detail: string }[] = [
   },
 ];
 
+/** Serviço público, gratuito e 24h: validado por definição, fica em destaque. */
 export const CRISIS_LINE = {
   label: "CVV 188",
   detail: "Ligação gratuita, 24 horas, sigilosa.",
