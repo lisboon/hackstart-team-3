@@ -17,6 +17,12 @@ export interface DailyEntryGateway {
     trx?: TransactionContext,
   ): Promise<DailyEntry | null>;
 
+  /** Os ids de peça que a pessoa já respondeu, para a trilha não repetir. */
+  findAnsweredPieceIds(
+    owner: DailyEntryOwner,
+    trx?: TransactionContext,
+  ): Promise<string[]>;
+
   create(entry: DailyEntry, trx?: TransactionContext): Promise<void>;
 
   update(entry: DailyEntry, trx?: TransactionContext): Promise<void>;

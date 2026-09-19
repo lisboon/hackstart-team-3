@@ -41,6 +41,9 @@ try {
     "RecordMoodBodyDto",
     "DailyMoodResponseDto",
     "TodayEntryResponseDto",
+    "TodayPieceDto",
+    "AnswerPieceBodyDto",
+    "AnswerPieceResponseDto",
   ];
 
   for (const name of requiredSchemas) {
@@ -75,6 +78,7 @@ try {
     ["/me/summary", "get", "200"],
     ["/me/today/mood", "post", "201"],
     ["/me/today", "get", "200"],
+    ["/me/today/answer", "post", "201"],
   ];
 
   const streamOperation = document.paths["/ai/runs/stream"]?.post;
@@ -113,6 +117,7 @@ try {
     ["/me/summary", "get", ["401", "403", "422", "429"]],
     ["/me/today/mood", "post", ["401", "403", "409", "422", "429"]],
     ["/me/today", "get", ["401", "403", "422", "429"]],
+    ["/me/today/answer", "post", ["401", "403", "404", "409", "422", "429"]],
   ];
 
   for (const [path, method, statuses] of documentedErrors) {

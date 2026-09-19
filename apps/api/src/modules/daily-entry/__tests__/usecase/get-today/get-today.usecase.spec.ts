@@ -1,3 +1,6 @@
+import { CoopsStage } from "@/modules/@shared/domain/enums";
+import { ContentPiece } from "@/modules/content-piece/domain/content-piece.entity";
+import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-piece.gateway";
 import { DailyEntry } from "../../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../../gateway/daily-entry.gateway";
 import GetTodayEntryUseCase from "../../../usecase/get-today/get-today.usecase";
@@ -6,53 +9,104 @@ const userId = "3f1b2c8e-0f4a-4a1a-9c7d-2f9a1b3c4d5e";
 const companyId = "7a2c4d6e-1b3f-4c5d-8e9f-0a1b2c3d4e5f";
 const lateInTheDay = new Date(Date.UTC(2026, 8, 19, 22, 40));
 
-const gatewayWith = (existing: DailyEntry | null): DailyEntryGateway => ({
+const piece: ContentPiece = {
+  id: "8b3d5f7a-2c4e-4d6f-9a1b-3c5d7e9f0a1b",
+  stage: CoopsStage.OBSERVAR,
+  orderInStage: 1,
+  title: "Para onde o dinheiro foi",
+  body: "Observar é o segundo passo do COOPS.",
+  prompt: "Sobrou R$ 50 este mês. O que você faz?",
+  options: [
+    {
+      label: "Guardo",
+      outcome: "Vira reserva.",
+      demonstratesComprehension: true,
+    },
+    {
+      label: "Deixo na conta",
+      outcome: "Some no mês.",
+      demonstratesComprehension: false,
+    },
+  ],
+  sourceUrl: "https://www.sicredi.com.br/site/napontadolapis/",
+};
+
+const dailyGateway = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
+  findAnsweredPieceIds: jest.fn().mockResolvedValue([]),
   create: jest.fn(),
   update: jest.fn(),
 });
 
+const contentGateway = (next: ContentPiece | null): ContentPieceGateway => ({
+  findById: jest.fn().mockResolvedValue(next),
+  findNext: jest.fn().mockResolvedValue(next),
+});
+
+const entryWithMood = () =>
+  DailyEntry.create({ userId, companyId, entryDate: lateInTheDay, mood: 4 });
+
 describe("GetTodayEntryUseCase", () => {
-  it("reports the day as unanswered so the screen asks", async () => {
-    const output = await new GetTodayEntryUseCase(gatewayWith(null)).execute({
-      userId,
-      companyId,
-      today: lateInTheDay,
-    });
+  it("asks for the mood before offering any content", async () => {
+    const content = contentGateway(piece);
+
+    const output = await new GetTodayEntryUseCase(
+      dailyGateway(null),
+      content,
+    ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.answered).toBe(false);
-    expect(output.mood).toBeNull();
-    expect(output.entryDate.toISOString()).toBe("2026-09-19T00:00:00.000Z");
+    expect(output.piece).toBeNull();
+    expect(content.findNext).not.toHaveBeenCalled();
   });
 
-  it("reports the day as answered so the screen shows the app", async () => {
-    const entry = DailyEntry.create({
-      userId,
-      companyId,
-      entryDate: lateInTheDay,
-      mood: 4,
-    });
-
-    const output = await new GetTodayEntryUseCase(gatewayWith(entry)).execute({
-      userId,
-      companyId,
-      today: lateInTheDay,
-    });
+  it("offers the next piece once the mood is answered", async () => {
+    const output = await new GetTodayEntryUseCase(
+      dailyGateway(entryWithMood()),
+      contentGateway(piece),
+    ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.answered).toBe(true);
     expect(output.mood).toBe(4);
+    expect(output.pieceAnswered).toBe(false);
+    expect(output.piece?.title).toBe(piece.title);
+  });
+
+  it("hides the outcome of each option until the person chooses", async () => {
+    const output = await new GetTodayEntryUseCase(
+      dailyGateway(entryWithMood()),
+      contentGateway(piece),
+    ).execute({ userId, companyId, today: lateInTheDay });
+
+    expect(output.piece?.options).toEqual([
+      { label: "Guardo" },
+      { label: "Deixo na conta" },
+    ]);
+  });
+
+  it("stops offering content after the piece is answered", async () => {
+    const entry = entryWithMood();
+    entry.answerPiece(piece.id, "Guardo", true);
+
+    const output = await new GetTodayEntryUseCase(
+      dailyGateway(entry),
+      contentGateway(piece),
+    ).execute({ userId, companyId, today: lateInTheDay });
+
+    expect(output.pieceAnswered).toBe(true);
+    expect(output.piece).toBeNull();
   });
 
   it("asks the gateway for the owner, never for the user alone", async () => {
-    const gateway = gatewayWith(null);
+    const daily = dailyGateway(null);
 
-    await new GetTodayEntryUseCase(gateway).execute({
+    await new GetTodayEntryUseCase(daily, contentGateway(piece)).execute({
       userId,
       companyId,
       today: lateInTheDay,
     });
 
-    expect(gateway.findByDate).toHaveBeenCalledWith(
+    expect(daily.findByDate).toHaveBeenCalledWith(
       { userId, companyId },
       new Date(Date.UTC(2026, 8, 19)),
     );

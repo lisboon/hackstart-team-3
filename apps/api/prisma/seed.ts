@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { CONTENT_PIECES, CONTENT_SOURCE_URL } from './content-pieces.seed';
 
 const DEFAULT_SALT_ROUNDS = 12;
 
@@ -84,6 +85,28 @@ async function main() {
       });
       console.log(`Seed: ${user.role.toLowerCase()} "${user.email}" created.`);
     }
+    for (const piece of CONTENT_PIECES) {
+      await prisma.contentPiece.upsert({
+        where: {
+          stage_orderInStage: {
+            stage: piece.stage,
+            orderInStage: piece.orderInStage,
+          },
+        },
+        update: {},
+        create: {
+          id: randomUUID(),
+          stage: piece.stage,
+          orderInStage: piece.orderInStage,
+          title: piece.title,
+          body: piece.body,
+          prompt: piece.prompt,
+          options: piece.options as unknown as object,
+          sourceUrl: CONTENT_SOURCE_URL,
+        },
+      });
+    }
+    console.log(`Seed: ${CONTENT_PIECES.length} COOPS pieces ready.`);
   } finally {
     await prisma.$disconnect();
   }

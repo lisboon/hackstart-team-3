@@ -107,50 +107,77 @@ Comparar é o objetivo, mas **a tela nunca acusa**. `recentAverage` menor que `p
 
 ## `GET /me/today`
 
-Chamado **ao abrir o app**. Diz se o dia já foi respondido, para a tela saber o que mostrar.
+Chamado **ao abrir o app**. Diz o que a tela deve mostrar.
 
 **Response `200`**
 
 ```json
-{ "entryDate": "2026-09-19T00:00:00.000Z", "answered": false, "mood": null }
+{
+  "entryDate": "2026-09-19T00:00:00.000Z",
+  "answered": false,
+  "mood": null,
+  "pieceAnswered": false,
+  "piece": null
+}
 ```
 
-| `answered` | O que a tela faz |
+| Estado | A tela mostra |
 |---|---|
-| `false` | mostra **só** a pergunta de humor, ocupando a tela |
-| `true` | mostra o app |
+| `answered: false` | **só** a pergunta de humor, ocupando a tela |
+| `answered: true`, `piece` preenchida | o app, com a peça do dia |
+| `answered: true`, `pieceAnswered: true` | o app, sem peça — a diária está completa |
+
+**Sem humor não vem peça.** A pergunta de abertura é pré-requisito, e o `piece` vem `null` até ela ser respondida.
+
+### A peça
+
+```json
+{
+  "id": "...",
+  "stage": "CONSCIENTIZAR",
+  "title": "Dinheiro também é emoção",
+  "body": "...",
+  "prompt": "Você abre o app do banco depois de um dia ruim...",
+  "options": [{ "label": "Fecho e deixo para depois" }],
+  "sourceUrl": "https://www.sicredi.com.br/site/napontadolapis/"
+}
+```
+
+`stage` é uma das cinco etapas do **método COOPS**, do programa **Cooperação na Ponta do Lápis** do próprio Sicredi: `CONSCIENTIZAR` · `OBSERVAR` · `ORGANIZAR` · `PREPARAR` · `SUSTENTAR`. A trilha é essa ordem, e as peças já respondidas não voltam.
+
+> **`options` só traz `label`.** A consequência de cada escolha fica no servidor e só é revelada depois de escolher — senão não é decisão, é gabarito.
+
+`sourceUrl` deve aparecer na tela. É o que atende o Anexo V 5.V: orientação com fonte.
 
 ---
 
-## `POST /me/today/mood`
+## `POST /me/today/answer`
 
-Como a pessoa está hoje. Um toque, sem texto.
-
-**Uma resposta por dia, sem correção.** A pergunta é como ela está agora; deixar reescrever convidaria a ajustar a resposta ao que ela acha que deveria sentir. A próxima chance é amanhã.
+A decisão sobre a peça do dia.
 
 **Request**
 
 ```json
-{ "mood": 3 }
+{ "contentPieceId": "...", "answer": "Guardo, mesmo sendo pouco" }
 ```
 
-`mood` é um inteiro de **1 a 5**, onde **1 é o pior**. Fora disso, ou fracionado, é 422.
-
-> A escala é interna, para a média agregada. **Não aparece na tela** — quem responde escolhe um emoji, não um número.
+`answer` é o `label` exato de uma das opções.
 
 **Response `201`**
 
 ```json
-{ "entryDate": "2026-09-19T00:00:00.000Z", "mood": 3 }
+{
+  "outcome": "É o que o método pede. O valor importa menos que o hábito...",
+  "comprehended": true,
+  "sourceUrl": "https://www.sicredi.com.br/site/napontadolapis/"
+}
 ```
 
-**`409` quando o dia já foi respondido.** Não deve acontecer no fluxo normal, porque a tela consulta `GET /me/today` antes — é a rede de segurança para toque duplo e corrida.
+**`outcome` vem sempre, qualquer que seja a escolha.** A pessoa aprende vendo a consequência do que escolheu — não é quiz com certo e errado.
 
-### O que ainda não existe
+`comprehended` registra se a escolha foi coerente com o que a peça ensinou. **Escolher diferente não é erro e não deve aparecer como erro na tela**: sem vermelho, sem "resposta errada", sem tentar de novo. Mostre a consequência e siga.
 
-**Não há encaminhamento.** Marcar o pior nível registra e mais nada — a rota de apoio depende de saber quais canais existem de verdade, e isso ainda não foi validado com a Sicredi (issue #17).
-
-O que **deve** existir na tela desde já é o acesso ao **CVV 188**, a um toque, de qualquer lugar (issue #13). É serviço público e não depende de integração nenhuma.
+**Erros:** `409` se o humor ainda não abriu o dia ou se a peça já foi respondida. `404` se a peça ou a opção não existir.
 
 ---
 
