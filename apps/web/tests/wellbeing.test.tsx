@@ -33,7 +33,10 @@ function stubApi({
   const fetch = vi.fn(async (url: string, options: RequestInit = {}) => {
     const { pathname } = new URL(String(url));
     if (pathname === "/auth/login")
-      return Response.json({ accessToken: "session" });
+      return Response.json({
+        accessToken: "session",
+        user: { id: "1", name: "Test User", email: "test@test.com", role: "USER" },
+      });
     if (pathname === "/me/today") return Response.json({ ...day });
     if (pathname === "/me/today/mood") {
       const requested = JSON.parse(String(options.body)).mood as number;

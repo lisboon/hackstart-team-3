@@ -3,15 +3,15 @@ import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-regis
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Colheita Verde",
+  title: "Colheita",
   description:
     "Cinco minutos por dia para cuidar do seu dinheiro e do seu bem-estar.",
-  applicationName: "Colheita Verde",
+  applicationName: "Colheita",
   // Standalone iOS support is partial, but this is what Safari reads to open
   // from the home screen without its own chrome.
   appleWebApp: {
     capable: true,
-    title: "Colheita Verde",
+    title: "Colheita",
     statusBarStyle: "black-translucent",
   },
   // The app is behind a login and collects sensitive self-reports. Keeping it
