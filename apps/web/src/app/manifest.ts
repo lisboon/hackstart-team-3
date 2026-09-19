@@ -4,7 +4,7 @@ import type { MetadataRoute } from "next";
 // Router generates the manifest from this typed module.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Colheita Verde",
+    name: "Colheita",
     short_name: "Colheita",
     description:
       "Cinco minutos por dia para cuidar do seu dinheiro e do seu bem-estar.",

@@ -28,7 +28,7 @@ export default function ManagerPage() {
   }
 
   // Issue 14: um USER que acessar a rota recebe 403.
-  if (user?.role === "USER") {
+  if (user?.role !== "ADMIN") {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center">
         <h1 className="text-3xl font-bold text-destructive mb-4">403 Proibido</h1>
@@ -43,7 +43,7 @@ export default function ManagerPage() {
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-8 py-12">
       <div className="flex justify-between items-center mb-10">
-        <div className="font-bold text-primary">Colheita Verde</div>
+        <div className="font-bold text-primary">Colheita</div>
         <Button
           variant="secondary"
           onClick={() => {

@@ -130,7 +130,7 @@ function loadServiceWorker({ network } = {}) {
 
 test("manifest satisfies the Android install requirements", () => {
   const result = manifest();
-  assert.equal(result.name, "Colheita Verde");
+  assert.equal(result.name, "Colheita");
   assert.equal(result.display, "standalone");
   assert.equal(result.start_url, "/");
   assert.equal(result.scope, "/");

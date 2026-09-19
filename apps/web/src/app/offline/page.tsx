@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Sem conexão · Colheita Verde",
+  title: "Sem conexão · Colheita",
 };
 
 // Fallback served by the service worker when a navigation fails. It is

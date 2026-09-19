@@ -5,28 +5,37 @@ import { login, type AuthUser } from "@/services/auth/auth-service";
 import type { LoginValues } from "@/schemas/auth";
 
 export function useAuth() {
-  const [token, setToken] = useState("");
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [token, setToken] = useState(() => {
+    try {
+      return typeof window !== "undefined"
+        ? sessionStorage.getItem("colheita_token") || ""
+        : "";
+    } catch {
+      return "";
+    }
+  });
+
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const storedUser = sessionStorage.getItem("colheita_user");
+        return storedUser ? JSON.parse(storedUser) : null;
+      }
+    } catch {
+      // ignore parsing or storage errors
+    }
+    return null;
+  });
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const active = useRef<AbortController | null>(null);
 
-  // Load session from storage on mount
+  // Signal hydration completion
   useEffect(() => {
-    try {
-      const storedToken = sessionStorage.getItem("colheita_token");
-      const storedUser = sessionStorage.getItem("colheita_user");
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (storedToken) setToken(storedToken);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (storedUser) setUser(JSON.parse(storedUser));
-    } catch {
-      // ignore parsing errors
-    } finally {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsInitialized(true);
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsInitialized(true);
   }, []);
 
   useEffect(
@@ -44,8 +53,12 @@ export function useAuth() {
     setUser(null);
     setError("");
     setPending(false);
-    sessionStorage.removeItem("colheita_token");
-    sessionStorage.removeItem("colheita_user");
+    try {
+      sessionStorage.removeItem("colheita_token");
+      sessionStorage.removeItem("colheita_user");
+    } catch {
+      // ignore
+    }
   }, []);
 
   async function signIn(values: LoginValues) {
@@ -59,8 +72,13 @@ export function useAuth() {
       if (active.current === controller) {
         setToken(session.accessToken);
         setUser(session.user);
-        sessionStorage.setItem("colheita_token", session.accessToken);
-        sessionStorage.setItem("colheita_user", JSON.stringify(session.user));
+        try {
+          sessionStorage.setItem("colheita_token", session.accessToken);
+          sessionStorage.setItem("colheita_user", JSON.stringify(session.user));
+        } catch {
+          // Without storage the session lives only in memory: lost on refresh,
+          // but login still works for the current session.
+        }
       }
     } catch (cause) {
       if (active.current === controller && !controller.signal.aborted)

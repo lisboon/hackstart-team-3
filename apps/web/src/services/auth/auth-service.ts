@@ -2,27 +2,22 @@ import { z } from "zod";
 import { requestJson } from "@/lib/http/client";
 import type { LoginValues } from "@/schemas/auth";
 
-export type AuthUser = {
-  id: string;
-  name: string;
-  email: string;
-  role: "USER" | "MANAGER" | "ADMIN";
-};
-
-export type AuthSession = {
-  accessToken: string;
-  user: AuthUser;
-};
-
 const sessionSchema = z.object({
   accessToken: z.string().min(1),
   user: z.object({
     id: z.string(),
     name: z.string(),
     email: z.string(),
-    role: z.enum(["USER", "MANAGER", "ADMIN"]),
+    role: z.enum(["ADMIN", "EDITOR", "VIEWER", "USER"]),
   }),
 });
+
+export type AuthUser = z.infer<typeof sessionSchema>["user"];
+
+export type AuthSession = {
+  accessToken: string;
+  user: AuthUser;
+};
 
 export async function login(
   values: LoginValues,

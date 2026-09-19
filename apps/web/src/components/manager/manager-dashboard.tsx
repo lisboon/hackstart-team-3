@@ -82,8 +82,8 @@ export function ManagerDashboard() {
           <Users className="w-12 h-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">Dados insuficientes para preservar o anonimato</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-md">
-            A sua unidade atualmente possui {data.totalUsers} participantes ativos no escopo.
-            Para proteger a privacidade individual, os dados agregados só são exibidos quando há pelo menos 5 pessoas.
+            A sua unidade atualmente possui dados insuficientes no escopo.
+            Para proteger a privacidade individual, os dados agregados só são exibidos quando há pelo menos 5 pessoas ativas.
           </p>
         </Card>
       ) : (
