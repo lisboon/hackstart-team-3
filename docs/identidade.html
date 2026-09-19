@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Colheita Manual Sicredi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Nunito:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  /* Extraídos do manual de identidade verbal e visual do Sicredi */
+  --branco:#FFFFFF;          /* Cores primárias — fundo principal da marca */
+  --fafafa:#FAFAFA;          /* Cores de produtos digitais */
+  --f5:#F5F5F5;              /* Cores de produtos digitais */
+  --tinta:#323C32;           /* Cores de produtos digitais */
+  --neutro-escuro:#5A645A;   /* Neutro Escuro · Pantone 445 C */
+  --verde:#3FA110;           /* Verde Sicredi Digital */
+  --verde-escuro:#146E37;    /* Verde Escuro · Pantone 7733 C */
+  --neutro-claro:#D7E6C8;    /* Neutro Claro · Pantone 7485 C */
+  --amarelo:#FFCD00;         /* Amarelo · Pantone 7408 C */
+  --erro:#ED5A6C;            /* Cores de produtos digitais */
+  --borda:#828A82;           /* Códigos cromáticos — contorno tocável */
+  --divisor:#CDD3CD;         /* Códigos cromáticos — filete */
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--branco); color:var(--tinta);
+  font-family:"Nunito",ui-sans-serif,system-ui,sans-serif; font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased}
+p{margin:0} h1,h2,h3,h4{margin:0; text-wrap:balance}
+.exo{font-family:"Exo 2","Nunito",sans-serif}
+.wrap{max-width:1080px; margin:0 auto; padding-inline:22px}
+:focus-visible{outline:2px solid var(--verde-escuro); outline-offset:3px; border-radius:6px}
+code{font-family:ui-monospace,monospace; font-size:.84em}
+
+.open{padding-block:clamp(54px,9vw,112px); border-bottom:1px solid var(--divisor)}
+.eyebrow{font-family:"Exo 2",sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--verde-escuro); margin-bottom:24px}
+.open h1{font-family:"Exo 2",sans-serif; font-weight:700; font-size:clamp(2.6rem,7.6vw,5.2rem);
+  line-height:1.02; letter-spacing:-.02em; margin-bottom:24px}
+.open h1 i{font-style:italic; font-weight:600; color:var(--verde-escuro)}
+.open .lede{font-size:clamp(1.02rem,1.9vw,1.2rem); color:var(--neutro-escuro); max-width:48ch}
+.open-grid{display:grid; gap:clamp(32px,6vw,60px); grid-template-columns:1fr; align-items:end}
+@media(min-width:880px){.open-grid{grid-template-columns:minmax(0,1fr) minmax(0,190px)}}
+.open-mark{display:flex}
+@media(min-width:880px){.open-mark{justify-content:flex-end}}
+.open-mark svg{width:clamp(88px,20vw,172px); height:auto; color:var(--verde)}
+
+section{border-bottom:1px solid var(--divisor)}
+.sec{padding-block:clamp(46px,7vw,86px)}
+.num{font-family:"Exo 2",sans-serif; font-size:.82rem; font-weight:600; color:var(--borda); margin-bottom:10px}
+.sec h2{font-family:"Exo 2",sans-serif; font-weight:700; font-size:clamp(1.8rem,4.3vw,2.8rem);
+  line-height:1.08; letter-spacing:-.015em; margin-bottom:15px}
+.lede{color:var(--neutro-escuro); max-width:64ch; font-size:1.03rem}
+.head{margin-bottom:clamp(28px,4.5vw,46px)}
+.quote{border-left:3px solid var(--verde); padding:4px 0 4px 18px; margin-top:22px;
+  font-family:"Exo 2",sans-serif; font-style:italic; font-size:1.05rem; color:var(--tinta); max-width:56ch}
+.quote cite{display:block; font-style:normal; font-family:"Nunito",sans-serif; font-size:.78rem;
+  color:var(--neutro-escuro); margin-top:8px}
+
+.rule{display:grid; gap:1px; background:var(--divisor); border:1px solid var(--divisor); border-radius:14px; overflow:hidden}
+.rr{background:var(--branco); padding:16px 19px; display:flex; gap:14px; align-items:flex-start;
+  font-size:.94rem; line-height:1.55; color:var(--neutro-escuro)}
+.rr b{color:var(--tinta); font-weight:700}
+.rr .m{flex:none; font-weight:700; font-size:1.05rem; line-height:1.4}
+.ok .m{color:var(--verde-escuro)} .no .m{color:#C0304A}
+.rr .v{margin-left:auto; flex:none; font-family:ui-monospace,monospace; font-size:.78rem; color:var(--tinta); font-weight:600}
+
+.tk{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--divisor); border:1px solid var(--divisor)}
+@media(min-width:680px){.tk{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:960px){.tk{grid-template-columns:repeat(4,1fr)}}
+.tkc{background:var(--branco)}
+.tkc .fill{height:74px; border-bottom:1px solid var(--divisor)}
+.tkc .info{padding:12px 14px}
+.tkc b{display:block; font-family:"Exo 2",sans-serif; font-size:.85rem; font-weight:600}
+.tkc code{display:block; font-size:.7rem; color:var(--neutro-escuro); margin-top:1px}
+.tkc i{font-style:normal; font-size:.68rem; color:var(--borda); display:block; margin-top:5px; line-height:1.4}
+
+.type-row{display:grid; gap:18px; grid-template-columns:1fr}
+@media(min-width:760px){.type-row{grid-template-columns:150px 1fr; align-items:baseline; gap:26px}}
+.type-row+.type-row{border-top:1px solid var(--divisor); padding-top:20px; margin-top:20px}
+.tmeta{font-size:.76rem; color:var(--neutro-escuro); line-height:1.5}
+.t-d{font-family:"Exo 2",sans-serif; font-weight:700; font-size:clamp(2rem,5vw,3rem); line-height:1.02; letter-spacing:-.02em}
+.t-t{font-family:"Exo 2",sans-serif; font-weight:600; font-size:1.45rem}
+.t-b{font-size:1.05rem; max-width:58ch}
+.t-l{font-family:"Exo 2",sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--verde-escuro)}
+
+.demo{display:grid; gap:clamp(28px,4vw,50px); grid-template-columns:1fr; align-items:start}
+@media(min-width:920px){.demo{grid-template-columns:minmax(0,324px) minmax(0,1fr)}}
+.device{width:100%; max-width:324px; margin-inline:auto; padding:10px; border-radius:42px;
+  background:var(--f5); border:1px solid var(--divisor); box-shadow:0 26px 54px -32px rgba(50,60,50,.45)}
+.vp{position:relative; height:628px; border-radius:33px; overflow:hidden; isolation:isolate;
+  background:var(--branco); border:1px solid var(--divisor)}
+.vp-body{position:absolute; inset:0 0 124px 0; z-index:1; overflow:hidden; display:flex; flex-direction:column}
+.scr{display:none; flex-direction:column; gap:14px; padding:19px 16px 8px; height:100%}
+.scr.on{display:flex}
+.bar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex:none}
+.brandlet{display:flex; align-items:center; gap:8px; font-family:"Exo 2",sans-serif; font-weight:700; font-size:1.06rem}
+.brandlet svg{width:19px; height:19px; color:var(--verde)}
+.count{font-size:.71rem; color:var(--neutro-escuro); font-variant-numeric:tabular-nums}
+.ask{font-family:"Exo 2",sans-serif; font-weight:600; font-size:1.34rem; line-height:1.15}
+.hint{font-size:.76rem; color:var(--neutro-escuro); line-height:1.45}
+.card{background:var(--fafafa); border:1px solid var(--divisor); border-radius:18px; padding:16px;
+  display:flex; flex-direction:column; gap:10px}
+.stage{font-family:"Exo 2",sans-serif; font-size:.63rem; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--verde-escuro)}
+.card h4{font-family:"Exo 2",sans-serif; font-weight:600; font-size:1.16rem; line-height:1.18}
+.card p{font-size:.82rem; color:var(--neutro-escuro); line-height:1.5}
+.opt{font:inherit; font-size:.83rem; line-height:1.35; text-align:left; padding:12px 13px; border-radius:13px;
+  cursor:pointer; color:var(--tinta); background:var(--branco); border:1px solid var(--borda);
+  transition:border-color .18s, background .18s}
+.opt:hover{border-color:var(--verde); background:var(--f5)}
+.src{font-size:.63rem; color:var(--borda); line-height:1.45}
+.cta{border:0; border-radius:13px; padding:13px; font-family:"Exo 2",sans-serif; font-size:.88rem; font-weight:600;
+  background:var(--verde-escuro); color:var(--branco); text-align:center; cursor:pointer}
+.chips{display:flex; gap:5px}
+.chips span{flex:1; aspect-ratio:1; border-radius:12px; display:grid; place-items:center;
+  background:var(--branco); border:1px solid var(--borda); color:var(--neutro-escuro)}
+.chips span svg{width:21px; height:17px}
+.chips span.on{border-color:var(--verde); border-width:2px; color:var(--verde-escuro); background:var(--branco)}
+
+.trail{display:flex; flex-direction:column; gap:2px; overflow-y:auto; scrollbar-width:none}
+.trail::-webkit-scrollbar{display:none}
+.node{display:flex; align-items:center; gap:13px; padding:5px 0}
+.node.r{flex-direction:row-reverse; text-align:right}
+.ring{position:relative; width:60px; height:60px; flex:none; display:grid; place-items:center}
+.ring svg.r{position:absolute; inset:0; width:60px; height:60px; transform:rotate(-90deg)}
+.core{width:42px; height:42px; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--borda); color:var(--neutro-escuro); background:var(--branco)}
+.core svg{width:18px; height:18px}
+.node.done .core{border-color:var(--verde); color:var(--verde-escuro)}
+.node.now .core{background:var(--verde-escuro); border-color:var(--verde-escuro); color:var(--branco)}
+.node.lock .core{color:var(--borda)}
+.lbl b{display:block; font-family:"Exo 2",sans-serif; font-weight:600; font-size:.96rem}
+.lbl span{font-size:.71rem; color:var(--neutro-escuro)}
+.node.lock .lbl b{color:var(--neutro-escuro); font-weight:500}
+.link{width:1px; height:14px; margin-left:30px; background:var(--divisor); flex:none}
+.link.r{margin-left:auto; margin-right:30px}
+
+.pf{display:flex; flex-direction:column; align-items:center; gap:9px; padding-block:6px}
+.pf-ring{position:relative; width:90px; height:90px; display:grid; place-items:center}
+.pf-ring svg.r{position:absolute; inset:0; width:90px; height:90px; transform:rotate(-90deg)}
+.pf-face{width:68px; height:68px; border-radius:50%; display:grid; place-items:center; border:1px solid var(--borda)}
+.pf-face svg{width:29px; height:29px}
+.pf h4{font-family:"Exo 2",sans-serif; font-weight:600; font-size:1.15rem}
+.pf p{font-size:.72rem; color:var(--neutro-escuro)}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--divisor); border:1px solid var(--divisor)}
+.stat{background:var(--branco); padding:12px 7px; text-align:center}
+.stat b{display:block; font-family:"Exo 2",sans-serif; font-weight:700; font-size:1.5rem; font-variant-numeric:tabular-nums}
+.stat span{font-size:.56rem; letter-spacing:.12em; text-transform:uppercase; color:var(--neutro-escuro)}
+
+.care{position:absolute; left:0; right:0; bottom:62px; z-index:2; padding:10px 16px 11px;
+  border-top:1px solid var(--divisor); background:var(--branco); display:flex; flex-direction:column; gap:2px}
+.care a{color:var(--verde-escuro); font-size:.75rem; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:7px}
+.care a svg{width:13px; height:13px}
+.care span{font-size:.62rem; color:var(--neutro-escuro); line-height:1.35}
+.tabs{position:absolute; left:0; right:0; bottom:0; z-index:3; height:62px;
+  border-top:1px solid var(--divisor); background:var(--branco);
+  display:grid; grid-template-columns:repeat(5,1fr); align-items:center}
+.tab{background:none; border:0; cursor:pointer; font:inherit; font-size:.54rem; font-weight:600;
+  color:var(--borda); display:flex; flex-direction:column; align-items:center; gap:4px; padding:0; transition:color .18s}
+.tab svg{width:19px; height:19px}
+.tab[aria-selected="true"]{color:var(--verde-escuro)}
+.tab.mid .fab{width:47px; height:47px; border-radius:50%; margin-top:-22px; display:grid; place-items:center;
+  background:var(--verde-escuro); color:var(--branco); box-shadow:0 6px 16px -5px rgba(20,110,55,.5); transition:transform .1s}
+.tab.mid .fab svg{width:21px; height:21px}
+.tab.mid:active .fab{transform:translateY(3px)}
+
+.notes{display:grid; gap:1px; background:var(--divisor); border:1px solid var(--divisor)}
+.note{background:var(--branco); padding:19px 21px; display:flex; flex-direction:column; gap:6px}
+.note b{font-family:"Exo 2",sans-serif; font-weight:600; font-size:1.04rem}
+.note span{font-size:.9rem; color:var(--neutro-escuro); line-height:1.55}
+footer{padding-block:38px; color:var(--neutro-escuro); font-size:.85rem}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+
+<header class="open"><div class="wrap">
+  <p class="eyebrow">Colheita · Aplicado ao manual da marca</p>
+  <div class="open-grid">
+    <div>
+      <h1>Fundo branco,<br>porque o manual <i>diz que é</i>.</h1>
+      <p class="lede">Paleta, tipografia e regra de fundo extraídas do manual de identidade verbal e visual do Sicredi. E três descobertas de contraste que mudam como o verde pode ser usado num app.</p>
+    </div>
+    <div class="open-mark">
+      <svg viewBox="0 0 48 48" role="img" aria-label="Colheita">
+        <path d="M35 11.5A17.5 17.5 0 1 0 35 36.5" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+        <rect x="14" y="26" width="4.5" height="6" rx="2.25" fill="currentColor"/>
+        <rect x="21.75" y="21.5" width="4.5" height="10.5" rx="2.25" fill="currentColor"/>
+        <rect x="29.5" y="17" width="4.5" height="15" rx="2.25" fill="currentColor"/>
+      </svg>
+    </div>
+  </div>
+</div></header>
+
+<main>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <p class="num">01</p>
+    <h2>O branco não é escolha nossa</h2>
+    <p class="lede">Eu tinha proposto fundo escuro por gosto. O manual é explícito no sentido contrário, e a razão que ele dá é funcional, não estética.</p>
+  </div>
+  <blockquote class="quote">
+    "O branco é essencial no nosso universo visual. A presença de áreas em branco, além de ser o fundo principal de aplicação da marca, faz com que o foco de atenção seja a informação que deve ser destacada."
+    <cite>Manual de identidade verbal e visual — Sicredi, seção Cores</cite>
+  </blockquote>
+  <p class="lede" style="margin-top:22px">Para um app que mostra uma decisão por tela, isso é exatamente o que a gente quer: a informação em destaque é a escolha, e o respiro em volta é quem a destaca.</p>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <p class="num">02</p>
+    <h2>O verde não é um valor só</h2>
+    <p class="lede">Calculei cada cor oficial contra os fundos oficiais. O <code>#3FA110</code> tem um problema que não é defeito dele — é física de cor clara sobre fundo claro.</p>
+  </div>
+  <div class="rule">
+    <div class="rr no"><span class="m">✕</span><span><b>Verde Sicredi como texto sobre branco.</b> Precisa de 4.5:1 e entrega bem menos. Nenhuma palavra do app pode usar esse verde.</span><span class="v">3.32:1</span></div>
+    <div class="rr no"><span class="m">✕</span><span><b>Verde Sicredi como botão sólido.</b> Nem texto branco por cima, nem a tinta oficial <code>#323C32</code>, chegam ao mínimo. Botão verde nesse tom não fecha.</span><span class="v">3.46:1</span></div>
+    <div class="rr ok"><span class="m">✓</span><span><b>Verde Escuro, do próprio manual</b> (<code>#146E37</code>, Pantone 7733 C), com texto branco. É este o botão sólido, e é este o verde escrito.</span><span class="v">6.33:1</span></div>
+    <div class="rr ok"><span class="m">✓</span><span><b>Verde Sicredi como contorno, anel e grafismo.</b> Elemento não textual exige 3:1, e aí ele passa. A marca continua sendo o verde de sempre.</span><span class="v">3.32:1</span></div>
+    <div class="rr no"><span class="m">✕</span><span><b>Amarelo como texto.</b> O <code>#FFCD00</code> é quase invisível sobre branco — mas com tinta escura por cima vira um destaque forte.</span><span class="v">1.50:1</span></div>
+    <div class="rr no"><span class="m">✕</span><span><b>Neutro Claro como borda.</b> O <code>#D7E6C8</code> é cor de superfície, não de contorno: não diz onde começa a área tocável.</span><span class="v">1.31:1</span></div>
+  </div>
+  <p class="lede" style="margin-top:24px">A regra que sai disso é simples de seguir: <b style="color:var(--tinta)">o Verde Sicredi desenha, o Verde Escuro escreve.</b> É a mesma lógica do manual quando ele separa o verde impresso do verde digital — cor de marca é um sistema, não um valor.</p>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <p class="num">03</p>
+    <h2>Tipografia oficial</h2>
+    <p class="lede">Exo 2 na composição, Nunito no texto corrido e em interface. As duas estão no Google Fonts, então dá para usar via <code>next/font</code> sem licença extra.</p>
+  </div>
+  <div class="type-row"><p class="tmeta"><b>Exo 2 Bold</b><br>Display · −2% tracking</p><p class="t-d">Colheita</p></div>
+  <div class="type-row"><p class="tmeta"><b>Exo 2 SemiBold</b><br>Título · 23px</p><p class="t-t">O imprevisto não avisa</p></div>
+  <div class="type-row"><p class="tmeta"><b>Nunito Regular</b><br>Corpo · 17px / 1.65</p><p class="t-b">Preparar é ter alguma folga antes de precisar. Não é sobre quanto você guarda: é sobre existir alguma coisa guardada quando a geladeira quebra numa terça-feira.</p></div>
+  <div class="type-row"><p class="tmeta"><b>Exo 2 SemiBold</b><br>Etiqueta · .18em</p><p class="t-l">Preparar · Etapa 4 de 5</p></div>
+  <p class="quote" style="margin-top:30px">"A versão em itálico reforça nosso movimento e dinamismo."<cite>Manual de identidade verbal e visual — Sicredi, seção Tipografia</cite></p>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <p class="num">04</p>
+    <h2>O aplicativo</h2>
+    <p class="lede">Fundo branco, superfícies em <code>#FAFAFA</code>, e o verde só onde ele aguenta. <b style="color:var(--tinta)">Toque nas abas.</b></p>
+  </div>
+  <div class="demo">
+    <div class="device"><div class="vp">
+      <div class="vp-body">
+
+        <div class="scr on" id="s-hoje">
+          <div class="bar">
+            <span class="brandlet">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M35 11.5A17.5 17.5 0 1 0 35 36.5" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><rect x="14" y="25.5" width="5" height="6.5" rx="2.5" fill="currentColor"/><rect x="21.5" y="20.5" width="5" height="11.5" rx="2.5" fill="currentColor"/><rect x="29.5" y="16" width="5" height="16" rx="2.5" fill="currentColor"/></svg>Colheita
+            </span>
+            <span class="count">47 dias</span>
+          </div>
+          <p class="ask">Como está o tempo hoje?</p>
+          <div class="chips" id="chips"></div>
+          <p class="hint">Ninguém além de você vê esta resposta.</p>
+          <div class="card">
+            <p class="stage">Preparar · 4 de 6</p>
+            <h4>O imprevisto não avisa</h4>
+            <p>Preparar é ter alguma folga antes de precisar. Não é sobre quanto você guarda.</p>
+            <button class="opt" type="button">Guardar, mesmo sendo pouco</button>
+            <button class="opt" type="button">Deixar na conta, R$ 50 não muda nada</button>
+            <p class="src">Cooperação na Ponta do Lápis, do Sicredi.</p>
+          </div>
+        </div>
+
+        <div class="scr" id="s-trilha">
+          <div class="bar"><span class="ask" style="font-size:1.22rem">Trilha COOPS</span><span class="count">3 de 5</span></div>
+          <div class="trail" id="trail"></div>
+        </div>
+
+        <div class="scr" id="s-perfil">
+          <div class="bar"><span class="ask" style="font-size:1.22rem">Perfil</span></div>
+          <div class="pf">
+            <span class="pf-ring">
+              <svg class="r" viewBox="0 0 90 90" aria-hidden="true">
+                <circle cx="45" cy="45" r="41" fill="none" stroke="#D7E6C8" stroke-width="4"/>
+                <circle cx="45" cy="45" r="41" fill="none" stroke="#3FA110" stroke-width="4" stroke-linecap="round" stroke-dasharray="258" stroke-dashoffset="67"/>
+              </svg>
+              <span class="pf-face"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="7" r="3.1"/><path d="M4.2 16.4c.7-2.7 3-4.2 5.8-4.2s5.1 1.5 5.8 4.2"/></svg></span>
+            </span>
+            <h4>Wendel L.</h4><p>Unidade Cuiabá · desde julho</p>
+          </div>
+          <div class="stats">
+            <span class="stat"><b>47</b><span>dias</span></span>
+            <span class="stat"><b>3</b><span>etapas</span></span>
+            <span class="stat"><b>3</b><span>no azul</span></span>
+          </div>
+          <div class="cta" style="margin-top:12px">Ver minhas conquistas</div>
+          <p class="hint" style="margin-top:auto">Nada aqui vale ponto, vira moeda ou entra em ranking.</p>
+        </div>
+
+      </div>
+
+      <div class="care">
+        <a href="tel:188">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5.2 2.5 6.8 6l-1.5 1.4a8.5 8.5 0 0 0 3.8 3.8L10.5 9.7 14 11.3v2.2c0 .6-.5 1-1.1 1A11.6 11.6 0 0 1 1.5 3.1c0-.6.4-1.1 1-1.1h2.2Z"/></svg>
+          CVV 188 — gratuito, 24 horas
+        </a>
+        <span>Este app não faz diagnóstico e não substitui atendimento profissional.</span>
+      </div>
+
+      <nav class="tabs" role="tablist" aria-label="Navegação principal">
+        <button class="tab" role="tab" aria-selected="true" data-go="hoje">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.2 11 3.4l7.5 5.8V18a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1Z"/></svg>Hoje
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-go="perfil">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.6"/><path d="M11 5.4v5.6l3.6 2"/></svg>Progresso
+        </button>
+        <button class="tab mid" role="tab" aria-selected="false" data-go="trilha" aria-label="Trilha">
+          <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18c3.6 0 3.6-5 7.2-5S19 8 19 6"/><circle cx="5" cy="18" r="1.5" fill="currentColor"/><circle cx="19" cy="6" r="1.5" fill="currentColor"/></svg></span>
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-go="trilha">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h8v5a4 4 0 0 1-8 0Z"/><path d="M11 12v3M8 19h6l-.7-4h-4.6Z"/></svg>Conquistas
+        </button>
+        <button class="tab" role="tab" aria-selected="false" data-go="perfil">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="7.6" r="3.3"/><path d="M4.6 18.2c.8-3 3.3-4.6 6.4-4.6s5.6 1.6 6.4 4.6"/></svg>Perfil
+        </button>
+      </nav>
+    </div></div>
+
+    <div class="notes">
+      <div class="note"><b>O respiro é o argumento</b><span>O manual diz que as áreas em branco fazem o foco cair na informação destacada. Num app de uma decisão por tela, isso vira regra de layout: nada compete com a escolha do dia.</span></div>
+      <div class="note"><b>O estado usa cor <i>e</i> forma</b><span>O tempo escolhido ganha borda verde de 2px, não só cor. Cerca de 8% dos homens tem alguma deficiência de percepção de cor, e o público do SESI é majoritariamente masculino.</span></div>
+      <div class="note"><b>Botão e link em Verde Escuro</b><span>O CVV, o botão sólido e o verde escrito usam <code>#146E37</code>. O <code>#3FA110</code> fica no símbolo, no anel de progresso e nos contornos.</span></div>
+      <div class="note"><b>Não reproduzimos a marca do Sicredi</b><span>Usamos a paleta e a tipografia do manual público. O símbolo, o logotipo e o cata-vento deles não aparecem em ativo nenhum do Colheita.</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head"><p class="num">05</p><h2>Tokens, com a origem</h2></div>
+  <div class="tk">
+    <div class="tkc"><div class="fill" style="background:#FFFFFF; box-shadow:inset 0 0 0 1px #CDD3CD"></div><div class="info"><b>Branco</b><code>#FFFFFF</code><i>Cores primárias. Fundo principal.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#FAFAFA"></div><div class="info"><b>Superfície</b><code>#FAFAFA</code><i>Produtos digitais. Cartões.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#F5F5F5"></div><div class="info"><b>Superfície 2</b><code>#F5F5F5</code><i>Produtos digitais.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#3FA110"></div><div class="info"><b>Verde Sicredi</b><code>#3FA110</code><i>Símbolo, anel, contorno. Nunca texto.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#146E37"></div><div class="info"><b>Verde Escuro</b><code>#146E37</code><i>Pantone 7733 C. Botão e texto.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#323C32"></div><div class="info"><b>Tinta</b><code>#323C32</code><i>Produtos digitais. Texto principal.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#5A645A"></div><div class="info"><b>Neutro Escuro</b><code>#5A645A</code><i>Pantone 445 C. Texto secundário.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#828A82"></div><div class="info"><b>Borda</b><code>#828A82</code><i>Contorno tocável. 3.56:1.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#CDD3CD"></div><div class="info"><b>Divisor</b><code>#CDD3CD</code><i>Filete. Decorativo, não tocável.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#D7E6C8"></div><div class="info"><b>Neutro Claro</b><code>#D7E6C8</code><i>Pantone 7485 C. Trilho do anel.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#FFCD00"></div><div class="info"><b>Amarelo</b><code>#FFCD00</code><i>Pantone 7408 C. Fundo com tinta.</i></div></div>
+    <div class="tkc"><div class="fill" style="background:#ED5A6C"></div><div class="info"><b>Erro</b><code>#ED5A6C</code><i>Produtos digitais. Só falha de sistema.</i></div></div>
+  </div>
+  <p class="lede" style="margin-top:24px"><b style="color:var(--tinta)">O vermelho nunca toca uma escolha do usuário.</b> Ele existe só para falha de sistema — campo inválido, conexão caída. Escolher diferente do que a peça ensinou não é erro e não pinta de vermelho em lugar nenhum do app. Essa é regra de produto antes de ser regra de marca.</p>
+</div></section>
+
+<footer><div class="wrap">
+  <p><strong style="color:var(--tinta)">Colheita</strong> — Equipe 3, Hackathon SESI Experience 2026. Desafio Sicredi, Cuiabá/MT.</p>
+  <p style="margin-top:8px">Paleta e tipografia conforme o manual de identidade verbal e visual público do Sicredi. O símbolo e o logotipo do Sicredi não são reproduzidos em nenhum ativo do Colheita. Conteúdo derivado do programa público Cooperação na Ponta do Lápis. Esta versão do produto não utiliza inteligência artificial.</p>
+</div></footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var W = {
+    storm:'<path d="M11 13c4-4.5 14-4.5 18 0"/><path d="M9 19l-2 7M16 19l-2 7M23 19l-2 7"/>',
+    rain :'<path d="M11 15c-3.3 0-6 2.5-6 5.5S7.7 26 11 26h17c3.3 0 6-2.5 6-5.5S31.3 15 28 15c-.4-4-3.9-7-8.1-7-4 0-7.4 2.8-8.1 6.6"/><path d="M14 29l-1 3M21 29l-1 3"/>',
+    cloud:'<path d="M11 11c-3.3 0-6 2.7-6 6s2.7 6 6 6h18c3.3 0 6-2.7 6-6s-2.7-6-6-6c-.5-4.3-4.2-7.5-8.5-7.5-4.2 0-7.7 3-8.4 7"/>',
+    part :'<circle cx="15" cy="12" r="5.5"/><path d="M22 18c-2.8 0-5 2.2-5 5s2.2 5 5 5h9c2.5 0 4.5-2 4.5-4.5S33.5 19 31 19c-.7-2.9-3.3-5-6.4-5"/>',
+    sun  :'<circle cx="20" cy="16" r="7"/><path d="M20 4.5v-2M20 29.5v2M32.5 16h2M5.5 16h-2"/>'
+  };
+  var ORDER = ["storm","rain","cloud","part","sun"];
+  var LABEL = { storm:"Tempestade", rain:"Chuva", cloud:"Nublado", part:"Sol entre nuvens", sun:"Sol" };
+  var chips = document.getElementById("chips");
+  if (chips){
+    chips.innerHTML = ORDER.map(function(k){
+      return '<span role="button" tabindex="0" data-w="' + k + '" aria-label="' + LABEL[k] + '" class="' + (k === "part" ? "on" : "") + '">' +
+        '<svg viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' + W[k] + '</svg></span>';
+    }).join("");
+    chips.addEventListener("click", function(e){
+      var t = e.target.closest("[data-w]");
+      if (!t) return;
+      Array.prototype.forEach.call(chips.children, function(c){ c.classList.remove("on"); });
+      t.classList.add("on");
+    });
+  }
+
+  var STAGES = [
+    { n:"Conscientizar", d:"6 de 6", p:1, st:"done" },
+    { n:"Observar", d:"6 de 6", p:1, st:"done" },
+    { n:"Organizar", d:"6 de 6", p:1, st:"done" },
+    { n:"Preparar", d:"4 de 6", p:0.66, st:"now" },
+    { n:"Sustentar", d:"trancada", p:0, st:"lock" }
+  ];
+  var GLYPH = {
+    done:'<path d="M4 9l3.4 3.4L14 5.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
+    now :'<path d="M6.5 4l6.5 5-6.5 5Z" fill="currentColor"/>',
+    lock:'<rect x="4.5" y="7.8" width="9" height="6.6" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.6 7.8V6.3a2.4 2.4 0 0 1 4.8 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+  };
+  var C = 2 * Math.PI * 27;
+  var trail = document.getElementById("trail");
+  if (trail){
+    trail.innerHTML = STAGES.map(function(s, i){
+      return (i ? '<span class="link' + (i % 2 ? " r" : "") + '"></span>' : "") +
+        '<div class="node ' + s.st + (i % 2 ? " r" : "") + '"><span class="ring">' +
+        '<svg class="r" viewBox="0 0 60 60" aria-hidden="true">' +
+        '<circle cx="30" cy="30" r="27" fill="none" stroke="#D7E6C8" stroke-width="3"/>' +
+        (s.p > 0 ? '<circle cx="30" cy="30" r="27" fill="none" stroke="#3FA110" stroke-width="3" stroke-linecap="round" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - s.p)).toFixed(1) + '"/>' : "") +
+        '</svg><span class="core"><svg viewBox="0 0 18 18">' + GLYPH[s.st] + '</svg></span></span>' +
+        '<span class="lbl"><b>' + s.n + '</b><span>' + s.d + '</span></span></div>';
+    }).join("");
+  }
+
+  var tabs = document.querySelectorAll(".tab");
+  var screens = { hoje:"s-hoje", trilha:"s-trilha", perfil:"s-perfil" };
+  Array.prototype.forEach.call(tabs, function(t){
+    t.addEventListener("click", function(){
+      var key = t.getAttribute("data-go");
+      Object.keys(screens).forEach(function(k){
+        var el = document.getElementById(screens[k]);
+        if (el) el.classList.toggle("on", k === key);
+      });
+      Array.prototype.forEach.call(tabs, function(o){ o.setAttribute("aria-selected", o === t ? "true" : "false"); });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

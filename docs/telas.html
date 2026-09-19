@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Colheita Telas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root{
+  --paper:#FCFCFA; --paper-2:#F3F3EF;
+  --ink:#0C0C0D; --ink-2:#6C6C69; --ink-3:#A9A9A4;
+  --line:#E3E3DD; --line-2:#CFCFC8;
+  --glass:rgba(255,255,255,.62); --glass-line:rgba(12,12,13,.10); --glass-top:rgba(255,255,255,.9);
+  --sky:rgba(12,12,13,.07);
+  --accent:#2F7D32; --solid:#0C0C0D; --on-solid:#FCFCFA;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B0B0C; --paper-2:#141416;
+  --ink:#F4F4F0; --ink-2:#9B9B97; --ink-3:#66665F;
+  --line:#242427; --line-2:#33333A;
+  --glass:rgba(255,255,255,.055); --glass-line:rgba(255,255,255,.12); --glass-top:rgba(255,255,255,.22);
+  --sky:rgba(255,255,255,.08);
+  --accent:#6FD14A; --solid:#F4F4F0; --on-solid:#0B0B0C;
+}}
+:root[data-theme="dark"]{
+  --paper:#0B0B0C; --paper-2:#141416;
+  --ink:#F4F4F0; --ink-2:#9B9B97; --ink-3:#66665F;
+  --line:#242427; --line-2:#33333A;
+  --glass:rgba(255,255,255,.055); --glass-line:rgba(255,255,255,.12); --glass-top:rgba(255,255,255,.22);
+  --sky:rgba(255,255,255,.08);
+  --accent:#6FD14A; --solid:#F4F4F0; --on-solid:#0B0B0C;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Instrument Sans",ui-sans-serif,system-ui,sans-serif; font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+p{margin:0} h1,h2,h3,h4{margin:0; font-weight:400; text-wrap:balance}
+.serif{font-family:"Instrument Serif",Georgia,serif}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:22px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:6px}
+
+.top{padding-block:clamp(44px,7vw,80px); border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.68rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-2); margin-bottom:20px}
+.top h1{font-family:"Instrument Serif",Georgia,serif; font-size:clamp(2.4rem,6.5vw,4.2rem); line-height:1; letter-spacing:-.02em; margin-bottom:20px}
+.top p{color:var(--ink-2); max-width:56ch}
+
+section{border-bottom:1px solid var(--line)}
+.sec{padding-block:clamp(40px,6vw,72px)}
+.sec h2{font-family:"Instrument Serif",Georgia,serif; font-size:clamp(1.6rem,3.6vw,2.3rem); margin-bottom:10px}
+.sec .lede{color:var(--ink-2); max-width:62ch}
+.head{margin-bottom:clamp(26px,4vw,42px)}
+
+.gallery{display:grid; gap:clamp(26px,3.5vw,42px); grid-template-columns:repeat(auto-fill,minmax(266px,1fr))}
+.fig{display:flex; flex-direction:column; gap:13px; min-width:0}
+.tag{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.chip{font-size:.63rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  padding:4px 9px; border-radius:99px; border:1px solid var(--line-2); color:var(--ink-2)}
+.chip.own{border-color:var(--ink); color:var(--ink)}
+.fig h3{font-family:"Instrument Serif",Georgia,serif; font-size:1.18rem}
+.cap{font-size:.83rem; color:var(--ink-2); line-height:1.5}
+.cap b{color:var(--ink); font-weight:600}
+
+.device{padding:8px; border-radius:36px; background:var(--paper-2); border:1px solid var(--line)}
+.vp{position:relative; height:560px; border-radius:29px; overflow:hidden; isolation:isolate;
+  background:var(--paper); border:1px solid var(--line)}
+.vp::before{content:""; position:absolute; inset:0; z-index:0;
+  background:radial-gradient(90% 44% at 50% 0%, var(--sky), transparent 70%)}
+.body{position:absolute; inset:0 0 118px 0; z-index:1; overflow:hidden;
+  display:flex; flex-direction:column; gap:13px; padding:17px 15px 6px}
+.body.full{inset:0; padding-bottom:16px}
+.bar{display:flex; align-items:center; justify-content:space-between; gap:9px; flex:none}
+.brandlet{display:flex; align-items:center; gap:7px; font-family:"Instrument Serif",Georgia,serif; font-size:1.02rem}
+.brandlet svg{width:17px; height:17px}
+.count{font-size:.68rem; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.ask{font-family:"Instrument Serif",Georgia,serif; font-size:1.34rem; line-height:1.12}
+.hint{font-size:.73rem; color:var(--ink-2); line-height:1.45}
+.gl{background:var(--glass); border:1px solid var(--glass-line); border-radius:18px;
+  -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%);
+  box-shadow:inset 0 1px 0 var(--glass-top)}
+.pc{padding:15px; display:flex; flex-direction:column; gap:9px}
+.stage{font-size:.6rem; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-2)}
+.pc h4{font-family:"Instrument Serif",Georgia,serif; font-size:1.1rem; line-height:1.15}
+.pc p{font-size:.79rem; color:var(--ink-2); line-height:1.5}
+.opt{font:inherit; font-size:.79rem; line-height:1.35; text-align:left; padding:11px 12px; border-radius:13px;
+  color:var(--ink); background:transparent; border:1px solid var(--line-2)}
+.opt.on{border-color:var(--ink); background:var(--paper-2)}
+.src{font-size:.61rem; color:var(--ink-3); line-height:1.45}
+.mini-wx{display:flex; gap:4px}
+.mini-wx span{flex:1; aspect-ratio:1; border-radius:12px; display:grid; place-items:center;
+  background:var(--glass); border:1px solid var(--glass-line); color:var(--ink-3);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px)}
+.mini-wx span svg{width:20px; height:17px}
+.mini-wx span.on{color:var(--ink); border-color:var(--ink)}
+.field{display:flex; flex-direction:column; gap:5px}
+.field label{font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-2)}
+.field .box{border:1px solid var(--line-2); border-radius:13px; padding:11px 13px; font-size:.82rem; color:var(--ink-3)}
+.cta{border:0; border-radius:13px; padding:13px; font:inherit; font-size:.85rem; font-weight:600;
+  background:var(--solid); color:var(--on-solid); text-align:center}
+
+.trail{display:flex; flex-direction:column; gap:2px; overflow:hidden}
+.node{display:flex; align-items:center; gap:12px; padding:4px 0}
+.node.r{flex-direction:row-reverse; text-align:right}
+.ring{position:relative; width:58px; height:58px; flex:none; display:grid; place-items:center}
+.ring svg.r{position:absolute; inset:0; width:58px; height:58px; transform:rotate(-90deg)}
+.core{width:40px; height:40px; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--line-2); color:var(--ink-2); background:var(--paper)}
+.core svg{width:17px; height:17px}
+.node.done .core{border-color:var(--accent); color:var(--accent)}
+.node.now .core{background:var(--solid); border-color:var(--solid); color:var(--on-solid)}
+.node.lock .core{color:var(--ink-3)}
+.lbl b{display:block; font-family:"Instrument Serif",Georgia,serif; font-size:.94rem; font-weight:400}
+.lbl span{font-size:.68rem; color:var(--ink-2)}
+.node.lock .lbl b{color:var(--ink-2)}
+.link{width:1px; height:12px; margin-left:29px; background:var(--line-2); flex:none}
+.link.r{margin-left:auto; margin-right:29px}
+
+.bigring{position:relative; width:150px; height:150px; margin-inline:auto; display:grid; place-items:center}
+.bigring svg{position:absolute; inset:0; width:150px; height:150px; transform:rotate(-90deg)}
+.bigring b{font-family:"Instrument Serif",Georgia,serif; font-size:2.4rem; font-variant-numeric:tabular-nums}
+.bigring i{font-style:normal; font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-2); display:block; text-align:center}
+.month{display:flex; gap:3px; align-items:flex-end; height:26px}
+.month i{flex:1; border-radius:2px; background:var(--ink); opacity:.85}
+.month i.off{background:var(--line-2); height:4px!important}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line)}
+.stat{background:var(--paper); padding:11px 6px; text-align:center}
+.stat b{display:block; font-family:"Instrument Serif",Georgia,serif; font-size:1.4rem; font-variant-numeric:tabular-nums}
+.stat span{font-size:.54rem; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-2)}
+
+.ach{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.ac{border:1px solid var(--line-2); border-radius:14px; padding:12px 6px 10px;
+  display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center}
+.ac .m{width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+  border:1px solid var(--line-2); color:var(--ink-3)}
+.ac .m svg{width:16px; height:16px}
+.ac b{font-size:.58rem; font-weight:500; color:var(--ink-3); line-height:1.25}
+.ac.got{border-color:var(--ink)}
+.ac.got .m{background:var(--solid); border-color:var(--solid); color:var(--on-solid)}
+.ac.got b{color:var(--ink); font-weight:600}
+.ac.traj.got .m{background:transparent; border-color:var(--accent); color:var(--accent)}
+
+.paths{display:flex; flex-direction:column; gap:7px}
+.path{border:1px solid var(--line-2); border-radius:14px; padding:11px 13px; display:flex; flex-direction:column; gap:2px}
+.path b{font-size:.82rem; font-weight:600}
+.path span{font-size:.7rem; color:var(--ink-2); line-height:1.4}
+.path.hi{border-color:var(--ink); background:var(--paper-2)}
+.path.hi b{display:flex; align-items:center; gap:7px}
+.path.hi svg{width:13px; height:13px}
+
+.list{display:flex; flex-direction:column; gap:6px}
+.li{border:1px solid var(--line-2); border-radius:13px; padding:11px 13px; display:flex; align-items:center; gap:10px; font-size:.79rem}
+.li span{color:var(--ink-2); margin-left:auto; font-size:.72rem}
+.pf{display:flex; flex-direction:column; align-items:center; gap:8px; padding-block:4px}
+.pf-ring{position:relative; width:86px; height:86px; display:grid; place-items:center}
+.pf-ring svg.r{position:absolute; inset:0; width:86px; height:86px; transform:rotate(-90deg)}
+.pf-face{width:66px; height:66px; border-radius:50%; display:grid; place-items:center; border:1px solid var(--line-2)}
+.pf-face svg{width:28px; height:28px}
+.pf h4{font-family:"Instrument Serif",Georgia,serif; font-size:1.12rem}
+.pf p{font-size:.7rem; color:var(--ink-2)}
+
+.care{position:absolute; left:0; right:0; bottom:58px; z-index:2; padding:10px 15px 11px;
+  border-top:1px solid var(--line); background:var(--paper); display:flex; flex-direction:column; gap:2px}
+.care a{color:var(--ink); font-size:.72rem; font-weight:600; text-decoration:none; display:flex; align-items:center; gap:6px}
+.care a svg{width:12px; height:12px}
+.care span{font-size:.6rem; color:var(--ink-2); line-height:1.35}
+.tabs{position:absolute; left:0; right:0; bottom:0; z-index:3; height:58px;
+  border-top:1px solid var(--line); background:var(--glass);
+  -webkit-backdrop-filter:blur(24px) saturate(170%); backdrop-filter:blur(24px) saturate(170%);
+  display:grid; grid-template-columns:repeat(5,1fr); align-items:center}
+.tab{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:.5rem; font-weight:500; color:var(--ink-3)}
+.tab svg{width:18px; height:18px}
+.tab.on{color:var(--ink)}
+.tab .fab{width:44px; height:44px; border-radius:50%; margin-top:-22px; display:grid; place-items:center;
+  background:var(--solid); color:var(--on-solid)}
+.tab .fab svg{width:20px; height:20px}
+
+/* desktop */
+.desk{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--paper)}
+.desk-bar{padding:11px 16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:8px;
+  font-family:"Instrument Serif",Georgia,serif; font-size:.95rem; background:var(--paper-2)}
+.desk-bar svg{width:15px; height:15px}
+.desk-in{padding:20px}
+.desk h4{font-family:"Instrument Serif",Georgia,serif; font-size:1.3rem; margin-bottom:4px}
+.desk .sub{font-size:.78rem; color:var(--ink-2); margin-bottom:16px}
+.warn{border:1px solid var(--line-2); border-radius:13px; padding:13px 15px; margin-bottom:16px; font-size:.76rem; color:var(--ink-2); line-height:1.5}
+.warn b{color:var(--ink)}
+.mx{display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--line); border:1px solid var(--line)}
+@media(min-width:520px){.mx{grid-template-columns:repeat(3,1fr)}}
+.mc{background:var(--paper); padding:13px 14px}
+.mc span{font-size:.66rem; color:var(--ink-2); display:block; margin-bottom:5px}
+.mc b{font-family:"Instrument Serif",Georgia,serif; font-size:1.6rem; font-variant-numeric:tabular-nums; display:block}
+.mc i{font-style:normal; font-size:.62rem; color:var(--ink-3); display:block; margin-top:3px; line-height:1.35}
+.empty{border:1px dashed var(--line-2); border-radius:14px; padding:38px 20px; text-align:center}
+.empty b{display:block; font-family:"Instrument Serif",Georgia,serif; font-size:1.1rem; margin-bottom:6px}
+.empty span{font-size:.78rem; color:var(--ink-2); line-height:1.5; max-width:44ch; display:inline-block}
+.desks{display:grid; gap:24px; grid-template-columns:1fr}
+@media(min-width:900px){.desks{grid-template-columns:1fr 1fr}}
+footer{padding-block:36px; color:var(--ink-2); font-size:.85rem}
+</style>
+
+<header class="top"><div class="wrap">
+  <p class="eyebrow">Colheita · Telas</p>
+  <h1>Todas as telas, com a issue de cada uma</h1>
+  <p>Referência visual para o Bloco A e o Bloco B. Cada tela traz a issue de quem constrói e a regra que não pode ser quebrada. Preto e branco: a cor tem um emprego só, o anel de progresso.</p>
+</div></header>
+
+<main>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <h2>A jornada diária</h2>
+    <p class="lede">O laço do produto. Cinco minutos: o tempo, a peça, a decisão, a consequência.</p>
+  </div>
+  <div class="gallery" id="g-journey"></div>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <h2>Trilha, progresso e conquistas</h2>
+    <p class="lede">Onde o acúmulo fica visível — sem ponto, sem moeda, sem ranking.</p>
+  </div>
+  <div class="gallery" id="g-track"></div>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <h2>Apoio</h2>
+    <p class="lede">A lacuna que achamos relendo o desafio: o gabarito da página 3 pede <b style="color:var(--ink)">"maior utilização dos recursos de apoio disponibilizados"</b>, e a mesma página lista "baixo conhecimento e utilização de benefícios corporativos" como problema associado.</p>
+  </div>
+  <div class="gallery" id="g-support"></div>
+</div></section>
+
+<section><div class="wrap sec">
+  <div class="head">
+    <h2>Painel do gestor</h2>
+    <p class="lede">Desktop, fora da moldura de celular. Já está na <b style="color:var(--ink)">main</b> — aqui na identidade nova, com o sétimo indicador que a issue #46 acrescenta.</p>
+  </div>
+  <div class="desks" id="g-desk"></div>
+</div></section>
+
+<footer><div class="wrap">
+  <p><strong style="color:var(--ink)">Colheita</strong> — Equipe 3, Hackathon SESI Experience 2026. Desafio Sicredi, Cuiabá/MT.</p>
+  <p style="margin-top:7px">Identidade própria do Colheita; não reproduzimos a marca do Sicredi em nenhum ativo. Conteúdo derivado do programa público Cooperação na Ponta do Lápis. Esta versão do produto não utiliza inteligência artificial.</p>
+</div></footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var MARK = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M35 11.5A17.5 17.5 0 1 0 35 36.5" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><rect x="14" y="25.5" width="5" height="6.5" rx="2.5" fill="currentColor"/><rect x="21.5" y="20.5" width="5" height="11.5" rx="2.5" fill="currentColor"/><rect x="29.5" y="16" width="5" height="16" rx="2.5" fill="currentColor"/></svg>';
+  var PHONE = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5.2 2.5 6.8 6l-1.5 1.4a8.5 8.5 0 0 0 3.8 3.8L10.5 9.7 14 11.3v2.2c0 .6-.5 1-1.1 1A11.6 11.6 0 0 1 1.5 3.1c0-.6.4-1.1 1-1.1h2.2Z"/></svg>';
+  var W = {
+    storm:'<path d="M11 13c4-4.5 14-4.5 18 0"/><path d="M9 19l-2 7M16 19l-2 7M23 19l-2 7"/>',
+    rain :'<path d="M11 15c-3.3 0-6 2.5-6 5.5S7.7 26 11 26h17c3.3 0 6-2.5 6-5.5S31.3 15 28 15c-.4-4-3.9-7-8.1-7-4 0-7.4 2.8-8.1 6.6"/><path d="M14 29l-1 3M21 29l-1 3"/>',
+    cloud:'<path d="M11 11c-3.3 0-6 2.7-6 6s2.7 6 6 6h18c3.3 0 6-2.7 6-6s-2.7-6-6-6c-.5-4.3-4.2-7.5-8.5-7.5-4.2 0-7.7 3-8.4 7"/>',
+    part :'<circle cx="15" cy="12" r="5.5"/><path d="M22 18c-2.8 0-5 2.2-5 5s2.2 5 5 5h9c2.5 0 4.5-2 4.5-4.5S33.5 19 31 19c-.7-2.9-3.3-5-6.4-5"/>',
+    sun  :'<circle cx="20" cy="16" r="7"/><path d="M20 4.5v-2M20 29.5v2M32.5 16h2M5.5 16h-2"/>'
+  };
+  function wxRow(active){
+    return '<div class="mini-wx">' + ["storm","rain","cloud","part","sun"].map(function(k){
+      return '<span class="' + (k === active ? "on" : "") + '"><svg viewBox="0 0 40 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' + W[k] + '</svg></span>';
+    }).join("") + '</div>';
+  }
+  function head(right){
+    return '<div class="bar"><span class="brandlet">' + MARK + 'Colheita</span><span class="count">' + (right || "") + '</span></div>';
+  }
+  var CARE = '<div class="care"><a href="tel:188">' + PHONE + 'CVV 188 — gratuito, 24 horas</a><span>Este app não faz diagnóstico e não substitui atendimento profissional.</span></div>';
+  var TABS = ["Hoje","Progresso","","Conquistas","Perfil"];
+  var TABICON = [
+    '<path d="M3.5 9.2 11 3.4l7.5 5.8V18a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1Z"/>',
+    '<circle cx="11" cy="11" r="7.6"/><path d="M11 5.4v5.6l3.6 2"/>',
+    '',
+    '<path d="M7 3h8v5a4 4 0 0 1-8 0Z"/><path d="M11 12v3M8 19h6l-.7-4h-4.6Z"/>',
+    '<circle cx="11" cy="7.6" r="3.3"/><path d="M4.6 18.2c.8-3 3.3-4.6 6.4-4.6s5.6 1.6 6.4 4.6"/>'
+  ];
+  function tabs(active){
+    return '<nav class="tabs" aria-hidden="true">' + TABS.map(function(label, i){
+      if (i === 2) return '<span class="tab"><span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18c3.6 0 3.6-5 7.2-5S19 8 19 6"/><circle cx="5" cy="18" r="1.5" fill="currentColor"/><circle cx="19" cy="6" r="1.5" fill="currentColor"/></svg></span></span>';
+      return '<span class="tab' + (i === active ? " on" : "") + '"><svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + TABICON[i] + '</svg>' + label + '</span>';
+    }).join("") + '</nav>';
+  }
+  function phone(inner, opts){
+    opts = opts || {};
+    var chrome = opts.bare ? "" : CARE + tabs(opts.tab);
+    return '<div class="device"><div class="vp"><div class="body' + (opts.bare ? " full" : "") + '">' + inner + '</div>' + chrome + '</div></div>';
+  }
+  function fig(host, spec){
+    var el = document.createElement("div");
+    el.className = "fig";
+    el.innerHTML =
+      '<div class="tag"><span class="chip own">' + spec.issue + '</span><span class="chip">' + spec.who + '</span></div>' +
+      '<h3>' + spec.title + '</h3>' +
+      phone(spec.inner, spec.opts) +
+      '<p class="cap">' + spec.cap + '</p>';
+    document.getElementById(host).appendChild(el);
+  }
+
+  var RING = function(r, box, pct, stroke){
+    var c = 2 * Math.PI * r;
+    return '<circle cx="' + box/2 + '" cy="' + box/2 + '" r="' + r + '" fill="none" stroke="var(--line-2)" stroke-width="2"/>' +
+      (pct > 0 ? '<circle cx="' + box/2 + '" cy="' + box/2 + '" r="' + r + '" fill="none" stroke="' + (stroke || "var(--accent)") + '" stroke-width="2" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - pct)).toFixed(1) + '"/>' : "");
+  };
+
+  /* ── jornada ── */
+  fig("g-journey", {
+    issue:"#40 · #41", who:"lisboon", title:"Entrada",
+    opts:{ bare:true },
+    inner:
+      '<div style="display:flex;flex-direction:column;height:100%;gap:15px">' +
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:9px;padding-block:34px 8px">' +
+        '<span style="width:52px;height:52px;color:var(--ink)">' + MARK + '</span>' +
+        '<span class="serif" style="font-size:1.7rem">Colheita</span>' +
+        '<span class="hint" style="text-align:center;max-width:26ch">Cinco minutos por dia. Ninguém na empresa vê o que você responde.</span>' +
+      '</div>' +
+      '<div class="field"><label>E-mail</label><div class="box">voce@empresa.com.br</div></div>' +
+      '<div class="field"><label>Senha</label><div class="box">••••••••</div></div>' +
+      '<div class="cta" style="margin-top:4px">Entrar</div>' +
+      '<div style="margin-top:auto;border-top:1px solid var(--line);padding-top:11px;display:flex;flex-direction:column;gap:2px">' +
+        '<span style="color:var(--ink);font-size:.72rem;font-weight:600;display:flex;align-items:center;gap:6px">' + PHONE + 'CVV 188 — gratuito, 24 horas</span>' +
+        '<span style="font-size:.6rem;color:var(--ink-2);line-height:1.35">Este app não faz diagnóstico e não substitui atendimento profissional.</span>' +
+      '</div></div>',
+    cap:'<b>O CVV aparece antes do login.</b> Quem instala o app em crise não deveria precisar de senha para achar o número. Sem tab bar aqui — a navegação só existe depois de entrar.'
+  });
+
+  fig("g-journey", {
+    issue:"#42", who:"oaxiapsolrac", title:"Hoje — abertura",
+    opts:{ tab:0 },
+    inner: head("47 dias") +
+      '<p class="ask">Como está o tempo hoje?</p>' + wxRow("part") +
+      '<p class="hint">Ninguém além de você vê esta resposta.</p>' +
+      '<div style="margin-top:auto"></div>',
+    cap:'<b>O tempo, não a carinha.</b> A carinha pede que a pessoa se classifique; o tempo não acusa ninguém. O estado escolhido não depende de cor — a borda vira tinta cheia.'
+  });
+
+  fig("g-journey", {
+    issue:"#45", who:"lisboon", title:"Hoje — a peça",
+    opts:{ tab:0 },
+    inner: head("47 dias") + wxRow("part") +
+      '<div class="gl pc"><p class="stage">Preparar · 4 de 6</p>' +
+      '<h4>O imprevisto não avisa</h4>' +
+      '<p>Preparar é ter alguma folga antes de precisar. Não é sobre quanto você guarda — é sobre existir alguma coisa guardada quando a geladeira quebra numa terça.</p>' +
+      '<div class="opt">Guardar, mesmo sendo pouco</div>' +
+      '<div class="opt">Deixar na conta, R$ 50 não muda nada</div>' +
+      '<p class="src">Cooperação na Ponta do Lápis, do Sicredi.</p></div>',
+    cap:'<b>O vidro está só aqui.</b> É o único lugar onde a pessoa decide. A consequência de cada opção fica no servidor até a escolha — se viesse junto, seria gabarito, não decisão.'
+  });
+
+  fig("g-journey", {
+    issue:"#45", who:"lisboon", title:"Hoje — a consequência",
+    opts:{ tab:0 },
+    inner: head("47 dias") + wxRow("part") +
+      '<div class="gl pc"><p class="stage">Preparar · 4 de 6</p>' +
+      '<h4>O imprevisto não avisa</h4>' +
+      '<div class="opt on">Deixar na conta, R$ 50 não muda nada</div>' +
+      '<p style="font-size:.82rem;line-height:1.5;color:var(--ink)">Costuma sumir até o meio do mês. Não é falta de disciplina — dinheiro parado na conta corrente some mesmo.</p>' +
+      '<p class="hint">Sua diária de hoje está completa. Amanhã tem a próxima.</p>' +
+      '<p class="src">Cooperação na Ponta do Lápis, do Sicredi.</p></div>',
+    cap:'<b>Escolher diferente não é erro.</b> Sem vermelho, sem "resposta errada", sem tentar de novo. O dia conta como presença de qualquer forma — só não conta como compreensão.'
+  });
+
+  /* ── trilha ── */
+  var STAGES = [
+    { n:"Conscientizar", d:"6 de 6", p:1, st:"done" },
+    { n:"Observar", d:"6 de 6", p:1, st:"done" },
+    { n:"Organizar", d:"6 de 6", p:1, st:"done" },
+    { n:"Preparar", d:"4 de 6", p:0.66, st:"now" },
+    { n:"Sustentar", d:"trancada", p:0, st:"lock" }
+  ];
+  var GLYPH = {
+    done:'<path d="M4 9l3.4 3.4L14 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    now :'<path d="M6.5 4l6.5 5-6.5 5Z" fill="currentColor"/>',
+    lock:'<rect x="4.5" y="7.8" width="9" height="6.6" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.6 7.8V6.3a2.4 2.4 0 0 1 4.8 0v1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+  };
+  fig("g-track", {
+    issue:"#44", who:"oaxiapsolrac", title:"Trilha do COOPS",
+    opts:{ tab:2 },
+    inner:'<div class="bar"><span class="ask" style="font-size:1.2rem">Trilha COOPS</span><span class="count">3 de 5</span></div>' +
+      '<div class="trail">' + STAGES.map(function(s, i){
+        return (i ? '<span class="link' + (i % 2 ? " r" : "") + '"></span>' : "") +
+          '<div class="node ' + s.st + (i % 2 ? " r" : "") + '"><span class="ring">' +
+          '<svg class="r" viewBox="0 0 58 58" aria-hidden="true">' + RING(26, 58, s.p) + '</svg>' +
+          '<span class="core"><svg viewBox="0 0 18 18">' + GLYPH[s.st] + '</svg></span></span>' +
+          '<span class="lbl"><b>' + s.n + '</b><span>' + s.d + '</span></span></div>';
+      }).join("") + '</div>',
+    cap:'<b>O nó é o anel.</b> Caminho do Duolingo com o anel do Fitness numa coisa só. As cinco etapas aparecem sempre, inclusive a trancada — e o estado se distingue por tamanho e ícone, não só por cor.'
+  });
+
+  fig("g-track", {
+    issue:"#42", who:"oaxiapsolrac", title:"Progresso",
+    opts:{ tab:1 },
+    inner:'<div class="bar"><span class="ask" style="font-size:1.2rem">Progresso</span></div>' +
+      '<div class="bigring"><svg viewBox="0 0 150 150" aria-hidden="true">' + RING(68, 150, 0.78) + '</svg>' +
+      '<span style="text-align:center"><b>18</b><i>dias em setembro</i></span></div>' +
+      '<p class="hint" style="margin-top:4px">Setembro, dia a dia</p>' +
+      '<div class="month">' + Array.from({length:30}, function(_, i){
+        var off = [3,9,10,17,23].indexOf(i) !== -1;
+        return '<i class="' + (off ? "off" : "") + '" style="height:' + (off ? 4 : 10 + ((i * 7) % 15)) + 'px"></i>';
+      }).join("") + '</div>' +
+      '<div class="stats" style="margin-top:12px"><span class="stat"><b>47</b><span>dias</span></span>' +
+      '<span class="stat"><b>3</b><span>etapas</span></span><span class="stat"><b>3</b><span>no azul</span></span></div>' +
+      '<p class="hint" style="margin-top:auto">Só você vê estes números. Seu gestor nunca.</p>',
+    cap:'<b>Falha aparece como espaço vazio.</b> Um dia sem registro é uma barra baixa, e nada mais — sem alerta, sem sequência zerada, sem cobrança. O contador é cumulativo.'
+  });
+
+  var ACH = [
+    ["got","","Primeira semana"], ["got","","30 dias"], ["","","100 dias"],
+    ["got","traj","1 mês no azul"], ["got","traj","3 meses no azul"], ["","traj","6 meses no azul"],
+    ["got","","Trilha Observar"], ["got","","Trilha Organizar"], ["","","Trilha Sustentar"]
+  ];
+  var MEDAL = '<svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="11.2" r="4.2"/><path d="M5.8 7.4 4.2 2.5h9.6l-1.6 4.9"/></svg>';
+  fig("g-track", {
+    issue:"#8", who:"fahgundin", title:"Conquistas",
+    opts:{ tab:3 },
+    inner:'<div class="bar"><span class="ask" style="font-size:1.2rem">Conquistas</span></div>' +
+      '<p class="hint">Nada aqui vale ponto, vira moeda ou entra em ranking. Os de trajetória são os que pesam.</p>' +
+      '<div class="ach">' + ACH.map(function(a){
+        return '<span class="ac ' + a[0] + ' ' + a[1] + '"><span class="m">' + MEDAL + '</span><b>' + a[2] + '</b></span>';
+      }).join("") + '</div>' +
+      '<p class="hint" style="margin-top:auto">Conquistas de trajetória exigem meses fechados no azul, não presença.</p>',
+    cap:'<b>Derivadas, sem tabela nova.</b> Saem de <code>/me/summary</code> e <code>/me/track</code>. Os não conquistados ficam apagados mas visíveis — saber o que vem depois é metade do valor.'
+  });
+
+  fig("g-track", {
+    issue:"#8", who:"fahgundin", title:"Perfil",
+    opts:{ tab:4 },
+    inner:'<div class="bar"><span class="ask" style="font-size:1.2rem">Perfil</span></div>' +
+      '<div class="pf"><span class="pf-ring"><svg class="r" viewBox="0 0 86 86" aria-hidden="true">' + RING(39, 86, 0.74) + '</svg>' +
+      '<span class="pf-face"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="10" cy="7" r="3.1"/><path d="M4.2 16.4c.7-2.7 3-4.2 5.8-4.2s5.1 1.5 5.8 4.2"/></svg></span></span>' +
+      '<h4>Wendel L.</h4><p>Unidade Cuiabá · desde julho</p></div>' +
+      '<div class="stats"><span class="stat"><b>47</b><span>dias</span></span><span class="stat"><b>12</b><span>conquistas</span></span><span class="stat"><b>3</b><span>no azul</span></span></div>' +
+      '<div class="list" style="margin-top:10px">' +
+      '<span class="li">Declarar o mês<span>setembro em aberto</span></span>' +
+      '<span class="li">Horário da diária<span>19h</span></span>' +
+      '<span class="li">Privacidade<span>só você vê</span></span></div>',
+    cap:'<b>O anel do perfil é a mesma forma do anel da trilha</b>, em escala menor. Uma forma só, em três tamanhos — é o que amarra a identidade.'
+  });
+
+  /* ── apoio ── */
+  var PATHS = [
+    ["Assessor da agência","Se você tem atendimento na sua agência."],
+    ["RH da sua empresa","Quando o assunto passa por trabalho ou benefícios."],
+    ["Canal confidencial","Onde existir, não passa pela chefia."],
+    ["Saúde ocupacional do SESI","Onde houver atendimento de saúde do SESI."],
+    ["Seu gestor","Só se for com ele que você quiser falar."]
+  ];
+  fig("g-support", {
+    issue:"#46", who:"fahgundin", title:"Apoio",
+    opts:{ tab:1 },
+    inner:'<div class="bar"><span class="ask" style="font-size:1.2rem">Com quem falar</span></div>' +
+      '<div class="paths"><span class="path hi"><b>' + PHONE + 'CVV 188</b><span>Gratuito, 24 horas, sigiloso. Serviço público.</span></span>' +
+      PATHS.map(function(p){ return '<span class="path"><b>' + p[0] + '</b><span>' + p[1] + '</span></span>'; }).join("") + '</div>' +
+      '<p class="hint" style="margin-top:10px">Abrir qualquer um destes é contado sem identificar você.</p>',
+    cap:'<b>Sai de trás do humor de sofrimento.</b> Hoje só aparece quando a pessoa declara estar mal — tarde demais, e invisível para quem nunca chega lá. A contagem grava <code>actorUserId</code> nulo: saber quem abriu o CVV seria inferir sofrimento de alguém identificado.'
+  });
+
+  /* ── painel ── */
+  var METRICS = [
+    ["Aperto financeiro","38%","De quem declarou o mês."],
+    ["Humor agregado","3.5","Média de 1 a 5 no mês."],
+    ["Alcance","14","Já usaram, de 20 na unidade."],
+    ["Adesão","10","Registraram algo neste mês."],
+    ["Frequência","4.2","Dias por pessoa com diário."],
+    ["Canais de apoio","23","Aberturas no mês."]
+  ];
+  var DESK_HEAD = '<div class="desk-bar">' + MARK + 'Colheita · Painel da unidade</div>';
+  var WARN = '<div class="warn"><b>Uso dos dados.</b> A ação sugerida por estes números é de unidade: levar um assessor, marcar palestra ou revisar a jornada da equipe. <b>Nunca convoque uma pessoa com base no uso do aplicativo.</b></div>';
+
+  var d1 = document.createElement("div");
+  d1.className = "fig";
+  d1.innerHTML = '<div class="tag"><span class="chip own">#46</span><span class="chip">fahgundin</span></div>' +
+    '<h3>Painel — unidade com gente suficiente</h3>' +
+    '<div class="desk">' + DESK_HEAD + '<div class="desk-in"><h4>Unidade Cuiabá</h4><p class="sub">Setembro de 2026</p>' + WARN +
+    '<div class="mx">' + METRICS.map(function(m){
+      return '<span class="mc"><span>' + m[0] + '</span><b>' + m[1] + '</b><i>' + m[2] + '</i></span>';
+    }).join("") + '</div></div></div>' +
+    '<p class="cap"><b>"Canais de apoio" é o sétimo indicador</b>, e é o que a issue #46 acrescenta. Ele responde direto ao gabarito da página 3 do desafio.</p>';
+  document.getElementById("g-desk").appendChild(d1);
+
+  var d2 = document.createElement("div");
+  d2.className = "fig";
+  d2.innerHTML = '<div class="tag"><span class="chip own">pronto</span><span class="chip">na main</span></div>' +
+    '<h3>Painel — unidade suprimida</h3>' +
+    '<div class="desk">' + DESK_HEAD + '<div class="desk-in"><h4>Unidade Rondonópolis</h4><p class="sub">Setembro de 2026</p>' + WARN +
+    '<div class="empty"><b>Dados insuficientes para preservar o anonimato</b>' +
+    '<span>Os números da unidade só aparecem quando há pessoas suficientes para que nenhuma delas seja identificável por trás da média.</span></div></div></div>' +
+    '<p class="cap"><b>Nenhum dígito na tela</b>, nem o tamanho do grupo — dizer quantas pessoas faltam entregaria a mesma coisa pela porta de trás. O servidor manda tudo <code>null</code>; o front nunca recebe número que não pode mostrar.</p>';
+  document.getElementById("g-desk").appendChild(d2);
+})();
+</script>
+
+</body>
+</html>
