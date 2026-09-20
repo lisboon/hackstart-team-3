@@ -11,6 +11,7 @@ const STATE_TEXT: Readonly<Record<WeekDayState, string>> = {
   future: "ainda por vir",
   missed: "sem registro",
   protected: "protegido",
+  closed: "sem expediente",
 };
 
 /**
@@ -101,6 +102,10 @@ function dayClass(state: WeekDayState): string {
       return "bg-sky-200 text-sky-900";
     case "today":
       return "bg-amber-300 text-amber-950 ring-2 ring-white";
+    // Dia sem expediente fica mais apagado que um dia sem registro: não há
+    // nada a fazer nele, e nada a cobrar por isso.
+    case "closed":
+      return "bg-transparent text-primary-foreground/35";
     default:
       return "bg-black/10 text-primary-foreground/70";
   }
@@ -114,6 +119,8 @@ function dayGlyph(state: WeekDayState): string {
       return "🧊";
     case "today":
       return "🌱";
+    case "closed":
+      return "–";
     default:
       return "·";
   }

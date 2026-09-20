@@ -9,6 +9,13 @@ export class JourneyShiftResponseDto {
   closesAt: string;
 }
 
+/** Um dia em que a unidade não trabalha, e por quê. */
+export class JourneyExceptionResponseDto {
+  /** Data local, `YYYY-MM-DD`. */
+  date: string;
+  reason: string;
+}
+
 export class CompanyResponseDto {
   id: string;
   name: string;
@@ -18,6 +25,8 @@ export class CompanyResponseDto {
   journeyZone: string;
   /** Vazia quando a unidade nunca configurou a sua: aí vale o padrão. */
   journeyShifts: JourneyShiftResponseDto[];
+  /** Feriado, ponto facultativo, recesso e parada de fábrica da unidade. */
+  journeyExceptions: JourneyExceptionResponseDto[];
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

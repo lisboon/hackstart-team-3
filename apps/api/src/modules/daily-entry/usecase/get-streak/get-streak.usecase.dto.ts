@@ -1,7 +1,14 @@
 import BaseUseCase from "@/modules/@shared/usecase/base.usecase";
 
-/** O estado de cada um dos sete dias da semana no cartão de Colheita. */
-export type WeekDayState = "done" | "today" | "future" | "missed" | "protected";
+/**
+ * O estado de cada um dos sete dias da semana no cartão de Colheita.
+ *
+ * `closed` é o dia em que a unidade não abriu — fim de semana, feriado,
+ * recesso. Ele não é `missed`: não houve nada a fazer, então não há nada a
+ * cobrar (#77).
+ */
+export type WeekDayState =
+  "done" | "today" | "future" | "missed" | "protected" | "closed";
 
 export interface WeekDayView {
   /** Data do dia (primeiro instante do dia, UTC). */

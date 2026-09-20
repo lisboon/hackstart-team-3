@@ -17,6 +17,8 @@ export const companyGatewayDouble = (
     update: jest.fn(),
     findJourneyWindow: jest.fn().mockResolvedValue(null),
     replaceJourneyShifts: jest.fn(),
+    findJourneyExceptions: jest.fn().mockResolvedValue([]),
+    replaceJourneyExceptions: jest.fn(),
     findTally: jest.fn(),
     countPopulation: jest.fn(),
     ...overrides,

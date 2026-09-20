@@ -59,6 +59,8 @@ try {
     "StreakResponseDto",
     "JourneyShiftBodyDto",
     "JourneyShiftResponseDto",
+    "JourneyExceptionBodyDto",
+    "JourneyExceptionResponseDto",
   ];
 
   for (const name of requiredSchemas) {

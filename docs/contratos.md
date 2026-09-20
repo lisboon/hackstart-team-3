@@ -399,6 +399,7 @@ existe parâmetro de empresa.
 |---|---|
 | `journeyZone` | nome IANA do fuso da unidade. Cuiabá é `America/Cuiaba`, Belém é `America/Belem` |
 | `journeyShifts` | as faixas de expediente, no relógio da unidade. Vazia quando ela nunca configurou a sua |
+| `journeyExceptions` | os dias em que a unidade não trabalha: feriado, ponto facultativo, recesso, parada de fábrica |
 
 `weekday` vai de 0 (domingo) a 6. **Um turno que atravessa a meia-noite são duas
 faixas em dias diferentes** — 22:00→24:00 na segunda e 00:00→06:00 na terça.
@@ -412,8 +413,30 @@ com exatamente essas duas; omitir o campo não mexe nas que existem. Uma faixa
 inválida no meio da lista devolve **422** e **não grava nada** — meia janela
 gravada seria pior que janela nenhuma.
 
-**Erros:** `422` em fuso que não existe, em hora fora de `HH:MM` e em faixa que
-fecha antes de abrir. `403` para quem não é `ADMIN`.
+### Os dias em que a unidade não trabalha
+
+```json
+{ "journeyExceptions": [{ "date": "2026-09-07", "reason": "Independência" }] }
+```
+
+A lista é **da empresa**, e não uma biblioteca de feriados: feriado municipal e
+ponto facultativo não saem de biblioteca nenhuma com confiança, e a cooperativa
+atende MT e PA, que não têm o mesmo calendário. Uma lista que a unidade mantém é
+honesta sobre de quem é a decisão, e a mesma tabela serve ao recesso e à parada
+de fábrica — por isso `reason` é texto, e não uma opção fechada nossa.
+
+Um dia na lista fecha a janela o dia inteiro: `POST /me/today/mood` e
+`POST /me/today/answer` respondem **403**, e `GET /me/today` aponta a próxima
+abertura, pulando o feriado. Como `journeyShifts`, a lista é **substituída
+inteira**.
+
+**Dia sem janela não é falta.** Ele não zera a ofensiva, não gasta congelamento e
+aparece em `GET /me/streak` com o estado `closed` — nunca `missed`. Punir alguém
+por não ter trabalhado no feriado seria o oposto do produto.
+
+**Erros:** `422` em fuso que não existe, em hora fora de `HH:MM`, em faixa que
+fecha antes de abrir, em data fora de `YYYY-MM-DD` ou que não existe no
+calendário, e em motivo vazio. `403` para quem não é `ADMIN`.
 
 ---
 
