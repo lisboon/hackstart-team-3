@@ -1,4 +1,7 @@
-import { FindCompanyByIdUseCaseInputDto } from "../usecase/find-by-id/find-by-id.usecase.dto";
+import {
+  FindCompanyByIdUseCaseInputDto,
+  FindCompanyByIdUseCaseOutputDto,
+} from "../usecase/find-by-id/find-by-id.usecase.dto";
 import {
   GetUnitIndicatorsUseCaseInputDto,
   GetUnitIndicatorsUseCaseOutputDto,
@@ -9,15 +12,7 @@ import {
 } from "../usecase/update-company/update-company.usecase.dto";
 
 export type FindCompanyByIdFacadeInputDto = FindCompanyByIdUseCaseInputDto;
-export interface FindCompanyByIdFacadeOutputDto {
-  id: string;
-  name: string;
-  slug: string;
-  active: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-}
+export type FindCompanyByIdFacadeOutputDto = FindCompanyByIdUseCaseOutputDto;
 
 export type UpdateCompanyFacadeInputDto = UpdateCompanyUseCaseInputDto;
 export type UpdateCompanyFacadeOutputDto = UpdateCompanyUseCaseOutputDto;

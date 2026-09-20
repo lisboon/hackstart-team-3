@@ -58,6 +58,8 @@ try {
     "UpdateGoalResponseDto",
     "StreakResponseDto",
     "ProgressResponseDto",
+    "JourneyShiftBodyDto",
+    "JourneyShiftResponseDto",
   ];
 
   for (const name of requiredSchemas) {
@@ -97,6 +99,7 @@ try {
     ["/me/goals", "get", "200"],
     ["/me/goals/{id}", "patch", "200"],
     ["/me/streak", "get", "200"],
+    ["/me/progress", "get", "200"],
   ];
 
   const streamOperation = document.paths["/ai/runs/stream"]?.post;
@@ -140,6 +143,7 @@ try {
     ["/me/goals", "get", ["401", "403", "422", "429"]],
     ["/me/goals/{id}", "patch", ["401", "403", "404", "409", "422", "429"]],
     ["/me/streak", "get", ["401", "403", "422", "429"]],
+    ["/me/progress", "get", ["401", "403", "422", "429"]],
   ];
 
   for (const [path, method, statuses] of documentedErrors) {

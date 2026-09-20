@@ -1,10 +1,11 @@
 import { ConflictError } from "@/modules/@shared/domain/errors/conflict.error";
 import { ForbiddenError } from "@/modules/@shared/domain/errors/forbidden.error";
+import { CompanyGateway } from "@/modules/company/gateway/company.gateway";
 import {
   DEFAULT_JOURNEY_WINDOW,
   JourneyWindow,
   journeyWindowAt,
-} from "../../domain/journey-window";
+} from "@/modules/company/domain/journey-window";
 import { normalizeToDayStart } from "@/modules/@shared/domain/utils/day";
 import { DailyEntry } from "../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../gateway/daily-entry.gateway";
@@ -17,7 +18,12 @@ import {
 export default class RecordMoodUseCase implements RecordMoodUseCaseInterface {
   constructor(
     private readonly dailyEntryGateway: DailyEntryGateway,
-    private readonly window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
+    private readonly companyGateway: CompanyGateway,
+    /**
+     * A janela vem da unidade (#76). O padrão do processo é só o que vale para
+     * empresa que nunca configurou a sua.
+     */
+    private readonly fallbackWindow: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
   ) {}
 
   async execute(
@@ -27,7 +33,10 @@ export default class RecordMoodUseCase implements RecordMoodUseCaseInterface {
     // CVV seguem livres. Quem ja abriu a tela dentro da janela nao passa por
     // aqui depois do fechamento — a tela sabe do horario pelo GET /me/today, e
     // este 403 e a rede para quem tentar pelo DevTools.
-    if (!journeyWindowAt(data.entryDate, this.window).open) {
+    const window =
+      (await this.companyGateway.findJourneyWindow(data.companyId)) ??
+      this.fallbackWindow;
+    if (!journeyWindowAt(data.entryDate, window).open) {
       throw new ForbiddenError(
         "The daily journey is open on working hours only",
       );

@@ -4,8 +4,9 @@ import { Company } from "../../domain/company.entity";
 const makeSut = () => {
   const company = Company.create({ name: "Acme Corp", slug: "acme-corp" });
 
+  const organization = { ...company.toJSON(), journeyShifts: [] };
   const findCompanyByIdUseCase = {
-    execute: jest.fn().mockResolvedValue(company),
+    execute: jest.fn().mockResolvedValue(organization),
   };
   const updateCompanyUseCase = {
     execute: jest.fn().mockResolvedValue(company.toJSON()),
@@ -30,7 +31,9 @@ const makeSut = () => {
 };
 
 describe("CompanyFacade", () => {
-  it("findById delegates to use case and serializes the entity via toJSON", async () => {
+  it("findById delegates to its use case", async () => {
+    // A serializacao passou para o caso de uso, que e quem sabe juntar a
+    // organizacao com a janela da unidade (#76).
     const { facade, company, findCompanyByIdUseCase } = makeSut();
 
     const output = await facade.findById({ id: company.id });
@@ -38,8 +41,11 @@ describe("CompanyFacade", () => {
     expect(findCompanyByIdUseCase.execute).toHaveBeenCalledWith({
       id: company.id,
     });
-    expect(output).toEqual(company.toJSON());
-    expect(output).not.toBe(company);
+    expect(output).toMatchObject({
+      id: company.id,
+      name: company.name,
+      journeyShifts: [],
+    });
   });
 
   it("update delegates to its use case", async () => {

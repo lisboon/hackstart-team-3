@@ -1,6 +1,6 @@
 import BaseUseCase from "@/modules/@shared/usecase/base.usecase";
 import { CoopsStage } from "@/modules/@shared/domain/enums";
-import { JourneyWindowState } from "../../domain/journey-window";
+import { JourneyWindowState } from "@/modules/company/domain/journey-window";
 
 export interface TodayPieceDto {
   id: string;

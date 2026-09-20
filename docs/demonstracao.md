@@ -20,6 +20,21 @@ Simular a demonstração às 02:35 mostrou a diária fechada: os sete dias estav
 
 **O padrão do código continua sendo a regra de verdade** — segunda a sexta, 07:30 às 18:00, em `DEFAULT_JOURNEY_WINDOW`. Quem subir a API sem o Compose pega a regra, não a demonstração.
 
+### Por que a variável ainda manda, mesmo com a janela vindo da unidade
+
+Desde a #76 a janela é da organização: fuso e faixas em `companies` e
+`company_journey_shifts`. **A unidade da demonstração de propósito não tem faixa
+nenhuma**, e unidade sem faixa cai no padrão do processo — que é o que
+`JOURNEY_WINDOW_*` define. Por isso recriar o contêiner com outras variáveis
+continua mudando a janela ao vivo, sem tocar no banco.
+
+Se alguém gravar faixas nessa unidade (por `PATCH /organizations/current`), ela
+para de ouvir o ambiente. Para devolver o controle à variável:
+
+```bash
+docker compose exec backend-db psql -U backend -d backend_db -c 'DELETE FROM company_journey_shifts;'
+```
+
 ### Antes de subir, confira
 
 ```bash

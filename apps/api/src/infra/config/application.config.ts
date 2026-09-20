@@ -2,7 +2,9 @@ import ms, { StringValue } from "ms";
 import {
   DEFAULT_JOURNEY_WINDOW,
   JourneyWindow,
-} from "@/modules/daily-entry/domain/journey-window";
+  isValidTimeZone,
+  uniformShifts,
+} from "@/modules/company/domain/journey-window";
 
 const DEFAULT_PORT = 3001;
 const DEFAULT_BCRYPT_ROUNDS = 12;
@@ -125,29 +127,39 @@ export function loadApplicationConfig(
 }
 
 /**
- * A janela da jornada. Configuravel porque ela e da unidade, nao do produto: a
- * cooperativa atende MT e PA, que nem sequer tem o mesmo fuso, e a
- * demonstracao roda com os sete dias abertos para o laco aparecer no palco. O
- * padrao aqui e a regra de verdade — segunda a sexta, 07:30 as 18:00.
+ * A janela **padrao**: o que vale para empresa que ainda nao configurou a sua,
+ * e o que a semente grava na empresa nova. A janela de verdade vem da unidade
+ * desde a #76 — a cooperativa atende MT e PA, que nem sequer tem o mesmo fuso.
+ *
+ * Continua configuravel por ambiente porque e a chave da demonstracao: o
+ * docker-compose sobe com os sete dias abertos, e a semente leva isso para as
+ * faixas da empresa. O padrao do codigo e a regra de verdade — segunda a
+ * sexta, 07:30 as 18:00.
+ *
+ * O ambiente so descreve uma faixa igual em cada dia. Turno partido e turno da
+ * noite sao configuracao da unidade, nao do processo.
  */
 function parseJourneyWindow(
   environment: NodeJS.ProcessEnv,
   issues: string[],
 ): JourneyWindow {
+  const defaults = DEFAULT_JOURNEY_WINDOW.shifts[0];
   return {
     zone: parseTimeZone(environment.JOURNEY_WINDOW_ZONE, issues),
-    days: parseWeekDays(environment.JOURNEY_WINDOW_DAYS, issues),
-    opensAt: parseDayTime(
-      "JOURNEY_WINDOW_OPENS",
-      environment.JOURNEY_WINDOW_OPENS,
-      DEFAULT_JOURNEY_WINDOW.opensAt,
-      issues,
-    ),
-    closesAt: parseDayTime(
-      "JOURNEY_WINDOW_CLOSES",
-      environment.JOURNEY_WINDOW_CLOSES,
-      DEFAULT_JOURNEY_WINDOW.closesAt,
-      issues,
+    shifts: uniformShifts(
+      parseWeekDays(environment.JOURNEY_WINDOW_DAYS, issues),
+      parseDayTime(
+        "JOURNEY_WINDOW_OPENS",
+        environment.JOURNEY_WINDOW_OPENS,
+        defaults.opensAt,
+        issues,
+      ),
+      parseDayTime(
+        "JOURNEY_WINDOW_CLOSES",
+        environment.JOURNEY_WINDOW_CLOSES,
+        defaults.closesAt,
+        issues,
+      ),
     ),
   };
 }
@@ -158,9 +170,7 @@ function parseJourneyWindow(
  */
 function parseTimeZone(raw: string | undefined, issues: string[]): string {
   const value = raw?.trim() || DEFAULT_JOURNEY_WINDOW.zone;
-  try {
-    new Intl.DateTimeFormat("en-US", { timeZone: value });
-  } catch {
+  if (!isValidTimeZone(value)) {
     issues.push(`JOURNEY_WINDOW_ZONE must be a valid IANA time zone`);
     return DEFAULT_JOURNEY_WINDOW.zone;
   }
@@ -172,7 +182,8 @@ function parseWeekDays(
   raw: string | undefined,
   issues: string[],
 ): readonly number[] {
-  if (raw === undefined) return DEFAULT_JOURNEY_WINDOW.days;
+  const fallback = DEFAULT_JOURNEY_WINDOW.shifts.map((shift) => shift.weekday);
+  if (raw === undefined) return fallback;
 
   const days = raw
     .split(",")
@@ -187,19 +198,19 @@ function parseWeekDays(
     issues.push(
       "JOURNEY_WINDOW_DAYS must be a non-empty list of week days from 0 (Sunday) to 6",
     );
-    return DEFAULT_JOURNEY_WINDOW.days;
+    return fallback;
   }
 
   return [...new Set(days)].sort((a, b) => a - b);
 }
 
-/** "07:30" no relogio local da unidade. */
+/** "07:30" no relogio local da unidade, em minutos desde a meia-noite. */
 function parseDayTime(
   name: string,
   raw: string | undefined,
-  fallback: { hour: number; minute: number },
+  fallback: number,
   issues: string[],
-): { hour: number; minute: number } {
+): number {
   if (raw === undefined) return fallback;
 
   const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(raw.trim());
@@ -208,7 +219,7 @@ function parseDayTime(
     return fallback;
   }
 
-  return { hour: Number(match[1]), minute: Number(match[2]) };
+  return Number(match[1]) * 60 + Number(match[2]);
 }
 
 function parseHttpUrl(name: string, raw: string, issues: string[]): string {

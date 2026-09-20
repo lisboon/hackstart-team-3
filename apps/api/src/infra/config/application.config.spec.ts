@@ -43,9 +43,11 @@ describe("ApplicationConfig", () => {
       },
       journeyWindow: {
         zone: "America/Cuiaba",
-        days: [1, 2, 3, 4, 5],
-        opensAt: { hour: 7, minute: 30 },
-        closesAt: { hour: 18, minute: 0 },
+        shifts: [1, 2, 3, 4, 5].map((weekday) => ({
+          weekday,
+          opensAt: 450,
+          closesAt: 1080,
+        })),
       },
     });
   });
@@ -58,7 +60,9 @@ describe("ApplicationConfig", () => {
         JOURNEY_WINDOW_DAYS: "0,1,2,3,4,5,6",
       });
 
-      expect(config.journeyWindow.days).toEqual([0, 1, 2, 3, 4, 5, 6]);
+      expect(config.journeyWindow.shifts.map((shift) => shift.weekday)).toEqual(
+        [0, 1, 2, 3, 4, 5, 6],
+      );
     });
 
     it("reads a different zone and a different pair of hours", () => {
@@ -70,8 +74,11 @@ describe("ApplicationConfig", () => {
       });
 
       expect(config.journeyWindow.zone).toBe("America/Belem");
-      expect(config.journeyWindow.opensAt).toEqual({ hour: 6, minute: 0 });
-      expect(config.journeyWindow.closesAt).toEqual({ hour: 14, minute: 20 });
+      // 06:00 e 14:20 em minutos desde a meia-noite local.
+      expect(config.journeyWindow.shifts[0]).toMatchObject({
+        opensAt: 360,
+        closesAt: 860,
+      });
     });
 
     it("refuses a zone that does not exist, instead of failing at the first request", () => {
