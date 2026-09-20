@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colheita — acesso à demonstração</title>
+<style>
+  /* Folha para imprimir ou projetar. Sem fonte de fora, sem script, sem
+     imagem externa: um arquivo só, que abre sem internet — que é
+     exatamente a condição em que o wi-fi de evento costuma deixar a gente. */
+  :root {
+    --primary: #146e37;
+    --brand: #3fa110;
+    --foreground: #323c32;
+    --muted: #55655a;
+    --border: #d5ddd6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--foreground);
+    display: flex;
+    justify-content: center;
+    padding: 32px 20px 48px;
+  }
+  main { width: 100%; max-width: 520px; text-align: center; }
+
+  .marca {
+    font-size: 13px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--primary); font-weight: 700; margin: 0 0 6px;
+  }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 10px; }
+  .linha-fina { font-size: 15px; color: var(--muted); margin: 0 auto 28px; max-width: 34ch; line-height: 1.45; }
+
+  /* O codigo tem correcao de erro alta, entao a margem branca em volta nao e
+     enfeite: e ela que deixa a camera achar as bordas. Nao encoste nada. */
+  .moldura {
+    border: 2px solid var(--border); border-radius: 20px;
+    padding: 22px; background: #fff; display: inline-block; line-height: 0;
+  }
+  .qr { width: 300px; height: 300px; display: block; }
+
+  .endereco {
+    margin: 22px 0 0; font-size: 15px; font-weight: 700;
+    word-break: break-all; color: var(--primary);
+  }
+  .endereco span { font-weight: 400; color: var(--muted); }
+
+  .acesso {
+    margin: 30px auto 0; padding: 18px 20px; max-width: 420px;
+    border: 1px solid var(--border); border-radius: 16px; text-align: left;
+  }
+  .acesso h2 {
+    margin: 0 0 12px; font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+  .nota { margin: 14px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
+  .rodape {
+    margin: 28px auto 0; max-width: 420px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px; line-height: 1.5; color: var(--muted);
+  }
+
+  @media print {
+    @page { margin: 14mm; }
+    body { padding: 0; }
+    .qr { width: 78mm; height: 78mm; }
+    .moldura { border-color: #999; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="marca">Colheita</p>
+  <h1>Aponte a câmera<br>e abra a demonstração</h1>
+  <p class="linha-fina">Saúde financeira e bem-estar do trabalhador da indústria, em cinco minutos por dia.</p>
+
+  <div class="moldura"><svg class="qr" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h45v45H0z"/><path stroke="#000000" d="M4 4.5h7m1 0h3m1 0h1m1 0h4m2 0h1m1 0h1m1 0h1m1 0h2m2 0h7M4 5.5h1m5 0h1m1 0h1m1 0h1m2 0h4m2 0h2m3 0h4m2 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m2 0h1m4 0h1m1 0h1m1 0h1m2 0h2m1 0h1m3 0h1m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h6m2 0h1m2 0h2m1 0h1m2 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h2m6 0h1m1 0h1m1 0h1m4 0h4m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M13 11.5h2m1 0h2m2 0h1m1 0h3m5 0h1M7 12.5h1m2 0h1m2 0h3m1 0h2m2 0h3m2 0h1m1 0h1m2 0h2m2 0h3m1 0h2M4 13.5h3m1 0h1m5 0h9m1 0h3m3 0h4m1 0h1m2 0h3M4 14.5h1m3 0h4m4 0h5m1 0h2m1 0h1m1 0h2m2 0h1m2 0h3m1 0h1m1 0h1M4 15.5h1m1 0h4m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2m2 0h3m2 0h1m3 0h1m2 0h2M5 16.5h1m1 0h2m1 0h3m4 0h1m2 0h2m3 0h5m1 0h4m4 0h2M5 17.5h1m1 0h2m3 0h1m1 0h1m1 0h2m6 0h2m3 0h1m4 0h2m1 0h1m1 0h2M4 18.5h1m3 0h6m2 0h1m2 0h1m4 0h2m1 0h4m1 0h1m1 0h1m3 0h1m1 0h1M5 19.5h1m3 0h1m4 0h5m1 0h3m2 0h2m2 0h4m3 0h1M5 20.5h1m1 0h2m1 0h2m2 0h1m1 0h1m1 0h5m1 0h1m1 0h3m1 0h1m2 0h2m2 0h4M5 21.5h5m3 0h2m1 0h1m1 0h1m1 0h6m2 0h2m2 0h7m1 0h1M4 22.5h1m1 0h1m3 0h1m3 0h4m1 0h1m1 0h2m2 0h2m1 0h3m2 0h1m2 0h1m2 0h2M6 23.5h1m1 0h2m1 0h3m2 0h5m2 0h1m1 0h2m1 0h1m5 0h1m1 0h3M6 24.5h2m1 0h2m1 0h1m1 0h2m9 0h1m1 0h4m1 0h1m1 0h4m2 0h1M5 25.5h5m1 0h2m4 0h1m2 0h2m1 0h1m1 0h1m2 0h1m5 0h1m3 0h3M4 26.5h2m2 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m5 0h1m1 0h2m1 0h1m1 0h1M7 27.5h1m5 0h1m4 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h1M5 28.5h3m1 0h3m2 0h3m1 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h1m1 0h1m3 0h2M5 29.5h2m1 0h2m2 0h2m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h2m2 0h3m1 0h1m4 0h1M4 30.5h1m1 0h2m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m5 0h1m1 0h1m2 0h3m3 0h2M5 31.5h2m4 0h2m5 0h3m3 0h1m3 0h2m1 0h1m2 0h1M4 32.5h2m1 0h2m1 0h4m2 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1m1 0h5m1 0h2M12 33.5h1m7 0h1m1 0h2m1 0h5m1 0h2m3 0h1m3 0h1M4 34.5h7m2 0h6m1 0h2m1 0h4m1 0h1m2 0h2m1 0h1m1 0h1m1 0h3M4 35.5h1m5 0h1m4 0h1m1 0h2m2 0h3m1 0h2m1 0h1m3 0h1m3 0h1m1 0h1m1 0h1M4 36.5h1m1 0h3m1 0h1m2 0h4m1 0h1m1 0h1m4 0h1m3 0h2m1 0h6m1 0h2M4 37.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h2m4 0h1m1 0h1m1 0h1m5 0h1m1 0h2m2 0h2M4 38.5h1m1 0h3m1 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m1 0h1m2 0h2m2 0h1M4 39.5h1m5 0h1m2 0h3m1 0h2m2 0h1m7 0h1m2 0h2M4 40.5h7m2 0h4m2 0h1m5 0h1m2 0h2m2 0h2m2 0h2m1 0h2"/></svg></div>
+
+  <p class="endereco">d3ej5x5w7io4m7.cloudfront.net<br><span>ou digite o endereço no navegador</span></p>
+
+  <section class="acesso">
+    <h2>Para entrar</h2>
+    <dl>
+      <dt>Colaborador</dt><dd>colaborador@backend.com.br</dd>
+      <dt>Gestor</dt><dd>admin@backend.com.br</dd>
+      <dt>Senha</dt><dd>change-me-strong-password</dd>
+    </dl>
+    <p class="nota">A visão do gestor mostra só números agregados da unidade — nenhuma resposta individual aparece para ele. É uma decisão de produto, não uma limitação da demonstração.</p>
+  </section>
+
+  <p class="rodape">Todos os dados são fictícios. O app instala no celular: depois de abrir, use “Adicionar à tela de início”.</p>
+</main>
+</body>
+</html>
