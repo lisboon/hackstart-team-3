@@ -11,6 +11,15 @@ export interface ContentPieceGateway {
   findById(id: string, trx?: TransactionContext): Promise<ContentPiece | null>;
 
   /**
+   * Todo o catálogo, na ordem da trilha (etapa do COOPS e, dentro dela, a
+   * ordem declarada na peça). É o mapa inteiro: quem monta a jornada precisa
+   * de cada peça, não só da próxima, para desenhar os nós já feitos, o atual
+   * e os trancados. O catálogo é igual para todo mundo — nada aqui depende de
+   * dado pessoal.
+   */
+  findAll(trx?: TransactionContext): Promise<ContentPiece[]>;
+
+  /**
    * A próxima peça da trilha, ignorando as que a pessoa já respondeu. O
    * catálogo é o mesmo para todo mundo: nada aqui depende de dado pessoal.
    */

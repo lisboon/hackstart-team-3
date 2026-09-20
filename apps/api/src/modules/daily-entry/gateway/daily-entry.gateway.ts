@@ -23,6 +23,17 @@ export interface DailyEntryGateway {
     trx?: TransactionContext,
   ): Promise<string[]>;
 
+  /**
+   * O rótulo escolhido em cada peça já respondida, indexado por peça. É o que
+   * permite revelar de novo a consequência de uma peça concluída — em leitura,
+   * nunca reabrindo a decisão. Como todo recurso pessoal, exige dono e empresa
+   * juntos e não expõe caminho por id.
+   */
+  findAnswers(
+    owner: DailyEntryOwner,
+    trx?: TransactionContext,
+  ): Promise<Map<string, string>>;
+
   create(entry: DailyEntry, trx?: TransactionContext): Promise<void>;
 
   update(entry: DailyEntry, trx?: TransactionContext): Promise<void>;

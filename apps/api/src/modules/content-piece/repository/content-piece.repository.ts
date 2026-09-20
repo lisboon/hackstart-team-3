@@ -29,6 +29,17 @@ export default class ContentPieceRepository implements ContentPieceGateway {
     return row ? ContentPieceModelMapper.toEntity(row) : null;
   }
 
+  async findAll(trx?: TransactionContext): Promise<ContentPiece[]> {
+    const rows = await resolvePrismaClient(
+      this.prisma,
+      trx,
+    ).contentPiece.findMany({
+      where: { active: true, deletedAt: null },
+      orderBy: TRACK_ORDER,
+    });
+    return rows.map((row) => ContentPieceModelMapper.toEntity(row));
+  }
+
   async findNext(
     answeredIds: string[],
     trx?: TransactionContext,
