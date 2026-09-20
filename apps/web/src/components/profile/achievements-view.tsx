@@ -20,6 +20,7 @@ export function AchievementsView({
 }) {
   const { data, error, loading, reload } = useProfile(token, onUnauthorized);
   const items = data ? milestones(data.summary, data.track) : [];
+  const achievedCount = items.filter((milestone) => milestone.achieved).length;
 
   return (
     <Card className="gap-6">
@@ -28,6 +29,11 @@ export function AchievementsView({
         <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
           Marcos
         </h1>
+        {data && items.length > 0 && (
+          <p className="text-sm font-medium text-primary">
+            {achievedCount} de {items.length} conquistados
+          </p>
+        )}
         <p className="text-sm text-muted-foreground">
           Marcos calculados do seu próprio caminho. Os que ainda não vieram
           aparecem apagados, para você ver o que está por perto.

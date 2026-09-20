@@ -289,7 +289,7 @@ it("shows locked milestones dimmed instead of hiding them", async () => {
   const items = container.querySelectorAll("li");
   // Locked milestones are visible but dimmed, and every one says "A caminho".
   expect(
-    Array.from(items).every((li) => li.className.includes("opacity-60")),
+    Array.from(items).every((li) => li.className.includes("opacity-70")),
   ).toBe(true);
   expect(screen.getAllByText("A caminho")).toHaveLength(8);
   expect(screen.queryAllByText("Conquistado")).toHaveLength(0);
