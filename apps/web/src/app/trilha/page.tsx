@@ -5,12 +5,12 @@ import { AppShell } from "@/components/layout/app-shell";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { CoopsTrail } from "@/components/track/coops-trail";
 import { fetchTrack } from "@/services/track/track-service";
-import type { TrackResponse } from "@/schemas/track";
+import type { Track } from "@/schemas/track";
 import { useAuth } from "@/hooks/auth/use-auth";
 
 function TrilhaPageContent() {
   const { token } = useAuth();
-  const [data, setData] = useState<TrackResponse | null>(null);
+  const [data, setData] = useState<Track | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function TrilhaPageContent() {
     );
   }
 
-  // The answered count for the overall progress is not in the TrackResponse root,
+  // The answered count for the overall progress is not in the Track root,
   // but we can compute it to show at the top like in the design:
   // "Trilha COOPS | X de Y"
   const answeredStages = data.stages.filter((s) => s.answered >= s.total && s.total > 0).length;

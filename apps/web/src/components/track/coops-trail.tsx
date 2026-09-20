@@ -1,6 +1,6 @@
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { STAGE_LABEL } from "@/components/journey/coops-presentation";
-import type { TrackResponse } from "@/schemas/track";
+import type { Track } from "@/schemas/track";
 
 const CheckIcon = () => (
   <svg
@@ -36,7 +36,7 @@ const LockIcon = () => (
   </svg>
 );
 
-export function CoopsTrail({ data }: { data: TrackResponse }) {
+export function CoopsTrail({ data }: { data: Track }) {
   const firstUnfinishedIndex = data.stages.findIndex(
     (stage) => stage.answered < stage.total || (stage.total === 0 && stage.answered === 0)
   );

@@ -78,3 +78,37 @@ it("aborts authentication on unmount", () => {
   unmount();
   expect(signal.aborted).toBe(true);
 });
+
+it("shares one session across trees that do not know each other", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () =>
+      Response.json({
+        accessToken: "session",
+        user: {
+          id: "1",
+          name: "Test User",
+          email: "test@example.com",
+          role: "USER",
+        },
+      }),
+    ),
+  );
+  // A TabBar mora na moldura e o "Sair" mora em Configurações, três níveis
+  // abaixo. Com estado por componente, sair numa árvore deixaria a outra acesa.
+  const gate = renderHook(() => useAuth());
+  const bar = renderHook(() => useAuth());
+  await act(() => gate.result.current.signIn(credentials));
+  expect(bar.result.current.token).toBe("session");
+  expect(bar.result.current.user?.name).toBe("Test User");
+  act(() => gate.result.current.logout());
+  expect(bar.result.current.token).toBe("");
+  expect(bar.result.current.user).toBeNull();
+});
+
+it("reports the session as hydrated only after mounting", () => {
+  // A barra de navegação depende disto para não piscar cinco destinos antes de
+  // saber se há sessão.
+  const { result } = renderHook(() => useAuth());
+  expect(result.current.isInitialized).toBe(true);
+});

@@ -1,20 +1,36 @@
 "use client";
 
+import Link from "next/link";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ProgressRing } from "@/components/ui/progress-ring";
+import { ICON_STROKE } from "@/components/ui/icon";
 import { useProfile } from "@/hooks/profile/use-profile";
 import type { AuthUser } from "@/services/auth/auth-service";
 import {
   completedStages,
+  milestones,
   trackRatio,
 } from "@/components/profile/achievements-presentation";
+import {
+  initials,
+  formatMemberSince,
+  profileStats,
+} from "@/components/profile/profile-presentation";
+import { ProfileHeader } from "@/components/profile/profile-header";
+import { ProfileMilestones } from "@/components/profile/profile-milestones";
+import { ProfileStats } from "@/components/profile/profile-stats";
 
 /**
- * Perfil: ícone de pessoa dentro do anel de progresso da trilha, em escala
- * menor. Nome (da sessão), unidade e dois números reais — meses declarados e
- * etapas concluídas. Nenhum deles compara a pessoa com outra: é o caminho dela
- * contra ela mesma.
+ * Perfil: o retrato do que a pessoa já construiu. A ordem é deliberada —
+ * identidade, o que ela já fez, os marcos que alcançou — e os ajustes ficam
+ * atrás da engrenagem, porque configuração não é o assunto desta tela.
+ *
+ * Nenhum número aqui é moeda, prêmio ou comparação com outra pessoa: o cliente
+ * recusou premiação, e o produto mostra o que ela já conseguiu em vez de dizer
+ * o que ela deveria conseguir.
+ *
+ * O nome vem da sessão e não do cadastro carregado: ele já está em memória
+ * quando a tela abre, então o cabeçalho não espera a rede para dizer quem é.
  */
 export function ProfileView({
   token,
@@ -26,19 +42,21 @@ export function ProfileView({
   onUnauthorized: () => void;
 }) {
   const { data, error, loading, reload } = useProfile(token, onUnauthorized);
+  // A sessão responde na hora e o cadastro responde depois, mas é o cadastro que
+  // manda: se um administrador corrigiu o nome, o do token está velho.
+  const name = data?.account.name ?? user?.name ?? "Perfil";
 
   return (
-    <Card className="gap-6">
-      <header className="grid gap-1">
-        <p className="text-sm text-muted-foreground">Seu perfil</p>
-        <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
-          {user?.name ?? "Perfil"}
-        </h1>
-        {data && (
-          <p className="text-sm text-muted-foreground">
-            {data.organization.name}
-          </p>
-        )}
+    <div className="grid gap-5">
+      <header className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold tracking-tight">Meu perfil</h1>
+        <Link
+          href="/perfil/configuracoes"
+          aria-label="Configurações"
+          className="grid size-11 place-items-center rounded-xl border border-border text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <Settings aria-hidden className="size-5" strokeWidth={ICON_STROKE} />
+        </Link>
       </header>
 
       <p
@@ -68,48 +86,28 @@ export function ProfileView({
 
       {data && (
         <>
-          <div className="grid justify-items-center gap-2">
-            <ProgressRing
-              ratio={trackRatio(data.track)}
-              label={`Progresso da trilha: ${completedStages(data.track)} de ${
-                data.track.stages.length
-              } etapas concluídas`}
-            >
-              {/* Ícone de pessoa dentro do anel — a mesma forma da trilha. */}
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                className="h-10 w-10 text-primary"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.75}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-              </svg>
-            </ProgressRing>
-          </div>
-
-          {/* Dois números reais e distintos. O contrato de /me/summary só expõe
-              `declaredMonths`; não há contagem de dias separada, então a tela
-              não inventa uma terceira medida que repetiria outra. */}
-          <dl className="grid grid-cols-2 gap-3 text-center">
-            <Stat label="Meses declarados" value={data.summary.declaredMonths} />
-            <Stat label="Etapas concluídas" value={completedStages(data.track)} />
-          </dl>
+          <ProfileHeader
+            name={name}
+            initials={initials(name)}
+            avatarUrl={data.account.avatarUrl}
+            organizationName={data.organization.name}
+            memberSince={formatMemberSince(data.account.createdAt)}
+            trackRatio={trackRatio(data.track)}
+            completedStages={completedStages(data.track)}
+            totalStages={data.track.stages.length}
+          />
+          <ProfileStats
+            stats={profileStats({
+              account: data.account,
+              summary: data.summary,
+              track: data.track,
+            })}
+          />
+          <ProfileMilestones
+            milestones={milestones(data.summary, data.track)}
+          />
         </>
       )}
-    </Card>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="grid gap-1 rounded-xl bg-muted p-3">
-      <dd className="text-2xl font-semibold tabular-nums">{value}</dd>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
     </div>
   );
 }
