@@ -186,10 +186,10 @@ variable "ai_system_prompt" {
 variable "seed_demo_data" {
   description = <<-EOT
     Roda `prisma db seed` depois das migrations. Ligado de propósito: a semente
-    grava as 30 peças do COOPS, seis pessoas com histórico na unidade do pitch e
-    quatro na vizinha — é ela que faz o painel do gestor ter número para mostrar
-    e a unidade pequena aparecer suprimida. Ela é idempotente, então rodar de
-    novo em cada deploy não duplica nada.
+    grava o catálogo de peças do COOPS, seis pessoas com histórico na unidade do
+    pitch e quatro na vizinha — é ela que faz o painel do gestor ter número para
+    mostrar e a unidade pequena aparecer suprimida. Ela é idempotente, então
+    rodar de novo em cada deploy não duplica nada.
 
     Os dados são fictícios por construção: os e-mails usam `demo.invalid` e
     essas pessoas não têm senha utilizável.

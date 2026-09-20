@@ -35,6 +35,13 @@ O preço é que a Core API vê todo mundo chegando de `127.0.0.1`. O throttler d
 Nest usa `req.ip`, então a plateia inteira divide um balde só — daí
 `THROTTLE_LIMIT` em 600 em vez dos 30 do padrão.
 
+E uma armadilha que custa a demonstração se passar: **o middleware de compressão
+do Next enfileira o corpo que atravessa o rewrite.** Medido aqui com uma origem
+que emite um quadro SSE a cada 500 ms — ligado, os cinco chegam juntos no fim;
+desligado, chegam espaçados como saíram. Por isso `compress: false` em
+`next.config.ts`. A compressão volta na borda, num comportamento próprio do
+CloudFront para `/_next/static/*`, onde não há stream para enfileirar.
+
 ## HTTPS não é enfeite aqui
 
 `enable_cloudfront` começa ligado, ao contrário do que seria numa API qualquer.
@@ -93,11 +100,11 @@ são `seed_admin_email`/`seed_admin_password` para o gestor e
 
 ## O que a semente deixa pronto
 
-`seed_demo_data` está ligado, e não é detalhe: a semente grava as 30 peças do
-COOPS, seis pessoas com histórico na unidade do pitch e quatro na unidade
-vizinha. Sem ela o painel do gestor abre vazio, e a supressão abaixo de cinco
-pessoas — que é uma das regras que o produto precisa demonstrar — não tem o que
-suprimir. Ela é idempotente, então roda em todo deploy sem duplicar nada.
+`seed_demo_data` está ligado, e não é detalhe: a semente grava o catálogo de
+peças do COOPS, seis pessoas com histórico na unidade do pitch e quatro na
+unidade vizinha. Sem ela o painel do gestor abre vazio, e a supressão abaixo de
+cinco pessoas — que é uma das regras que o produto precisa demonstrar — não tem o
+que suprimir. Ela é idempotente, então roda em todo deploy sem duplicar nada.
 
 Os dados são fictícios por construção: os e-mails usam `demo.invalid`, domínio
 reservado pela RFC 2606, e essas pessoas não têm senha utilizável.

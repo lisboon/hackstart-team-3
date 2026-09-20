@@ -9,7 +9,7 @@ output "secure_public_url" {
     navegador não o registra fora de contexto seguro, então não há instalação
     nem tela offline.
   EOT
-  value = local.secure_public_url
+  value       = local.secure_public_url
 }
 
 output "alb_dns_name" {

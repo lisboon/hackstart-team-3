@@ -15,6 +15,18 @@ const apiUrl = process.env.API_URL || "http://localhost:3001";
 
 const config: NextConfig = {
   output: "standalone",
+  /**
+   * O middleware de compressão do Next enfileira o corpo da resposta, e isso
+   * inclui o que passa pelo rewrite abaixo. Medido com uma origem que emite um
+   * quadro SSE a cada 500ms: ligado, os cinco chegam juntos no fim; desligado,
+   * chegam espaçados como saíram. Enfileirado, a resposta da IA só apareceria
+   * quando o modelo terminasse — até 50 segundos de tela parada, e o contrato
+   * `started -> token* -> completed` perderia o sentido.
+   *
+   * O que se perde em gzip de HTML e JS volta na borda: a distribuição comprime
+   * e cacheia `/_next/static/*` num comportamento próprio, onde não há stream.
+   */
+  compress: false,
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${apiUrl}/:path*` }];
   },

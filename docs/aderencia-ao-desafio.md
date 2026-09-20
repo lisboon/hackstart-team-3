@@ -40,7 +40,7 @@ As quatro últimas saem de `GET /organizations/current/indicators`, documentado 
 | `backend-db` | Azure Database for PostgreSQL |
 | Autenticação própria (JWT) | Microsoft Entra ID, trocando `AuthGuard` pelo provedor |
 
-O backend é TypeScript, linguagem mantida pela Microsoft. Os três serviços já têm `Dockerfile`, e o CI constrói a imagem de produção da API como verificação (`.github/workflows/ci.yml:80`) — ninguém publica em registro ainda. A migração é de destino de deploy, não de reescrita.
+O backend é TypeScript, linguagem mantida pela Microsoft. Os três serviços já têm `Dockerfile`, e desde a infraestrutura em `infra/` eles rodam publicados de verdade — uma task com os três contêineres num serviço gerenciado, banco Postgres gerenciado e imagens num registro. Isso é o que torna a linha acima verificável em vez de otimista: o que falta para Azure é trocar o destino, não reescrever. A escolha de AWS aqui é de crédito disponível no hackathon, não de arquitetura.
 
 ### 2.2 Proteção de dados e privacidade — *LGPD, minimização, anonimização*
 
