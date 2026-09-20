@@ -14,6 +14,7 @@ O desafio diz que o problema estará resolvido quando o público demonstrar maio
 |---|---|
 | Maior compreensão sobre temas financeiros | Peça diária do COOPS com decisão e consequência — `POST /me/today/answer` marca `comprehended` |
 | Decisões mais conscientes | A pessoa escolhe antes de ver o efeito; a consequência fica no servidor até a escolha |
+| Maior capacidade de planejamento | Metas de guarda pessoais que a pessoa define e acompanha — `POST/GET /me/goals`, cumprimento derivado da declaração mensal, sem cifra |
 | Redução da percepção de sofrimento | Humor diário de 1 a 5 — `POST /me/today/mood`, agregado em `averageMood` |
 | Redução dos níveis de estresse financeiro | Declaração mensal em `SelfReport.situation`, agregada em `tightRatio` |
 | Maior utilização dos recursos de apoio | **Ainda não medido.** É a issue #46 |
