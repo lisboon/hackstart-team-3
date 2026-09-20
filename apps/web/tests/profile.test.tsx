@@ -286,13 +286,23 @@ it("shows locked milestones dimmed instead of hiding them", async () => {
   );
   // All eight milestones render even with nothing achieved.
   await waitFor(() => expect(container.querySelectorAll("li")).toHaveLength(8));
-  const items = container.querySelectorAll("li");
-  // Locked milestones are visible but dimmed, and every one says "A caminho".
+  // Troféus não conquistados ficam apagados/sépia, mas visíveis. O estado não
+  // fica só na cor: vai no alt da imagem, para o leitor de tela (WCAG 1.4.1).
+  const trophies = container.querySelectorAll("img");
+  expect(trophies).toHaveLength(8);
   expect(
-    Array.from(items).every((li) => li.className.includes("opacity-70")),
+    Array.from(trophies).every((img) =>
+      img.className.includes("sepia"),
+    ),
   ).toBe(true);
-  expect(screen.getAllByText("A caminho")).toHaveLength(8);
+  expect(
+    Array.from(trophies).every((img) =>
+      (img.getAttribute("alt") ?? "").includes("ainda não conquistado"),
+    ),
+  ).toBe(true);
+  // A etiqueta de texto de status saiu da tela (fica só no alt).
   expect(screen.queryAllByText("Conquistado")).toHaveLength(0);
+  expect(screen.queryAllByText("A caminho")).toHaveLength(0);
 });
 
 it("never compares the person with anyone else on the achievements screen", async () => {

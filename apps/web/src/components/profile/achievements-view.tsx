@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useProfile } from "@/hooks/profile/use-profile";
-import { MilestoneCard } from "@/components/profile/milestone-card";
+import { TrophyCard } from "@/components/profile/trophy-card";
 import { milestones } from "@/components/profile/achievements-presentation";
 
 /**
@@ -23,7 +23,7 @@ export function AchievementsView({
   const achievedCount = items.filter((milestone) => milestone.achieved).length;
 
   return (
-    <Card className="gap-6">
+    <Card className="min-h-full flex-1 gap-6 rounded-none border-0">
       <header className="grid gap-1">
         <p className="text-sm text-muted-foreground">Suas conquistas</p>
         <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
@@ -66,9 +66,9 @@ export function AchievementsView({
       )}
 
       {data && (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid grid-cols-3 gap-4">
           {items.map((milestone) => (
-            <MilestoneCard key={milestone.id} milestone={milestone} />
+            <TrophyCard key={milestone.id} milestone={milestone} />
           ))}
         </ul>
       )}
