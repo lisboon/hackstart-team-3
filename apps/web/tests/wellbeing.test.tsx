@@ -87,15 +87,7 @@ async function signIn() {
 }
 
 function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
-  return render(
-    <SupportPaths
-      lessonSkipped={false}
-      takeFocus={false}
-      onSkipLesson={vi.fn()}
-      onResumeLesson={vi.fn()}
-      {...overrides}
-    />,
-  );
+  return render(<SupportPaths takeFocus={false} {...overrides} />);
 }
 
 it("opens a confirmation popup on tap instead of recording right away", async () => {
@@ -180,32 +172,20 @@ it("blocks the scale while it records and reports a failure", () => {
   expect(screen.getByRole("alert")).toHaveTextContent("Falhou");
 });
 
-it("welcomes without investigating and lets the person choose", () => {
+it("welcomes with only the two lines, without investigating", () => {
   const { container } = supportPaths({});
+  // Acolhe e agradece — nada de perguntar o motivo nem pedir relato.
   expect(container.textContent).not.toMatch(INVESTIGATION);
   expect(screen.queryByRole("textbox")).toBeNull();
-  const paths = screen.getAllByRole("listitem").map((item) => item.textContent);
-  expect(paths).toHaveLength(5);
-  expect(paths[0]).not.toMatch(/gestor/i);
-  expect(paths.at(-1)).toMatch(/gestor/i);
-  expect(screen.getByRole("link", { name: /188/ })).toHaveAttribute(
-    "href",
-    "tel:188",
-  );
-  expect(screen.getByText(/não faz diagnóstico/)).toBeInTheDocument();
-});
-
-it("lets the person drop the lesson and take it back", async () => {
-  const onSkipLesson = vi.fn();
-  const onResumeLesson = vi.fn();
-  const { unmount } = supportPaths({ onSkipLesson });
-  await userEvent.click(screen.getByRole("button", { name: /Pular a lição/ }));
-  expect(onSkipLesson).toHaveBeenCalledOnce();
-  unmount();
-  supportPaths({ lessonSkipped: true, onResumeLesson });
-  expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Mudei de ideia" }));
-  expect(onResumeLesson).toHaveBeenCalledOnce();
+  expect(
+    screen.getByRole("heading", { name: "Hoje não precisa ser produtivo" }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText("Obrigado por dizer. Você não precisa explicar nada."),
+  ).toBeInTheDocument();
+  // O card é só as duas linhas: sem lista de canais, sem botão, sem lição.
+  expect(screen.queryAllByRole("listitem")).toHaveLength(0);
+  expect(screen.queryByRole("button")).toBeNull();
 });
 
 it("shows the mood question alongside the rest of the home", async () => {

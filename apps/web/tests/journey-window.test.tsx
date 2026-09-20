@@ -25,6 +25,29 @@ function stubDay(open: boolean, opensAt: string) {
             closesAt: "2026-09-21T22:00:00.000Z",
           },
         });
+      // A Home inteira monta junto com a janela (ofensiva e resumo), então o
+      // stub precisa responder aos fetches deles — senão um 404 assíncrono
+      // vira um alerta de erro que não é desta tela.
+      if (pathname === "/me/streak")
+        return Response.json({
+          currentStreak: 0,
+          longestStreak: 0,
+          week: Array.from({ length: 7 }, (_, i) => ({
+            date: ENTRY_DATE,
+            weekday: i,
+            state: "future",
+          })),
+          freezesAvailable: 1,
+          freezeApplied: false,
+        });
+      if (pathname === "/me/summary")
+        return Response.json({
+          currentMonth: "2026-09-01T00:00:00.000Z",
+          currentSituation: "SURPLUS",
+          recentAverage: 1,
+          previousAverage: 1,
+          declaredMonths: 1,
+        });
       return new Response("{}", { status: 404 });
     }),
   );

@@ -79,12 +79,15 @@ test("the journey never suppresses zoom", () => {
   assert.match(layout.source, /width:\s*"device-width"/);
 });
 
-test("the shell keeps text off the bezel", () => {
+test("the shell no longer forces its own horizontal padding", () => {
   const shell = FILES.find(
     ({ file }) => file === "components/layout/app-shell.tsx",
   );
   assert.ok(shell, "app-shell.tsx not found");
-  assert.match(shell.source, /\bpx-\d/);
+  // Por decisão de produto o shell não adiciona mais px-5/pb-6: o espaçamento
+  // horizontal passou a ser responsabilidade de cada cartão/tela. Este teste
+  // fixa essa escolha para o padding não voltar por engano.
+  assert.doesNotMatch(shell.source, /\bpx-\d/);
 });
 
 test("the card primitive can shrink below its content", () => {
