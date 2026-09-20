@@ -90,6 +90,11 @@ const NON_TEXT_PAIRS = [
   // option or mood button that is currently selected.
   ["primary", "background"],
   ["primary", "card"],
+  // Tom do aviso: icone e faixa da esquerda do toast. E indicador, nao letra —
+  // o titulo do toast fica sempre em --foreground justamente porque --brand
+  // reprova como texto sobre o cartao claro.
+  ["brand", "card"],
+  ["warning", "card"],
   // O âmbar dos marcos conquistados contorna a etiqueta "Conquistado" sobre o
   // cartão. O tom do escuro desaparece sobre branco, então cada tema tem o seu:
   // sem este par, trocar um deles passaria no CI e sumiria no celular.

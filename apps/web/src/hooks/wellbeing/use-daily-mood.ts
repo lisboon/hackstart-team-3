@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HttpError } from "@/lib/http/client";
+import { toast } from "@/lib/toast";
 import {
   answerPiece,
   fetchToday,
@@ -97,6 +98,7 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
     try {
       await recordMood(mood, token, controller.signal);
       if (writing.current !== controller) return false;
+      toast.success("Humor registrado", "Obrigado por contar como você está.");
       // O 201 confirma o humor mas não traz a peça: o dia só fica completo
       // depois de recarregar.
       await reload();
@@ -109,6 +111,7 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
         return false;
       }
       if (cause instanceof HttpError && cause.status === 409) {
+        toast.info("Você já respondeu hoje", "A pergunta volta amanhã.");
         await reload();
         return true;
       }
@@ -155,6 +158,7 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
       // 409 significa que a peça do dia já foi respondida, por toque duplo ou
       // corrida. Recarregar mostra o dia completo em vez de acusar.
       if (cause instanceof HttpError && cause.status === 409) {
+        toast.info("Você já respondeu a colheita de hoje");
         await reload();
         return false;
       }
