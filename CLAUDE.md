@@ -97,7 +97,8 @@ Contrato SSE: `started` → `token`* → `completed` **ou** `error`. Fim sem `co
 ## O que não fazer
 
 - Não adicionar SWR, Zustand, RAG, agentes ou biblioteca nova sem consumidor real.
-- Não criar sistema de pontos trocáveis, prêmio material, liga ou ranking entre pessoas. Conquistas existem como reconhecimento, não como moeda — o cliente recusou premiação.
+- **Não criar liga, ranking ou qualquer comparação entre pessoas.** A trajetória é sempre contra o próprio passado. Isto continua vedado.
+- **Pontos por brinde estão aprovados** pelo dono do produto, e revertem a regra anterior ("o cliente recusou premiação"): a pessoa acumula pontos e vai trocá-los por brindes do Sicredi — garrafinha, mochila — numa loja ainda por construir. Hoje o ponto é **derivado** do que ela respondeu, calculado na tela (`components/journey/coops-sections.ts`), e não um saldo guardado no servidor. Enquanto for assim, a tela diz "pontos acumulados" e nunca "saldo". Persistir saldo e resgate é a issue #60.
 - Não editar lockfile à mão.
 - Não versionar `.env` nem dado real. A demo usa dados fictícios.
 - Não deixar `main` quebrada: rode `corepack pnpm check` antes de empurrar.
