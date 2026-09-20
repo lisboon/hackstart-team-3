@@ -43,9 +43,24 @@ test("a meta carrega o valor-alvo autodeclarado, em centavos (decisão #71)", ()
   assert.equal(parsed.goals[0].monthlyTargetCents, 10000);
 });
 
-test("rejeita valor-alvo não positivo", () => {
+test("a leitura tolera valor 0 de metas legadas (anteriores à #71)", () => {
+  // A migração preencheu metas antigas com 0; a lista não pode quebrar por isso.
   assert.equal(
-    goalsSchema.safeParse({ goals: [goal({ targetAmountCents: 0 })] }).success,
+    goalsSchema.safeParse({ goals: [goal({ targetAmountCents: 0, monthlyTargetCents: 0 })] })
+      .success,
+    true,
+  );
+});
+
+test("a criação exige valor-alvo positivo", () => {
+  assert.equal(
+    createdGoalSchema.safeParse({
+      id: "11111111-1111-4111-8111-111111111111",
+      kind: "MONTHLY",
+      targetAmountCents: 0,
+      targetMonths: null,
+      startMonth: "2026-09-01T00:00:00.000Z",
+    }).success,
     false,
   );
 });

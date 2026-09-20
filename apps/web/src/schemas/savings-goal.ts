@@ -32,10 +32,15 @@ export const goalSchema = z.object({
   kind: savingsGoalKindSchema,
   status: savingsGoalStatusSchema,
   startMonth: z.iso.datetime(),
-  /** Valor-alvo total autodeclarado, em centavos. */
-  targetAmountCents: z.number().int().min(1),
+  /**
+   * Valor-alvo total autodeclarado, em centavos. Na leitura aceitamos 0: metas
+   * criadas antes de a #71 introduzir o valor foram preenchidas com 0 pela
+   * migração. A validação de > 0 pertence à criação (garantida no backend), não
+   * à exibição — uma meta legada não pode derrubar a lista inteira.
+   */
+  targetAmountCents: z.number().int().min(0),
   /** Alvo por mês, em centavos (total ÷ meses no duradouro). */
-  monthlyTargetCents: z.number().int().min(1),
+  monthlyTargetCents: z.number().int().min(0),
   targetMonths: z.number().int().min(1),
   monthsMet: z.number().int().min(0),
   currentMonthMet: z.boolean(),
