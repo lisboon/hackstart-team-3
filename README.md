@@ -33,6 +33,8 @@ docker compose logs -f api ai
 ```
 
 Web: http://localhost:3000. API: http://localhost:3001. Swagger: http://localhost:3001/api-docs.
+Para apresentar, siga [`docs/demonstracao.md`](docs/demonstracao.md): a janela da jornada
+fecha a diária fora do expediente, e o Compose a mantém aberta de propósito.
 Acesse com `SEED_ADMIN_EMAIL` e `SEED_ADMIN_PASSWORD` do `.env`.
 O Compose é de desenvolvimento, publica portas apenas em localhost e usa credenciais locais.
 Os templates compartilham portas: execute um de cada vez. `docker compose stop` preserva os dados.

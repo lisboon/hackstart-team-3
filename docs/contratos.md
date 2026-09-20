@@ -117,17 +117,33 @@ Chamado **ao abrir o app**. Diz o que a tela deve mostrar.
   "answered": false,
   "mood": null,
   "pieceAnswered": false,
-  "piece": null
+  "piece": null,
+  "window": {
+    "open": true,
+    "opensAt": "2026-09-21T11:30:00.000Z",
+    "closesAt": "2026-09-21T22:00:00.000Z"
+  }
 }
 ```
 
 | Estado | A tela mostra |
 |---|---|
+| `window.open: false` | o horário da próxima abertura, **antes de tudo** |
 | `answered: false` | **só** a pergunta de humor, ocupando a tela |
 | `answered: true`, `piece` preenchida | o app, com a peça do dia |
 | `answered: true`, `pieceAnswered: true` | o app, sem peça — a diária está completa |
 
 **Sem humor não vem peça.** A pergunta de abertura é pré-requisito, e o `piece` vem `null` até ela ser respondida.
+
+### A janela
+
+Escrever a diária acontece dentro do expediente da unidade — por padrão segunda a sexta, das 07:30 às 18:00, no fuso configurado. Ler nunca fecha.
+
+`opensAt` é a abertura vigente quando `open` é verdadeiro, e a próxima quando é falso. As duas datas são UTC: quem formata para o relógio de quem lê é a tela.
+
+A tela lê daqui em vez de descobrir pelo erro. `POST /me/today/mood` e `POST /me/today/answer` respondem **`403`** fora da janela — é a rede para quem chamar a API direto, não o caminho normal.
+
+Configuração por `JOURNEY_WINDOW_ZONE`, `JOURNEY_WINDOW_DAYS` (0 é domingo), `JOURNEY_WINDOW_OPENS` e `JOURNEY_WINDOW_CLOSES`. Vir de `Company` é o passo seguinte.
 
 ### A peça
 

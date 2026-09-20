@@ -1,5 +1,6 @@
 import BaseUseCase from "@/modules/@shared/usecase/base.usecase";
 import { CoopsStage } from "@/modules/@shared/domain/enums";
+import { JourneyWindowState } from "../../domain/journey-window";
 
 export interface TodayPieceDto {
   id: string;
@@ -23,6 +24,7 @@ export interface GetTodayEntryUseCaseOutputDto {
   mood: number | null;
   pieceAnswered: boolean;
   piece: TodayPieceDto | null;
+  window: JourneyWindowState;
 }
 
 export type GetTodayEntryUseCaseInterface = BaseUseCase<

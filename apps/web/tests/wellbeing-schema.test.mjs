@@ -7,6 +7,11 @@ import {
 } from "../src/schemas/wellbeing.ts";
 
 const ENTRY_DATE = "2026-09-19T00:00:00.000Z";
+const WINDOW = {
+  open: true,
+  opensAt: "2026-09-21T11:30:00.000Z",
+  closesAt: "2026-09-21T22:00:00.000Z",
+};
 
 test("the day accepts the published contract in both states", () => {
   assert.deepEqual(
@@ -16,6 +21,7 @@ test("the day accepts the published contract in both states", () => {
       mood: null,
       pieceAnswered: false,
       piece: null,
+      window: WINDOW,
     }),
     {
       entryDate: ENTRY_DATE,
@@ -23,6 +29,7 @@ test("the day accepts the published contract in both states", () => {
       mood: null,
       pieceAnswered: false,
       piece: null,
+      window: WINDOW,
     },
   );
   assert.deepEqual(
@@ -32,6 +39,7 @@ test("the day accepts the published contract in both states", () => {
       mood: 3,
       pieceAnswered: false,
       piece: null,
+      window: WINDOW,
     }),
     {
       entryDate: ENTRY_DATE,
@@ -39,6 +47,7 @@ test("the day accepts the published contract in both states", () => {
       mood: 3,
       pieceAnswered: false,
       piece: null,
+      window: WINDOW,
     },
   );
 });

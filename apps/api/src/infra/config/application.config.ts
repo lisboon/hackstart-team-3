@@ -1,4 +1,8 @@
 import ms, { StringValue } from "ms";
+import {
+  DEFAULT_JOURNEY_WINDOW,
+  JourneyWindow,
+} from "@/modules/daily-entry/domain/journey-window";
 
 const DEFAULT_PORT = 3001;
 const DEFAULT_BCRYPT_ROUNDS = 12;
@@ -29,6 +33,7 @@ export interface ApplicationConfig {
     internalToken: string;
     timeoutMs: number;
   };
+  journeyWindow: JourneyWindow;
 }
 
 export class ApplicationConfigError extends Error {
@@ -109,6 +114,7 @@ export function loadApplicationConfig(
         issues,
       ),
     },
+    journeyWindow: parseJourneyWindow(environment, issues),
   };
 
   if (issues.length > 0) {
@@ -116,6 +122,93 @@ export function loadApplicationConfig(
   }
 
   return config;
+}
+
+/**
+ * A janela da jornada. Configuravel porque ela e da unidade, nao do produto: a
+ * cooperativa atende MT e PA, que nem sequer tem o mesmo fuso, e a
+ * demonstracao roda com os sete dias abertos para o laco aparecer no palco. O
+ * padrao aqui e a regra de verdade — segunda a sexta, 07:30 as 18:00.
+ */
+function parseJourneyWindow(
+  environment: NodeJS.ProcessEnv,
+  issues: string[],
+): JourneyWindow {
+  return {
+    zone: parseTimeZone(environment.JOURNEY_WINDOW_ZONE, issues),
+    days: parseWeekDays(environment.JOURNEY_WINDOW_DAYS, issues),
+    opensAt: parseDayTime(
+      "JOURNEY_WINDOW_OPENS",
+      environment.JOURNEY_WINDOW_OPENS,
+      DEFAULT_JOURNEY_WINDOW.opensAt,
+      issues,
+    ),
+    closesAt: parseDayTime(
+      "JOURNEY_WINDOW_CLOSES",
+      environment.JOURNEY_WINDOW_CLOSES,
+      DEFAULT_JOURNEY_WINDOW.closesAt,
+      issues,
+    ),
+  };
+}
+
+/**
+ * Zona desconhecida faz `Intl` lancar. Reprovar na subida e melhor que
+ * descobrir no primeiro acesso — ou no palco.
+ */
+function parseTimeZone(raw: string | undefined, issues: string[]): string {
+  const value = raw?.trim() || DEFAULT_JOURNEY_WINDOW.zone;
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: value });
+  } catch {
+    issues.push(`JOURNEY_WINDOW_ZONE must be a valid IANA time zone`);
+    return DEFAULT_JOURNEY_WINDOW.zone;
+  }
+  return value;
+}
+
+/** "1,2,3,4,5" — 0 e domingo. Lista vazia fecharia a jornada para sempre. */
+function parseWeekDays(
+  raw: string | undefined,
+  issues: string[],
+): readonly number[] {
+  if (raw === undefined) return DEFAULT_JOURNEY_WINDOW.days;
+
+  const days = raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part !== "")
+    .map(Number);
+
+  if (
+    days.length === 0 ||
+    days.some((day) => !Number.isInteger(day) || day < 0 || day > 6)
+  ) {
+    issues.push(
+      "JOURNEY_WINDOW_DAYS must be a non-empty list of week days from 0 (Sunday) to 6",
+    );
+    return DEFAULT_JOURNEY_WINDOW.days;
+  }
+
+  return [...new Set(days)].sort((a, b) => a - b);
+}
+
+/** "07:30" no relogio local da unidade. */
+function parseDayTime(
+  name: string,
+  raw: string | undefined,
+  fallback: { hour: number; minute: number },
+  issues: string[],
+): { hour: number; minute: number } {
+  if (raw === undefined) return fallback;
+
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(raw.trim());
+  if (!match) {
+    issues.push(`${name} must be a time of day in HH:MM, from 00:00 to 23:59`);
+    return fallback;
+  }
+
+  return { hour: Number(match[1]), minute: Number(match[2]) };
 }
 
 function parseHttpUrl(name: string, raw: string, issues: string[]): string {
