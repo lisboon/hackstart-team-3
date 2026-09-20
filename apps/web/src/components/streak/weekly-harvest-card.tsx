@@ -25,7 +25,7 @@ const STATE_TEXT: Readonly<Record<WeekDayState, string>> = {
  */
 export function WeeklyHarvestCard({ streak }: { streak: Streak }) {
   return (
-    <section className="relative space-y-3.5 overflow-hidden rounded-3xl bg-primary p-4 text-primary-foreground shadow-md">
+    <section className="relative space-y-3.5 overflow-hidden rounded-none bg-primary p-4 text-primary-foreground shadow-md">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span aria-hidden className="text-sm">
@@ -35,7 +35,7 @@ export function WeeklyHarvestCard({ streak }: { streak: Streak }) {
             Colheita semanal
           </span>
         </div>
-        <span className="rounded-full bg-black/10 px-2 py-0.5 text-[10px] font-bold text-primary-foreground/90">
+        <span className=" bg-black/10 px-2 py-0.5 text-[10px] font-bold text-primary-foreground/90">
           Seu recorde: {streak.longestStreak}{" "}
           {streak.longestStreak === 1 ? "dia" : "dias"}
         </span>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useDailyMood } from "@/hooks/wellbeing/use-daily-mood";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
+import { MoodBadge } from "@/components/wellbeing/mood-badge";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { WeeklyHarvestCard } from "@/components/streak/weekly-harvest-card";
@@ -82,11 +83,17 @@ export function DailyJourney({
     <>
       {/* Depois da resposta a pergunta sai da tela e levaria o h1 com ela. */}
       <h1 className="sr-only">Seu dia</h1>
+      {/* O humor fica fixo no topo, agora como registro do dia (só leitura). */}
+      {today.mood !== null && <MoodBadge mood={today.mood} />}
       {today.mood !== null && isSuffering(today.mood) && (
         <SupportPaths takeFocus={answeredNow} />
       )}
       {streak && <WeeklyHarvestCard streak={streak} />}
-      <PersonalSummary token={token} onUnauthorized={onUnauthorized} />
+      <PersonalSummary
+        token={token}
+        onUnauthorized={onUnauthorized}
+        className="rounded-none"
+      />
     </>
   );
 }
