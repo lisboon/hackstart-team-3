@@ -20,6 +20,16 @@ COPY apps/web/ ./apps/web/
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+# Para onde os `rewrites` de next.config.ts encaminham a API. Precisa ser
+# argumento de build, e nao variavel de ambiente: com `output: standalone` o
+# Next congela os rewrites no build, e um valor passado so em tempo de execucao
+# nao tem efeito nenhum — a chamada continua indo para o destino compilado.
+#
+# Nome de servico do Compose por padrao. Num orquestrador em que os conteineres
+# dividem a pilha de rede (ECS com awsvpc, por exemplo), passe localhost.
+ARG API_INTERNAL_URL=http://api:3001
+ENV API_INTERNAL_URL=${API_INTERNAL_URL}
+
 RUN pnpm --dir apps/web build
 
 FROM node:24-alpine AS runner
