@@ -27,6 +27,7 @@ import {
 import { TrackResponseDto } from "./dto/track.response.dto";
 import { JourneyResponseDto } from "./dto/journey.response.dto";
 import { StreakResponseDto } from "./dto/streak.response.dto";
+import { ProgressResponseDto } from "./dto/progress.response.dto";
 import { AnswerPieceBodyDto } from "./dto/answer-piece.body.dto";
 import { RecordMoodBodyDto } from "./dto/record-mood.body.dto";
 
@@ -93,6 +94,22 @@ export class DailyEntryController {
   @ApiOkResponse({ type: StreakResponseDto })
   getStreak(@CurrentSession() session: AuthenticatedSession) {
     return this.dailyEntries.getStreak({
+      userId: session.userId,
+      companyId: session.companyId,
+      today: new Date(),
+    });
+  }
+
+  @Get("progress")
+  @ApiOperation({
+    summary:
+      "The days of the current month with an entry, for the progress screen",
+    description:
+      "The month comes from the server clock, never from the client. A day without an entry is simply absent from the list: the screen draws it empty, with no alert and no streak to lose.",
+  })
+  @ApiOkResponse({ type: ProgressResponseDto })
+  getProgress(@CurrentSession() session: AuthenticatedSession) {
+    return this.dailyEntries.getProgress({
       userId: session.userId,
       companyId: session.companyId,
       today: new Date(),

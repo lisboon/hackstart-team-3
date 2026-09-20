@@ -3,6 +3,7 @@ import { GetTodayEntryUseCaseInterface } from "../usecase/get-today/get-today.us
 import { GetTrackUseCaseInterface } from "../usecase/get-track/get-track.usecase.dto";
 import { GetJourneyUseCaseInterface } from "../usecase/get-journey/get-journey.usecase.dto";
 import { GetStreakUseCaseInterface } from "../usecase/get-streak/get-streak.usecase.dto";
+import { GetProgressUseCaseInterface } from "../usecase/get-progress/get-progress.usecase.dto";
 import { RecordMoodUseCaseInterface } from "../usecase/record-mood/record-mood.usecase.dto";
 import {
   DailyEntryFacadeInterface,
@@ -16,6 +17,8 @@ import {
   GetTrackFacadeOutputDto,
   GetJourneyFacadeInputDto,
   GetJourneyFacadeOutputDto,
+  GetProgressFacadeInputDto,
+  GetProgressFacadeOutputDto,
   GetStreakFacadeInputDto,
   GetStreakFacadeOutputDto,
 } from "./daily-entry.facade.dto";
@@ -28,6 +31,7 @@ export default class DailyEntryFacade implements DailyEntryFacadeInterface {
     private readonly getTrackUseCase: GetTrackUseCaseInterface,
     private readonly getJourneyUseCase: GetJourneyUseCaseInterface,
     private readonly getStreakUseCase: GetStreakUseCaseInterface,
+    private readonly getProgressUseCase: GetProgressUseCaseInterface,
   ) {}
 
   async recordMood(
@@ -64,5 +68,11 @@ export default class DailyEntryFacade implements DailyEntryFacadeInterface {
     data: GetStreakFacadeInputDto,
   ): Promise<GetStreakFacadeOutputDto> {
     return this.getStreakUseCase.execute(data);
+  }
+
+  async getProgress(
+    data: GetProgressFacadeInputDto,
+  ): Promise<GetProgressFacadeOutputDto> {
+    return this.getProgressUseCase.execute(data);
   }
 }

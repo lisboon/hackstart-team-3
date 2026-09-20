@@ -57,6 +57,7 @@ try {
     "GoalsResponseDto",
     "UpdateGoalResponseDto",
     "StreakResponseDto",
+    "ProgressResponseDto",
   ];
 
   for (const name of requiredSchemas) {
