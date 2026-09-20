@@ -3,9 +3,8 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
 import type { AuthUser } from "@/services/auth/auth-service";
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginScreen } from "@/components/auth/login-screen";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 /**
  * Portão de sessão para as telas de recurso pessoal. O token vive na sessão do
@@ -25,9 +24,7 @@ export function AuthGate({
   const { token, user, error, pending, signIn, logout } = useAuth();
   if (!token)
     return (
-      <Card className="p-6">
-        <LoginForm onSubmit={signIn} pending={pending} error={error} />
-      </Card>
+      <LoginScreen onSubmit={signIn} pending={pending} error={error} />
     );
   return (
     <div className="grid gap-4">

@@ -22,7 +22,7 @@ export function LoginForm({
   });
   return (
     <FormLayout form={form} onSubmit={onSubmit}>
-      <h2 className="text-xl font-semibold">Entrar no workspace</h2>
+      <h2 className="text-lg font-semibold">Entrar na sua conta</h2>
       <InputField
         control={form.control}
         name="email"

@@ -19,8 +19,8 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     // Mirrors --background and --primary from src/styles/globals.css so the
     // splash screen and the Android status bar match the app.
-    background_color: "#07100f",
-    theme_color: "#07100f",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
     categories: ["health", "finance", "education"],
     icons: [
       {

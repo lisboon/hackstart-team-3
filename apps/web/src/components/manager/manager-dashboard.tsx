@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/auth/use-auth";
 import { fetchUnitIndicators } from "@/services/organization/organization-service";
 import type { UnitIndicators } from "@/schemas/organization";
 import { Card } from "@/components/ui/card";
+import { ICON_STROKE } from "@/components/ui/icon";
 import {
   Users,
   Smile,
@@ -133,37 +134,37 @@ function Indicators({ data }: { data: UnitIndicators }) {
         title="Aperto financeiro"
         value={percent(data.tightRatio)}
         description="De quem declarou o mês, quantos fecharam apertados."
-        icon={<Wallet className="h-4 w-4" />}
+        icon={<Wallet className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
       <Metric
         title="Humor agregado"
         value={decimal(data.averageMood)}
         description="Média de 1 a 5 no mês."
-        icon={<Smile className="h-4 w-4" />}
+        icon={<Smile className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
       <Metric
         title="Alcance"
         value={whole(data.reach)}
         description={`Já usaram alguma vez, de ${whole(data.headcount)} na unidade.`}
-        icon={<Users className="h-4 w-4" />}
+        icon={<Users className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
       <Metric
         title="Adesão"
         value={whole(data.active)}
         description="Registraram alguma coisa neste mês."
-        icon={<Activity className="h-4 w-4" />}
+        icon={<Activity className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
       <Metric
         title="Frequência"
         value={decimal(data.frequency)}
         description="Dias com registro por pessoa que manteve o diário."
-        icon={<TrendingUp className="h-4 w-4" />}
+        icon={<TrendingUp className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
       <Metric
         title="Mês anterior"
         value={decimal(evolution)}
         description="Humor agregado do mês passado, para comparar."
-        icon={<TrendingUp className="h-4 w-4" />}
+        icon={<TrendingUp className="h-4 w-4" strokeWidth={ICON_STROKE} />}
       />
     </div>
   );
