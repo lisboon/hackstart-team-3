@@ -46,8 +46,14 @@ export const PITCH_HISTORY: Omit<DemoPerson, 'name'> = {
     'BREAK_EVEN',
     'SURPLUS',
   ],
-  moods: [2, 3, 2, 4, 3, 4, 3, 5, 4, 4, 3, 5],
-  answeredPieces: 2,
+  moods: [2, 3, 2, 4, 3, 4, 3, 5, 4, 4, 3, 5, 4, 5],
+  /**
+   * Catorze peças: Conscientizar e Observar inteiras, e Organizar começada.
+   * O número é de palco — com ele a trilha abre mostrando duas etapas
+   * concluídas, uma em andamento e duas trancadas, que é a forma do método.
+   * Era 2 de quando o catálogo tinha cinco peças no total.
+   */
+  answeredPieces: 14,
 };
 
 /**

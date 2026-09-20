@@ -2,46 +2,24 @@ import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
  * Cinco níveis, um toque. O número é o valor do contrato, de 1 a 5 com 1 no
- * pior. O ícone é o do tempo (base: stitch/home.html), mas o rótulo fala de
- * sentimento, não de clima: a escala vai de "Muito triste" a "Ótimo", porque é
- * o que a pessoa está sentindo que importa — a metáfora sozinha não nomeia o
- * estado. A tela mostra o ícone e a palavra do sentimento.
+ * pior. A metáfora é o tempo, não a carinha (base: stitch/home.html): o clima
+ * descreve o dia sem pedir que a pessoa se classifique nem a acusar. A tela
+ * mostra o ícone do tempo e a palavra.
  */
 export const MOOD_LEVELS: readonly {
   value: MoodScale;
   emoji: string;
   label: string;
 }[] = [
-  { value: 1, emoji: "⛈️", label: "Muito triste" },
-  { value: 2, emoji: "🌧️", label: "Triste" },
-  { value: 3, emoji: "☁️", label: "Mais ou menos" },
-  { value: 4, emoji: "🌤️", label: "Bem" },
-  { value: 5, emoji: "☀️", label: "Ótimo" },
+  { value: 1, emoji: "⛈️", label: "Tempestade" },
+  { value: 2, emoji: "🌧️", label: "Chuva" },
+  { value: 3, emoji: "☁️", label: "Nublado" },
+  { value: 4, emoji: "🌤️", label: "Sol entre nuvens" },
+  { value: 5, emoji: "☀️", label: "Sol" },
 ];
 
 export function moodLabel(mood: MoodScale): string {
   return MOOD_LEVELS.find((level) => level.value === mood)?.label ?? "";
-}
-
-/**
- * A mensagem de acolhimento do popup, uma por sentimento. Acolhe sem investigar
- * nem cobrar: valida o que a pessoa sente, seja qual for, e só então convida
- * (sem obrigar) a especificar. Nos dias difíceis o tom é de cuidado; nos bons,
- * de celebração leve.
- */
-export function moodPromptMessage(mood: MoodScale): string {
-  switch (mood) {
-    case 1:
-      return "Sinto muito que hoje esteja tão difícil. Obrigado por confiar isso aqui. Se quiser, conte um pouco do que está pesando.";
-    case 2:
-      return "Dias tristes também merecem espaço. Obrigado por compartilhar. Quer contar um pouco do que está sentindo?";
-    case 3:
-      return "Nem todo dia é sol ou tempestade, e tudo bem ficar no meio do caminho. Quer especificar como está se sentindo?";
-    case 4:
-      return "Que bom que hoje está sendo um bom dia! Quer contar um pouco do que está te fazendo bem?";
-    case 5:
-      return "Que alegria saber que você está ótimo hoje! Quer compartilhar o que está deixando o dia tão bom?";
-  }
 }
 
 /** Na dúvida, acolher: os dois níveis mais baixos abrem o acolhimento. */

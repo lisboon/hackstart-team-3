@@ -103,6 +103,7 @@ Desenho: quatro semanas, adesão voluntária, sem meta individual. O que se mede
 - **Não diagnostica** e não substitui atendimento profissional. O aviso e o CVV 188 ficam no rodapé de toda tela autenticada, inclusive fora do horário da jornada
 - **Não mede estresse especificamente financeiro** no dia a dia: o humor diário é geral. A declaração mensal é que carrega a dimensão financeira
 - **Não promete conformidade** com NR-1 nem com qualquer norma
+- **Não tem loja de brindes.** O dono do produto aprovou pontos trocáveis por brindes do Sicredi, e a trilha já acumula pontos — mas eles são **derivados** do que a pessoa respondeu, calculados na tela a cada leitura, e não um saldo persistido. Gastar ponto exige saldo no servidor e histórico de resgate, que não existem. A tela diz "pontos acumulados" por isso. Continua vedado o que o cliente nunca pediu: liga, ranking e comparação entre pessoas
 
 ### 3.1 A janela da jornada
 

@@ -1,21 +1,27 @@
 "use client";
 
+import { Check, Droplets, Lock } from "lucide-react";
+import { ICON_STROKE } from "@/components/ui/icon";
+import { StageBanner } from "@/components/journey/stage-banner";
+import {
+  POINTS_PER_PIECE,
+  coopsSections,
+  type StageSection,
+} from "@/components/journey/coops-sections";
 import { trailGeometry } from "@/components/journey/trail-geometry";
 import type { JourneyNode } from "@/schemas/wellbeing";
 
 /**
- * O mapa da trilha, no visual de `home.html` (mapa sinuoso estilo Duolingo):
- * caminho tracejado em curva, nós grandes com relevo tátil e decoração
- * botânica ao redor.
+ * O mapa da trilha: um caminho sinuoso estilo Duolingo, quebrado pelas cinco
+ * etapas do método COOPS.
  *
- * O caminho não é mais hard-coded: `trailGeometry` calcula a posição de cada
- * nó (x em senoide, y linear) e desenha a curva que os liga, para qualquer
- * número de peças. Um nó por peça, vindo de `GET /me/journey`; o estado decide
- * o desenho e o que o toque faz.
+ * Cada etapa é uma seção com a sua faixa grudenta e a sua própria serpentina,
+ * reiniciando no centro — é assim que o caminho lê como unidade nova em vez de
+ * uma fita sem fim. `trailGeometry` calcula a posição de cada nó e a curva que
+ * os liga, para qualquer quantidade de peças.
  *
- * DECISÃO DE ESCOPO (aprovada): estrelas, baú e o selo "+15 XP" são ENFEITE
- * VISUAL ESTÁTICO — placeholder para a implementação futura (issue #60). Sem
- * dado, sem cálculo, sem persistência.
+ * Nada aqui usa cor literal: o mapa vive nos tokens do tema. Com cor crua, em
+ * modo escuro ele voltava a ser um retângulo branco luminoso sobre a página.
  */
 export function JourneyMap({
   nodes,
@@ -24,47 +30,63 @@ export function JourneyMap({
   nodes: JourneyNode[];
   onOpen: (node: JourneyNode) => void;
 }) {
-  const geometry = trailGeometry(nodes.length);
+  const sections = coopsSections(nodes);
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-gradient-to-b from-[#f9fbf9] to-white p-4 shadow-sm">
-      {/* Banner do módulo, como no home.html */}
-      <div className="relative flex items-center justify-between overflow-hidden rounded-2xl bg-emerald-600 p-3.5 text-white shadow-md">
-        <div className="pointer-events-none absolute -right-6 -bottom-8 size-24 rounded-full bg-emerald-500 opacity-40 blur-lg" />
-        <div>
-          <span className="block text-[10px] font-extrabold uppercase tracking-wider text-emerald-200">
-            Sua trilha
-          </span>
-          <h3 className="text-base font-bold leading-snug">Preparando a Terra</h3>
-          <p className="text-[11px] font-medium text-emerald-100">
-            Método COOPS · Cooperação na Ponta do Lápis
-          </p>
-        </div>
-      </div>
+    <div className="space-y-8">
+      {sections.map((section) => (
+        <StageTrail key={section.stage} section={section} onOpen={onOpen} />
+      ))}
+    </div>
+  );
+}
 
-      {/* O palco do mapa tem a proporção do viewBox gerado: assim os nós,
-          posicionados em porcentagem, caem exatamente sobre a curva. */}
+function StageTrail({
+  section,
+  onOpen,
+}: {
+  section: StageSection;
+  onOpen: (node: JourneyNode) => void;
+}) {
+  const geometry = trailGeometry(section.nodes.length);
+
+  return (
+    <section className="space-y-1">
+      <StageBanner section={section} />
+
+      {/*
+        O palco tem a proporção travada no mesmo valor do `viewBox`, e é isso
+        que faz `preserveAspectRatio="none"` não distorcer: com a razão igual, o
+        fator de escala é o mesmo nos dois eixos.
+
+        Os dois andam juntos e não se mexe num sem o outro — os nós são
+        posicionados em porcentagem **do contêiner**, não do SVG. Com `meet` o
+        caminho ganharia tarja e os nós escorregariam para fora da curva.
+
+        Pelo mesmo motivo, nada de `min-h-*` nem `flex-1` aqui: qualquer coisa
+        que estique a caixa sobrepõe o `aspect-ratio` e dessincroniza os dois.
+      */}
       <div
-        className="relative mt-2 w-full select-none"
+        className="relative w-full select-none"
         style={{ aspectRatio: `${geometry.width} / ${geometry.height}` }}
       >
         <svg
           aria-hidden
-          className="pointer-events-none absolute inset-0 size-full"
+          className="pointer-events-none absolute inset-0 size-full opacity-70"
           fill="none"
           preserveAspectRatio="none"
           viewBox={`0 0 ${geometry.width} ${geometry.height}`}
         >
           <path
             d={geometry.path}
-            stroke="#d7dfd7"
+            stroke="var(--border)"
             strokeDasharray="2 10"
             strokeLinecap="round"
             strokeWidth="7"
           />
         </svg>
 
-        {nodes.map((node, index) => {
+        {section.nodes.map((node, index) => {
           const point = geometry.points[index];
           return (
             <div
@@ -98,17 +120,19 @@ function TrailNode({
   onOpen: (node: JourneyNode) => void;
 }) {
   const locked = node.state === "locked";
-  const stateLabel = STATE_LABEL[node.state];
 
   return (
+    // `relative` é o que ancora a chamada no nó. Sem ele ela se pendurava no
+    // contêiner absoluto de fora e flutuava no lugar errado.
     <div
-      className={`flex flex-col items-center ${locked ? "opacity-60" : ""}`}
+      className={`relative flex flex-col items-center ${locked ? "opacity-70" : ""}`}
     >
-      {/* Chamada de ação do nó atual: "COMEÇAR +15 XP" (XP estático, #60). */}
       {node.state === "current" && (
-        <div className="animate-bounce-gentle absolute bottom-full mb-1 flex items-center space-x-1 whitespace-nowrap rounded-full border border-emerald-400/60 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-wide text-emerald-700 shadow-lg">
+        <div className="animate-bounce-gentle absolute bottom-full left-1/2 mb-2 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-brand bg-card px-3 py-1 text-[11px] font-black uppercase tracking-wide text-primary shadow-lg">
           <span>COMEÇAR</span>
-          <span className="font-extrabold text-amber-500">+15 XP</span>
+          <span className="font-extrabold text-achievement-trajectory">
+            +{POINTS_PER_PIECE} pontos
+          </span>
         </div>
       )}
 
@@ -116,57 +140,64 @@ function TrailNode({
         type="button"
         disabled={locked}
         aria-disabled={locked}
-        aria-label={`${node.title} — ${stateLabel}`}
+        aria-label={`${node.title} — ${STATE_LABEL[node.state]}`}
         onClick={() => onOpen(node)}
         className={nodeButtonClass(node.state)}
       >
         <NodeGlyph state={node.state} />
       </button>
-
-      {/* Estrelas — ENFEITE ESTÁTICO (placeholder #60): sempre três, sem
-          pontuação real. Douradas no concluído, apagadas no resto. */}
-      <div
-        aria-hidden
-        className={`mt-1 flex space-x-1 text-xs ${
-          node.state === "answered" ? "text-amber-400" : "text-slate-300"
-        }`}
-      >
-        <span>★</span>
-        <span>★</span>
-        <span>★</span>
-      </div>
     </div>
   );
 }
 
-/** As classes de cada nó, com o relevo tátil (sombra 3D) do home.html. */
+/**
+ * O relevo tátil do Duolingo: uma sombra sólida embaixo, que some quando o
+ * botão afunda. `color-mix` escurece o próprio token, então o relevo acompanha
+ * o tema em vez de fixar um verde que só existe no claro.
+ */
 function nodeButtonClass(state: JourneyNode["state"]): string {
   const base =
-    "flex items-center justify-center rounded-full transition-all active:translate-y-1 active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+    "flex items-center justify-center rounded-full border-4 transition-all active:translate-y-1 active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+
   if (state === "answered") {
-    return `${base} size-16 border-4 border-[#22c55e] bg-[#4ade80] shadow-[0_6px_0_#15803d]`;
+    // O verde da marca aqui é preenchimento e contorno, nunca letra — é
+    // exatamente o uso que o manual permite a ele (docs/identidade.html).
+    return `${base} size-16 border-brand bg-brand shadow-[0_6px_0_color-mix(in_srgb,var(--brand)_65%,black)]`;
   }
   if (state === "current") {
-    return `${base} size-[72px] border-4 border-[#16a34a] bg-[#22c55e] shadow-[0_6px_0_#16a34a] ring-4 ring-emerald-300/40`;
+    return `${base} size-[72px] border-primary bg-primary shadow-[0_6px_0_color-mix(in_srgb,var(--primary)_60%,black)] ring-4 ring-brand/35`;
   }
-  return `${base} size-16 cursor-not-allowed border-4 border-slate-300 bg-slate-200 shadow-[0_5px_0_#9ca3af]`;
+  return `${base} size-16 cursor-not-allowed border-border bg-muted shadow-[0_5px_0_var(--border)]`;
 }
 
-/** O ícone de cada estado: broto colhido, regador, ou cadeado. */
+/**
+ * Ícone em vez de emoji: emoji não herda a cor do tema, e cada sistema desenha
+ * o seu — em modo escuro alguns somem.
+ */
 function NodeGlyph({ state }: { state: JourneyNode["state"] }) {
   if (state === "answered") {
-    return <span className="text-2xl drop-shadow-sm">🌱</span>;
+    return (
+      <Check
+        aria-hidden
+        className="size-7 text-primary-foreground"
+        strokeWidth={3}
+      />
+    );
   }
   if (state === "current") {
-    return <span className="text-3xl text-white drop-shadow">🚿</span>;
+    return (
+      <Droplets
+        aria-hidden
+        className="size-8 text-primary-foreground"
+        strokeWidth={ICON_STROKE}
+      />
+    );
   }
   return (
-    <svg className="size-6 text-slate-500" fill="currentColor" viewBox="0 0 24 24">
-      <path
-        clipRule="evenodd"
-        fillRule="evenodd"
-        d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 00-7.5 0v3h7.5z"
-      />
-    </svg>
+    <Lock
+      aria-hidden
+      className="size-6 text-muted-foreground"
+      strokeWidth={ICON_STROKE}
+    />
   );
 }

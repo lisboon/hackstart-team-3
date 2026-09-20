@@ -42,7 +42,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR">
+    // O script de tema abaixo põe a classe (light/dark) no <html> antes da
+    // hidratação, de propósito, para não piscar a cor. Isso faz o atributo
+    // divergir do HTML do servidor (que não conhece o tema): suppressHydration
+    // silencia só o aviso deste elemento, não dos filhos.
+    <html lang="pt-BR" suppressHydrationWarning>
       <body>
         {/* Aplica o tema guardado antes da primeira pintura. Sem isto a tela
             nasce clara e pisca para escura em quem escolheu escuro. */}

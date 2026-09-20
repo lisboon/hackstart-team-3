@@ -79,14 +79,13 @@ test("the journey never suppresses zoom", () => {
   assert.match(layout.source, /width:\s*"device-width"/);
 });
 
-test("the shell no longer forces its own horizontal padding", () => {
+test("the shell no longer forces horizontal padding — screens own their spacing", () => {
   const shell = FILES.find(
     ({ file }) => file === "components/layout/app-shell.tsx",
   );
   assert.ok(shell, "app-shell.tsx not found");
-  // Por decisão de produto o shell não adiciona mais px-5/pb-6: o espaçamento
-  // horizontal passou a ser responsabilidade de cada cartão/tela. Este teste
-  // fixa essa escolha para o padding não voltar por engano.
+  // Decisão de produto: o respiro lateral saiu do shell; cada tela define o
+  // próprio espaçamento. O shell não impõe mais um `px-` global.
   assert.doesNotMatch(shell.source, /\bpx-\d/);
 });
 

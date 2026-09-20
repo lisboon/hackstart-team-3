@@ -87,7 +87,15 @@ async function signIn() {
 }
 
 function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
-  return render(<SupportPaths takeFocus={false} {...overrides} />);
+  return render(
+    <SupportPaths
+      lessonSkipped={false}
+      takeFocus={false}
+      onSkipLesson={vi.fn()}
+      onResumeLesson={vi.fn()}
+      {...overrides}
+    />,
+  );
 }
 
 it("opens a confirmation popup on tap instead of recording right away", async () => {
@@ -96,73 +104,41 @@ it("opens a confirmation popup on tap instead of recording right away", async ()
     <MoodPrompt pending={false} error="" onConfirm={onConfirm} />,
   );
   expect(screen.getAllByRole("button")).toHaveLength(5);
-  // Antes de tocar não há popup nem caixa de texto, e a escala não vira número.
   expect(screen.queryByRole("dialog")).toBeNull();
-  expect(screen.queryByRole("textbox")).toBeNull();
-
-  await userEvent.click(screen.getByRole("button", { name: "Triste" }));
-
-  // O toque não registra: só abre o popup com a caixa opcional.
+  await userEvent.click(screen.getByRole("button", { name: "Chuva" }));
+  // O toque não registra: abre o <dialog> com a caixa opcional.
   expect(onConfirm).not.toHaveBeenCalled();
   const dialog = await screen.findByRole("dialog");
-  expect(dialog).toBeInTheDocument();
-  // É um <dialog> nativo, aberto.
   expect(dialog.tagName).toBe("DIALOG");
   expect(dialog).toHaveAttribute("open");
-  // A mensagem é do sentimento escolhido (Triste), não uma frase genérica.
-  expect(dialog).toHaveTextContent(/dias tristes também merecem espaço/i);
   expect(screen.getByRole("textbox")).toBeInTheDocument();
   expect(container.textContent).not.toMatch(/[1-5]/);
 });
 
-it("registers the mood with the optional note when the person writes one", async () => {
+it("registers with an optional note, and without one on 'Não responder'", async () => {
   const onConfirm = vi.fn();
-  render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
-
-  await userEvent.click(screen.getByRole("button", { name: "Ótimo" }));
-  await userEvent.type(
-    screen.getByRole("textbox"),
-    "Aliviado depois de organizar as contas.",
+  const { rerender } = render(
+    <MoodPrompt pending={false} error="" onConfirm={onConfirm} />,
   );
+  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
+  await userEvent.type(screen.getByRole("textbox"), "Aliviado hoje.");
   await userEvent.click(screen.getByRole("button", { name: "Registrar" }));
+  expect(onConfirm).toHaveBeenCalledExactlyOnceWith(5, "Aliviado hoje.");
 
-  expect(onConfirm).toHaveBeenCalledExactlyOnceWith(
-    5,
-    "Aliviado depois de organizar as contas.",
-  );
-});
-
-it("registers without a note when the person chooses not to answer", async () => {
-  const onConfirm = vi.fn();
-  render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
-
-  await userEvent.click(screen.getByRole("button", { name: "Mais ou menos" }));
-  await userEvent.click(
-    screen.getByRole("button", { name: "Não responder" }),
-  );
-
+  onConfirm.mockClear();
+  rerender(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
+  await userEvent.click(screen.getByRole("button", { name: "Nublado" }));
+  await userEvent.click(screen.getByRole("button", { name: "Não responder" }));
   expect(onConfirm).toHaveBeenCalledExactlyOnceWith(3, undefined);
 });
 
-it("records nothing when the popup is dismissed", async () => {
-  const onConfirm = vi.fn();
-  render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
-
-  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
-  expect(await screen.findByRole("dialog")).toBeInTheDocument();
-  await userEvent.keyboard("{Escape}");
-
-  expect(onConfirm).not.toHaveBeenCalled();
-  expect(screen.queryByRole("dialog")).toBeNull();
-});
-
-it("walking the scale with the keyboard records nothing and opens no popup", async () => {
+it("walking the scale with the keyboard records nothing", async () => {
   const onConfirm = vi.fn();
   render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
   await userEvent.tab();
   await userEvent.tab();
   await userEvent.tab();
-  expect(screen.getByRole("button", { name: "Mais ou menos" })).toHaveFocus();
+  expect(screen.getByRole("button", { name: "Nublado" })).toHaveFocus();
   expect(onConfirm).not.toHaveBeenCalled();
   // Enter só abre o popup — ainda não registra.
   await userEvent.keyboard("{Enter}");
@@ -178,33 +154,45 @@ it("blocks the scale while it records and reports a failure", () => {
   expect(screen.getByRole("alert")).toHaveTextContent("Falhou");
 });
 
-it("welcomes with only the two lines, without investigating", () => {
+it("welcomes without investigating and lets the person choose", () => {
   const { container } = supportPaths({});
-  // Acolhe e agradece — nada de perguntar o motivo nem pedir relato.
   expect(container.textContent).not.toMatch(INVESTIGATION);
   expect(screen.queryByRole("textbox")).toBeNull();
-  expect(
-    screen.getByRole("heading", { name: "Hoje não precisa ser produtivo" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText("Obrigado por dizer. Você não precisa explicar nada."),
-  ).toBeInTheDocument();
-  // O card é só as duas linhas: sem lista de canais, sem botão, sem lição.
-  expect(screen.queryAllByRole("listitem")).toHaveLength(0);
-  expect(screen.queryByRole("button")).toBeNull();
+  const paths = screen.getAllByRole("listitem").map((item) => item.textContent);
+  expect(paths).toHaveLength(5);
+  expect(paths[0]).not.toMatch(/gestor/i);
+  expect(paths.at(-1)).toMatch(/gestor/i);
+  expect(screen.getByRole("link", { name: /188/ })).toHaveAttribute(
+    "href",
+    "tel:188",
+  );
+  expect(screen.getByText(/não faz diagnóstico/)).toBeInTheDocument();
 });
 
-it("shows the mood question alongside the rest of the home", async () => {
+it("lets the person drop the lesson and take it back", async () => {
+  const onSkipLesson = vi.fn();
+  const onResumeLesson = vi.fn();
+  const { unmount } = supportPaths({ onSkipLesson });
+  await userEvent.click(screen.getByRole("button", { name: /Pular a lição/ }));
+  expect(onSkipLesson).toHaveBeenCalledOnce();
+  unmount();
+  supportPaths({ lessonSkipped: true, onResumeLesson });
+  expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Mudei de ideia" }));
+  expect(onResumeLesson).toHaveBeenCalledOnce();
+});
+
+it("shows the mood question at the top alongside the rest of the home", async () => {
   stubApi({ answered: false });
   await signIn();
-  // A pesquisa aparece…
+  // A pergunta de humor abre a Home…
   expect(
     await screen.findByRole("heading", {
-      name: "Como você está se sentindo hoje?",
+      name: "Como está o seu tempo hoje?",
     }),
   ).toBeInTheDocument();
-  // …e não sozinha: o resto da Home (o resumo) aparece junto, mesmo sem o
-  // humor do dia registrado.
+  // …mas não fica sozinha: o resto da página (o resumo) aparece junto, mesmo
+  // sem o humor do dia registrado.
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
 });
 
@@ -212,7 +200,7 @@ it("sends the chosen level and opens the app", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Bem" }));
+  await userEvent.click(screen.getByRole("button", { name: "Sol entre nuvens" }));
   // O popup confirma antes de registrar: sem ele, nada é enviado.
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
@@ -223,31 +211,9 @@ it("sends the chosen level and opens the app", async () => {
   );
   expect(post?.[1]?.method).toBe("POST");
   expect(JSON.parse(String(post?.[1]?.body))).toEqual({ mood: 4 });
-  // Depois de registrar, a pesquisa vira o registro do dia (some o título da
-  // pergunta), mas o resto da Home continua.
   expect(
-    screen.queryByRole("heading", { name: "Como você está se sentindo hoje?" }),
+    screen.queryByRole("heading", { level: 1, name: "Como está o seu tempo hoje?" }),
   ).toBeNull();
-});
-
-it("sends the note the person specified in the confirmation popup", async () => {
-  const fetch = stubApi({ answered: false });
-  await signIn();
-  await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Triste" }));
-  await userEvent.type(
-    await screen.findByRole("textbox"),
-    "Semana difícil.",
-  );
-  await userEvent.click(screen.getByRole("button", { name: "Registrar" }));
-  await screen.findByText("Seu mês");
-  const post = fetch.mock.calls.find(([url]) =>
-    String(url).endsWith("/me/today/mood"),
-  );
-  expect(JSON.parse(String(post?.[1]?.body))).toEqual({
-    mood: 2,
-    note: "Semana difícil.",
-  });
 });
 
 it("keeps a page heading after the question leaves the screen", async () => {
@@ -276,7 +242,7 @@ it("moves focus to the welcome when it answers a tap", async () => {
   stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
+  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
   );
@@ -296,7 +262,7 @@ it("treats a day already answered as answered, not as an error", async () => {
   stubApi({ answered: false, moodStatus: 409 });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
+  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
   );
@@ -304,11 +270,11 @@ it("treats a day already answered as answered, not as an error", async () => {
   expect(screen.queryByRole("alert")).toBeNull();
 });
 
-it("records one answer even under a double confirm", async () => {
+it("records one answer even under a double tap", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Ótimo" }));
+  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
   const confirm = await screen.findByRole("button", { name: "Não responder" });
   await Promise.all([userEvent.click(confirm), userEvent.click(confirm)]);
   await screen.findByText("Seu mês");

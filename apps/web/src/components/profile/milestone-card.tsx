@@ -26,35 +26,53 @@ export function MilestoneCard({ milestone }: { milestone: Milestone }) {
   const title = milestone.stage
     ? `Etapa ${STAGE_LABEL[milestone.stage]}`
     : milestone.label;
+  const accent = milestone.achieved
+    ? KIND_ACCENT[milestone.kind]
+    : "var(--muted-foreground)";
   return (
     <li
       className={
         milestone.achieved
-          ? "grid gap-2 rounded-xl border border-border bg-muted p-4"
-          : "grid gap-2 rounded-xl border border-border p-4 opacity-60"
+          ? "grid gap-3 rounded-2xl border bg-muted p-4 shadow-sm transition-colors"
+          : "grid gap-3 rounded-2xl border border-dashed border-border p-4 opacity-70 transition-colors"
+      }
+      style={
+        milestone.achieved
+          ? { borderColor: `color-mix(in srgb, ${accent} 45%, var(--border))` }
+          : undefined
       }
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="grid min-w-0 gap-1">
-          <div className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className="size-2.5 shrink-0 rounded-full"
-              style={{
-                backgroundColor: milestone.achieved
-                  ? KIND_ACCENT[milestone.kind]
-                  : "var(--muted-foreground)",
-              }}
-            />
-            <p className="min-w-0 text-sm font-semibold">{title}</p>
+      <div className="flex items-start gap-3">
+        {/* Medalhão: cheio no conquistado, contorno no que falta. O ícone (✓/○)
+            é o terceiro canal de estado, além de cor e opacidade (WCAG 1.4.1). */}
+        <span
+          aria-hidden
+          className="grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold"
+          style={
+            milestone.achieved
+              ? { backgroundColor: accent, color: "var(--primary-foreground)" }
+              : {
+                  border: `1.5px dashed ${accent}`,
+                  color: "var(--muted-foreground)",
+                }
+          }
+        >
+          {milestone.achieved ? "✓" : "○"}
+        </span>
+        <div className="grid min-w-0 flex-1 gap-1">
+          <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-2 gap-y-1">
+            <p className="min-w-0 break-words text-sm font-semibold">{title}</p>
+            <Badge
+              variant={milestone.achieved ? "achieved" : "pending"}
+              className="shrink-0"
+            >
+              {milestone.achieved ? "Conquistado" : "A caminho"}
+            </Badge>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="break-words text-xs text-muted-foreground">
             {milestone.description}
           </p>
         </div>
-        <Badge variant={milestone.achieved ? "achieved" : "pending"}>
-          {milestone.achieved ? "Conquistado" : "A caminho"}
-        </Badge>
       </div>
       {!milestone.achieved && milestone.progress > 0 && (
         <ProgressBar

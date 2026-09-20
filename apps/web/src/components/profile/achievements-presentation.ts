@@ -124,6 +124,17 @@ export function trackMilestones(track: Track): Milestone[] {
 }
 
 /**
+ * A imagem do troféu de um marco. Placeholders desenhados no projeto (SVG em
+ * `public/trophies/`): um para trajetória, um para trilha. Trocar pela arte
+ * final depois é só substituir os arquivos, sem mexer aqui.
+ */
+export function trophySrc(milestone: Pick<Milestone, "kind">): string {
+  return milestone.kind === "trajectory"
+    ? "/trophies/trajectory.svg"
+    : "/trophies/track.svg";
+}
+
+/**
  * Ordem da grade: trajetória primeiro (prestígio), trilha depois. Dentro de cada
  * grupo, a ordem de definição — os marcos não conquistados ficam apagados mas
  * visíveis, porque saber o que vem depois é metade do valor.

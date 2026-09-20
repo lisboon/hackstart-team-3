@@ -1,74 +1,53 @@
-import type { ComponentType } from "react";
 import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
- * Os ícones de clima da pesquisa de humor, iguais aos do mock `home.html`
- * (traço fino, `currentColor`, sem preenchimento). A metáfora é o tempo, não a
- * carinha: o clima descreve o dia sem pedir que a pessoa se classifique. A cor
- * nunca é o único sinal — o rótulo vai no `aria-label` de cada botão.
+ * Ícones do tempo para a pergunta de humor, no traço do `home.html`: contorno
+ * fino, sem preenchimento, que herda a cor do texto do botão. São desenhos
+ * simples (tempestade → sol), a metáfora do tempo que não acusa a pessoa.
  *
- * Cada nível de 1 (pior) a 5 (melhor) tem o seu, na ordem do mock:
- * Tempestade · Chuva · Nuvem com sol · Brisa e Renovação · Sol.
+ * A cor sozinha nunca indica o estado: cada botão traz também o rótulo em
+ * texto (ver MoodPrompt). Estes SVGs são decorativos, então `aria-hidden`.
  */
-type WeatherIcon = ComponentType<{ className?: string }>;
-
-const base = {
-  fill: "none" as const,
+const COMMON = {
+  className: "size-6",
+  fill: "none",
   stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
   viewBox: "0 0 24 24",
+  "aria-hidden": true,
 };
 
-/** 1 — Tempestade: nuvem com pingos fortes. */
-function StormIcon({ className }: { className?: string }) {
+function Storm() {
   return (
-    <svg className={className} strokeWidth={1.8} {...base} aria-hidden>
-      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
-      <path d="M8 19v1M12 19v1M16 19v1" />
+    <svg {...COMMON}>
+      <path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2" />
+      <path d="M13 12l-3 5h4l-3 5" />
     </svg>
   );
 }
 
-/** 2 — Chuva leve: nuvem com dois pingos. */
-function RainIcon({ className }: { className?: string }) {
+function Rain() {
   return (
-    <svg className={className} strokeWidth={1.8} {...base} aria-hidden>
-      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-      <path d="M11 21v.01M15 21v.01" />
+    <svg {...COMMON}>
+      <path d="M17.5 15H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 0 1 0 9Z" />
+      <path d="M9 19v1M13 19v1M17 19v1" />
     </svg>
   );
 }
 
-/** 3 — Mais ou menos: nuvem com sol atrás (parcialmente nublado). */
-function PartlyCloudyIcon({ className }: { className?: string }) {
+function Cloud() {
   return (
-    <svg
-      className={className}
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...base}
-      aria-hidden
-    >
-      {/* Sol espiando atrás, com alguns raios. */}
-      <circle cx="7" cy="8" r="3" />
-      <path d="M7 2v1.5M7 12.5V14M2 8h1.5M10.5 8H12M3.6 4.6l1 1M9.4 4.6l-1 1" />
-      {/* Nuvem à frente. */}
-      <path d="M17.5 20H10a5 5 0 0 1-.5-9.975A6 6 0 0 1 20.9 12.2 4 4 0 0 1 17.5 20Z" />
+    <svg {...COMMON}>
+      <path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z" />
     </svg>
   );
 }
 
-/** 4 — Brisa e renovação: rajadas de vento. */
-function BreezeIcon({ className }: { className?: string }) {
+function Breeze() {
   return (
-    <svg
-      className={className}
-      strokeWidth={2.2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...base}
-      aria-hidden
-    >
+    <svg {...COMMON}>
       <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" />
       <path d="M9.6 4.6A2 2 0 1 1 11 8H2" />
       <path d="M12.6 19.4A2 2 0 1 0 14 16H2" />
@@ -76,20 +55,21 @@ function BreezeIcon({ className }: { className?: string }) {
   );
 }
 
-/** 5 — Sol: círculo com raios. */
-function SunIcon({ className }: { className?: string }) {
+function Sun() {
   return (
-    <svg className={className} strokeWidth={1.8} {...base} aria-hidden>
+    <svg {...COMMON}>
       <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
     </svg>
   );
 }
 
-export const WEATHER_ICON: Record<MoodScale, WeatherIcon> = {
-  1: StormIcon,
-  2: RainIcon,
-  3: PartlyCloudyIcon,
-  4: BreezeIcon,
-  5: SunIcon,
-};
+/** O ícone do tempo para cada nível da escala (1 pior … 5 melhor). */
+export const WEATHER_ICON: Readonly<Record<MoodScale, () => React.JSX.Element>> =
+  {
+    1: Storm,
+    2: Rain,
+    3: Cloud,
+    4: Breeze,
+    5: Sun,
+  };

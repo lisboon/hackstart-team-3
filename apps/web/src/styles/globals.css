@@ -15,6 +15,12 @@
   --color-brand: var(--brand);
   --color-shell: var(--shell);
   --color-warning: var(--warning);
+  --color-achievement-trajectory: var(--achievement-trajectory);
+  /* Sem isto, `font-serif` cai na pilha serif padrao do Tailwind e o titulo
+     renderiza Georgia enquanto o corpo e Arial. A trilha, o progresso e a
+     colheita usam a classe; apontar para a mesma pilha resolve os tres de uma
+     vez, sem baixar fonte nova. */
+  --font-serif: Arial, sans-serif;
 }
 :root {
   color-scheme: light;
@@ -170,6 +176,38 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-toast-in {
+    animation: none;
+  }
+}
+
+/* Os utilitarios de animacao embutidos do Tailwind (`ping`, `pulse`, `bounce`)
+   nao passam pelos keyframes deste arquivo, entao escapariam das guardas acima.
+   Quem pede menos movimento pede de tudo, nao so do que a gente escreveu. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-ping,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none;
+  }
+}
+
+/* A folha da consequencia sobe. E o momento que faltava na licao: sem ele a
+   tela trocava de conteudo sem avisar que algo tinha acontecido. */
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 220ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-up {
     animation: none;
   }
 }

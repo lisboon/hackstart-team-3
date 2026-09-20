@@ -5,24 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import {
-  MAX_MOOD_NOTE_LENGTH,
-  type MoodScale,
-} from "@/schemas/wellbeing";
-import { MOOD_LEVELS, moodLabel, moodPromptMessage } from "./mood-presentation";
+import { MAX_MOOD_NOTE_LENGTH, type MoodScale } from "@/schemas/wellbeing";
+import { MOOD_LEVELS, moodLabel } from "./mood-presentation";
 import { WEATHER_ICON } from "./mood-weather-icons";
 
 /**
- * Botão, não rádio: num grupo de rádios a seta do teclado troca a seleção. Aqui
- * o toque não registra mais o dia direto (#91): abre um `<dialog>` de
- * confirmação, com uma mensagem própria para o sentimento escolhido e um campo
- * opcional para especificar. Registrar é sempre uma escolha explícita, e fechar
- * o diálogo não grava nada.
+ * A pergunta de humor, integrada no topo da Home. Botão, não rádio: num grupo
+ * de rádios a seta do teclado trocaria a seleção. O texto saiu dos botões (só
+ * o ícone do tempo); como a cor sozinha não indica estado (WCAG 1.4.1), o
+ * rótulo vai no `aria-label`.
+ *
+ * O toque não registra na hora (#91): abre um `<dialog>` de confirmação, com um
+ * campo opcional para a pessoa especificar o que está sentindo. Registrar é
+ * sempre uma escolha explícita — "Registrar", "Não responder" confirmam o dia,
+ * e fechar o diálogo não grava nada.
  *
  * É um `<dialog>` nativo renderizado com o atributo `open` (sem `showModal`,
- * que o jsdom dos testes não implementa): mantém a semântica de diálogo e o
- * Escape/fecha tratados aqui. O foco entra no título ao abrir e volta ao ícone
- * escolhido ao fechar.
+ * que o jsdom dos testes não implementa): mantém a semântica de diálogo, com
+ * foco no título ao abrir, Escape e clique no fundo para fechar.
  */
 export function MoodPrompt({
   pending,
@@ -36,15 +36,14 @@ export function MoodPrompt({
   const id = useId();
   const noteId = useId();
   const titleId = useId();
-  // O sentimento escolhido fica pendente de confirmação até a pessoa registrar
-  // ou desistir: enquanto isso, o diálogo está aberto sobre ele.
+  // O tempo escolhido fica pendente de confirmação até a pessoa registrar ou
+  // desistir: enquanto isso, o diálogo está aberto sobre ele.
   const [choice, setChoice] = useState<MoodScale | null>(null);
   const [note, setNote] = useState("");
   const triggers = useRef(new Map<MoodScale, HTMLButtonElement | null>());
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
 
-  // Ao abrir, o foco entra no título do diálogo.
   useEffect(() => {
     if (choice !== null) heading.current?.focus();
   }, [choice]);
@@ -93,10 +92,12 @@ export function MoodPrompt({
     }
   }
 
+  const ChoiceWeather = choice !== null ? WEATHER_ICON[choice] : null;
+
   return (
-    <Card aria-labelledby={id} className="gap-3 rounded-b-none rounded-t-2xl">
-      <h2 id={id} className="text-lg font-semibold tracking-tight">
-        Como você está se sentindo hoje?
+    <Card aria-labelledby={id} className="gap-3 rounded-b-none">
+      <h2 id={id} className="text-base font-semibold">
+        Como está o seu tempo hoje?
       </h2>
       <p className="text-sm text-muted-foreground">
         Um toque abre a confirmação. Ninguém além de você vê esta resposta.
@@ -104,6 +105,7 @@ export function MoodPrompt({
       <div role="group" aria-labelledby={id} className="grid grid-cols-5 gap-2">
         {MOOD_LEVELS.map((level) => {
           const Weather = WEATHER_ICON[level.value];
+          const selected = choice === level.value;
           return (
             <button
               key={level.value}
@@ -112,19 +114,19 @@ export function MoodPrompt({
               }}
               type="button"
               aria-label={level.label}
-              disabled={pending}
               aria-haspopup="dialog"
+              disabled={pending}
               onClick={() => setChoice(level.value)}
               className={cn(
-                "grid aspect-square place-items-center rounded-2xl border p-2 transition",
+                "grid min-h-14 place-items-center rounded-2xl border p-2 transition",
                 "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 "disabled:pointer-events-none",
-                choice === level.value
+                selected
                   ? "border-2 border-primary bg-primary/5 text-primary ring-2 ring-primary/10"
                   : "border-border text-muted-foreground hover:border-foreground/30 disabled:opacity-50",
               )}
             >
-              <Weather className="h-6 w-6" />
+              <Weather />
             </button>
           );
         })}
@@ -135,7 +137,7 @@ export function MoodPrompt({
         </p>
       )}
 
-      {choice !== null && (
+      {choice !== null && ChoiceWeather && (
         <>
           {/* Fundo escuro: um toque fora do diálogo fecha sem registrar. */}
           <div
@@ -161,15 +163,13 @@ export function MoodPrompt({
                 aria-hidden
                 className="grid size-9 place-items-center rounded-xl border border-primary bg-primary/5 text-primary"
               >
-                {(() => {
-                  const Weather = WEATHER_ICON[choice];
-                  return <Weather className="h-5 w-5" />;
-                })()}
+                <ChoiceWeather />
               </span>
               {moodLabel(choice)}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {moodPromptMessage(choice)}
+              Oi! Que bom que você compartilhou como está hoje. Quer especificar
+              mais o que está sentindo?
             </p>
             <label htmlFor={noteId} className="text-sm font-medium">
               Se quiser, conte um pouco (opcional)
