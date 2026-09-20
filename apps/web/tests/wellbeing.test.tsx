@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
@@ -87,15 +87,7 @@ async function signIn() {
 }
 
 function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
-  return render(
-    <SupportPaths
-      lessonSkipped={false}
-      takeFocus={false}
-      onSkipLesson={vi.fn()}
-      onResumeLesson={vi.fn()}
-      {...overrides}
-    />,
-  );
+  return render(<SupportPaths takeFocus={false} {...overrides} />);
 }
 
 it("opens a confirmation popup on tap instead of recording right away", async () => {
@@ -169,19 +161,6 @@ it("welcomes without investigating and lets the person choose", () => {
   expect(screen.getByText(/não faz diagnóstico/)).toBeInTheDocument();
 });
 
-it("lets the person drop the lesson and take it back", async () => {
-  const onSkipLesson = vi.fn();
-  const onResumeLesson = vi.fn();
-  const { unmount } = supportPaths({ onSkipLesson });
-  await userEvent.click(screen.getByRole("button", { name: /Pular a lição/ }));
-  expect(onSkipLesson).toHaveBeenCalledOnce();
-  unmount();
-  supportPaths({ lessonSkipped: true, onResumeLesson });
-  expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Mudei de ideia" }));
-  expect(onResumeLesson).toHaveBeenCalledOnce();
-});
-
 it("shows the mood question at the top alongside the rest of the home", async () => {
   stubApi({ answered: false });
   await signIn();
@@ -223,11 +202,13 @@ it("keeps a page heading after the question leaves the screen", async () => {
   expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
 });
 
-it("welcomes the two lowest levels and still shows her own content", async () => {
+it("does not put the welcome on the home anymore, even on the lowest levels", async () => {
   stubApi({ answered: true, mood: 1 });
   await signIn();
-  expect(await screen.findByText(WELCOME)).toBeInTheDocument();
+  // O acolhimento migrou para o Perfil: a Home não mostra mais o card, nem
+  // mesmo no pior humor. O resto da Home segue.
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByText(WELCOME)).toBeNull();
   expect(document.body.textContent).not.toMatch(INVESTIGATION);
 });
 
@@ -238,7 +219,7 @@ it("keeps the welcome away from a good day", async () => {
   expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
-it("moves focus to the welcome when it answers a tap", async () => {
+it("records the mood on a tap and keeps the home, without a welcome", async () => {
   stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
@@ -246,16 +227,15 @@ it("moves focus to the welcome when it answers a tap", async () => {
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
   );
-  await waitFor(() =>
-    expect(screen.getByRole("heading", { name: WELCOME })).toHaveFocus(),
-  );
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
-it("leaves focus alone on a day that was already answered", async () => {
+it("leaves the home without a welcome on a day already answered", async () => {
   stubApi({ answered: true, mood: 1 });
   await signIn();
-  await screen.findByText(WELCOME);
-  expect(screen.getByRole("heading", { name: WELCOME })).not.toHaveFocus();
+  await screen.findByText("Seu mês");
+  expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
 it("treats a day already answered as answered, not as an error", async () => {

@@ -24,9 +24,9 @@ describe("aba de apoio", () => {
     shell();
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    // O CVV do rodapé continua único: dois links iguais confundiriam leitor de
-    // tela e derrubariam o portão do shell.
-    expect(screen.getAllByRole("link", { name: /CVV 188/ })).toHaveLength(1);
+    // O CVV saiu do rodapé: agora vive só dentro do painel de apoio (e no card
+    // do final do Perfil). Antes de abrir, não há link de CVV na tela.
+    expect(screen.queryAllByRole("link", { name: /CVV 188/ })).toHaveLength(0);
   });
 
   it("abre com os cinco caminhos, o gestor por último e o CVV", async () => {
