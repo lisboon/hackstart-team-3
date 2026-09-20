@@ -89,7 +89,7 @@ describe("DailyCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("moves focus to the outcome so a screen reader notices the change", () => {
+  it("moves focus to the outcome sheet so a screen reader notices it rose", () => {
     render(
       <DailyCard
         piece={piece}
@@ -99,10 +99,31 @@ describe("DailyCard", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: piece.title })).toHaveFocus();
+    // A consequência sobe numa folha por cima da pergunta. Sem mover o foco,
+    // quem usa leitor de tela não saberia que ela subiu.
+    expect(
+      screen.getByRole("heading", { name: "Você escolheu" }),
+    ).toHaveFocus();
   });
 
-  it("credits the source in both states", () => {
+  it("locks the options once the choice is made", () => {
+    render(
+      <DailyCard
+        piece={piece}
+        answer={answered}
+        pending={false}
+        onDecide={vi.fn()}
+      />,
+    );
+
+    // A decisão do dia não se refaz: a pergunta continua à vista atrás da
+    // folha, mas sem oferecer um segundo toque.
+    for (const option of piece.options) {
+      expect(screen.getByRole("button", { name: option.label })).toBeDisabled();
+    }
+  });
+
+  it("credits the source in both states, and only once", () => {
     const { rerender } = render(
       <DailyCard piece={piece} answer={null} pending={false} onDecide={vi.fn()} />,
     );
@@ -118,9 +139,13 @@ describe("DailyCard", () => {
         onDecide={vi.fn()}
       />,
     );
-    expect(
-      screen.getByRole("link", { name: /Cooperação na Ponta do Lápis/ }),
-    ).toHaveAttribute("href", answered.sourceUrl);
+    // Um link só: com a folha aberta é ela que credita, e o Anexo V 5.V pede
+    // a fonte na tela, não duas vezes na mesma tela.
+    const links = screen.getAllByRole("link", {
+      name: /Cooperação na Ponta do Lápis/,
+    });
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("href", answered.sourceUrl);
   });
 
   it("blocks a second tap while the choice is in flight", () => {

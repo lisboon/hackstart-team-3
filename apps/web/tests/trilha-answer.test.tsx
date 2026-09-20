@@ -125,11 +125,10 @@ describe("Trilha — clicar na colheita atual", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "Guardo" }));
 
-    // A consequência aparece, e ao voltar a colheita está concluída.
+    // A consequência sobe na folha, e ao continuar a colheita está concluída.
     expect(await screen.findByText("Vira reserva.")).toBeInTheDocument();
-    await userEvent.click(
-      screen.getByRole("button", { name: /Voltar à trilha/ }),
-    );
+    expect(screen.getByRole("heading", { name: "Você escolheu" })).toHaveFocus();
+    await userEvent.click(screen.getByRole("button", { name: /Continuar/ }));
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: /Concluída/ }),

@@ -18,7 +18,7 @@
 //
 // O activate apaga todo cache cuja chave nao seja a atual, entao subir o
 // numero e o que limpa.
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL_CACHE = `colheita-verde-shell-${VERSION}`;
 const OFFLINE_URL = "/offline";
 
