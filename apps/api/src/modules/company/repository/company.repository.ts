@@ -120,6 +120,7 @@ export default class CompanyRepository implements CompanyGateway {
       mood,
       entryCount,
       supportUses,
+      accessRows,
     ] = await Promise.all([
       this.prisma.user.count({
         where: {
@@ -156,6 +157,14 @@ export default class CompanyRepository implements CompanyGateway {
           createdAt: window,
         },
       }),
+      // `@@unique([userId, entryDate])` garante uma linha por pessoa por dia,
+      // então a contagem do dia já é gente, não visita.
+      this.prisma.dailyEntry.groupBy({
+        by: ["entryDate"],
+        where: entries,
+        _count: { _all: true },
+        orderBy: { entryDate: "asc" },
+      }),
     ]);
 
     return {
@@ -166,6 +175,10 @@ export default class CompanyRepository implements CompanyGateway {
       averageMood: mood._avg.mood,
       entries: entryCount,
       supportUses,
+      accessSeries: accessRows.map((row) => ({
+        date: row.entryDate,
+        people: row._count._all,
+      })),
     };
   }
 

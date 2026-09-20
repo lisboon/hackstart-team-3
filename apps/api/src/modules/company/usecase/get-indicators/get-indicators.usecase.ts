@@ -43,6 +43,7 @@ const SUPPRESSED: GetUnitIndicatorsUseCaseOutputDto = {
   active: null,
   frequency: null,
   supportUses: null,
+  accessSeries: null,
   tightRatio: null,
   averageMood: null,
   previous: null,
@@ -81,6 +82,12 @@ export default class GetUnitIndicatorsUseCase implements GetUnitIndicatorsUseCas
       // Sem `overGroup`: aberturas de apoio não têm população própria de
       // declarantes. Elas caem com o portão geral, como headcount e reach.
       supportUses: tally.supportUses,
+      // A data vai como dia puro: a série é do calendário da unidade, e um
+      // instante com fuso faria a barra pular de dia dependendo de quem lê.
+      accessSeries: tally.accessSeries.map((day) => ({
+        date: day.date.toISOString().slice(0, 10),
+        people: day.people,
+      })),
       // Dias com registro por pessoa que registrou. Dividir pelos ativos
       // misturaria quem só declarou o mês no denominador de uma conta que é
       // só sobre o diário.

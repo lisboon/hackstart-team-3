@@ -26,6 +26,17 @@ export interface UnitTally {
    * como `headcount` e `reach`.
    */
   supportUses: number;
+  accessSeries: UnitAccessDay[];
+}
+
+/**
+ * Um dia da série de acessos. `DailyEntry` é único por pessoa e data, então
+ * contar linhas de um dia é contar pessoas daquele dia — não há visita
+ * repetida inflando o número.
+ */
+export interface UnitAccessDay {
+  date: Date;
+  people: number;
 }
 
 /** Tamanho da unidade, independente de período. */

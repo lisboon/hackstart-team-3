@@ -17,6 +17,7 @@ const tally = (over: Partial<UnitTally> = {}): UnitTally => ({
   averageMood: 3.5,
   entries: 42,
   supportUses: 7,
+  accessSeries: [],
   ...over,
 });
 
@@ -173,5 +174,40 @@ describe("GetUnitIndicatorsUseCase", () => {
 
     expect(output.tightRatio).toBeNull();
     expect(output.averageMood).toBeNull();
+  });
+
+  it("reports how many people used the app on each day", async () => {
+    const output = await run(
+      gatewayWith(
+        tally({
+          accessSeries: [
+            { date: new Date(Date.UTC(2026, 8, 1)), people: 8 },
+            { date: new Date(Date.UTC(2026, 8, 2)), people: 6 },
+          ],
+        }),
+      ),
+    );
+
+    // O dia vai como data pura: um instante com fuso faria a barra pular de
+    // dia dependendo de quem le a tela.
+    expect(output.accessSeries).toEqual([
+      { date: "2026-09-01", people: 8 },
+      { date: "2026-09-02", people: 6 },
+    ]);
+  });
+
+  it("hides the series when the unit is suppressed", async () => {
+    const output = await run(
+      gatewayWith(
+        tally({
+          active: MINIMUM_GROUP_SIZE - 1,
+          accessSeries: [{ date: new Date(Date.UTC(2026, 8, 1)), people: 3 }],
+        }),
+      ),
+    );
+
+    // Uma serie diaria de grupo pequeno entrega mais do que a media, nao
+    // menos: um dia com uma pessoa e uma pessoa identificavel.
+    expect(output.accessSeries).toBeNull();
   });
 });

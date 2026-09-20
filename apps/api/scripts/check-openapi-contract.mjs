@@ -36,6 +36,7 @@ try {
     "UpdateCompanyBodyDto",
     "CompanyResponseDto",
     "UnitIndicatorsResponseDto",
+    "AccessDayResponseDto",
     "UnitPeriodIndicatorsResponseDto",
     "RecordSelfReportBodyDto",
     "SelfReportResponseDto",
