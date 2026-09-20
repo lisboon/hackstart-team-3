@@ -261,6 +261,98 @@ Nenhum `userId`, nenhum nome, nenhuma lista, nenhum humor individual, nenhuma de
 
 ---
 
+## `POST /me/goals` · `GET /me/goals` · `PATCH /me/goals/:id`
+
+Metas de guarda pessoais. A meta tem um **valor-alvo autodeclarado**
+(`targetAmountCents`, em centavos): a pessoa define quanto quer guardar. É
+**autodeclarado e não verificado** — o produto não acessa conta, saldo nem
+extrato. O cumprimento de cada mês continua vindo da declaração mensal
+(`SelfReport`): o mês fecha "no azul" quando `situation` é `SURPLUS` ou
+`BREAK_EVEN`, e o valor entra como o alvo exibido. Recurso estritamente pessoal
+— valor, meta e motivo **nunca** vão ao painel do gestor.
+
+Vários objetivos convivem: a pessoa pode ter uma mensal e uma duradoura ativas
+ao mesmo tempo.
+
+### `POST /me/goals` — cria a meta
+
+```json
+{ "kind": "ENDURING", "targetAmountCents": 60000, "targetMonths": 6 }
+```
+
+`kind` é `MONTHLY` (o mês) ou `ENDURING` (manter a guarda por N meses).
+`targetAmountCents` é o valor-alvo autodeclarado, em centavos, **> 0 e
+obrigatório**. `targetMonths` (2 a 36) é **obrigatório para `ENDURING` e
+proibido para `MONTHLY`** — o contrário é **422**. Mês de início e identidade
+saem da sessão e do relógio do servidor.
+
+**Response `201`**
+
+```json
+{ "id": "...", "kind": "ENDURING", "targetAmountCents": 60000, "targetMonths": 6, "startMonth": "2026-09-01T00:00:00.000Z" }
+```
+
+### `GET /me/goals` — as metas da própria pessoa, com progresso derivado
+
+```json
+{
+  "goals": [
+    {
+      "id": "...",
+      "kind": "ENDURING",
+      "status": "ACTIVE",
+      "startMonth": "2026-06-01T00:00:00.000Z",
+      "targetAmountCents": 60000,
+      "monthlyTargetCents": 10000,
+      "targetMonths": 6,
+      "monthsMet": 2,
+      "currentMonthMet": false,
+      "termEndedUnmet": false
+    }
+  ]
+}
+```
+
+| Campo | O quê |
+|---|---|
+| `status` | `ACTIVE`, `MET` (cumprida) ou `ENDED` (encerrada pela pessoa) |
+| `targetAmountCents` | valor-alvo total autodeclarado, em centavos |
+| `monthlyTargetCents` | alvo por mês: total ÷ meses no duradouro; o total no mensal |
+| `targetMonths` | 1 para `MONTHLY`, N para `ENDURING` |
+| `monthsMet` | meses do prazo que fecharam no azul |
+| `currentMonthMet` | se o mês corrente, dentro do prazo, já foi cumprido |
+| `termEndedUnmet` | prazo terminou sem cumprir — gatilho da tela acolhedora |
+
+`MONTHLY` vira `MET` quando o mês corrente fecha no azul; `ENDURING` quando os N
+meses fecham. **Falha não zera nada:** um mês que não deu não muda o status — a
+meta espera até o fim do prazo. `unmetReason` **não** aparece aqui: é privado.
+
+### `PATCH /me/goals/:id` — estender ou encerrar
+
+```json
+{ "action": "EXTEND", "targetMonths": 9 }
+```
+
+```json
+{ "action": "END", "unmetReason": "UNEXPECTED_EXPENSE" }
+```
+
+`EXTEND` só vale para uma meta `ENDURING` ativa (senão **409**). `END` aceita um
+`unmetReason` **opcional, em opção fechada** — `UNEXPECTED_EXPENSE`,
+`INCOME_DROP`, `CHANGED_PRIORITY`, `PREFER_NOT_SAY`, `OTHER`. **Nunca há texto
+livre**: o `OTHER` é rótulo fechado, e o app não pede relato. **404** se a meta
+não for da pessoa (o isolamento é por `userId`+`companyId`, sem `findById`).
+
+**Response `200`**
+
+```json
+{ "id": "...", "status": "ENDED", "targetMonths": null }
+```
+
+Criar, estender e encerrar geram `AuditEvent` com ação e recurso, **sem teor**.
+
+---
+
 ## Endpoints já existentes, para referência
 
 | Rota | O quê |

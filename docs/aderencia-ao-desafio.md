@@ -14,6 +14,7 @@ O desafio diz que o problema estará resolvido quando o público demonstrar maio
 |---|---|
 | Maior compreensão sobre temas financeiros | Peça diária do COOPS com decisão e consequência — `POST /me/today/answer` marca `comprehended` |
 | Decisões mais conscientes | A pessoa escolhe antes de ver o efeito; a consequência fica no servidor até a escolha |
+| Maior capacidade de planejamento | Metas de guarda pessoais com valor-alvo que a pessoa define — `POST/GET /me/goals`, cumprimento derivado da declaração mensal, valor autodeclarado e não verificado (#71) |
 | Redução da percepção de sofrimento | Humor diário de 1 a 5 — `POST /me/today/mood`, agregado em `averageMood` |
 | Redução dos níveis de estresse financeiro | Declaração mensal em `SelfReport.situation`, agregada em `tightRatio` |
 | Maior utilização dos recursos de apoio | **Ainda não medido.** É a issue #46 |
@@ -42,7 +43,7 @@ O backend é TypeScript, linguagem mantida pela Microsoft. Os três serviços j�
 
 ### 2.2 Proteção de dados e privacidade — *LGPD, minimização, anonimização*
 
-**Minimização.** O produto não tem acesso a extrato, saldo, transação ou histórico bancário. Tudo é autodeclarado: a situação do mês e o humor do dia. Essa não é limitação técnica a remover — é a escolha que torna o produto aceitável dentro de uma empresa.
+**Minimização.** O produto não tem acesso a extrato, saldo, transação ou histórico bancário. Tudo é autodeclarado: a situação do mês, o humor do dia e o valor-alvo que a pessoa define na meta de guarda (#71) — nunca verificado contra saldo. Essa não é limitação técnica a remover — é a escolha que torna o produto aceitável dentro de uma empresa.
 
 **Anonimização, em dois níveis.** O painel do gestor suprime a unidade inteira abaixo de cinco pessoas com registro no mês, e suprime **cada indicador separadamente** quando a população daquele número é menor que cinco. Dez pessoas ativas das quais só três declararam produzem uma estatística de três pessoas; publicá-la porque outras sete registraram humor seria o mesmo vazamento pela porta de trás.
 

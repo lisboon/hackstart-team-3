@@ -35,6 +35,31 @@ enum EUserRole {
   @@map("user_role")
 }
 
+enum ESavingsGoalKind {
+  MONTHLY
+  ENDURING
+
+  @@map("savings_goal_kind")
+}
+
+enum ESavingsGoalStatus {
+  ACTIVE
+  MET
+  ENDED
+
+  @@map("savings_goal_status")
+}
+
+enum ESavingsGoalUnmetReason {
+  UNEXPECTED_EXPENSE
+  INCOME_DROP
+  CHANGED_PRIORITY
+  PREFER_NOT_SAY
+  OTHER
+
+  @@map("savings_goal_unmet_reason")
+}
+
 model User {
   id              String    @id @default(uuid())
   name            String
@@ -53,6 +78,7 @@ model User {
   auditEvents AuditEvent[] @relation("AuditActor")
   selfReports SelfReport[]
   dailyEntries DailyEntry[]
+  savingsGoals SavingsGoal[]
 
   @@index([role, active])
   @@index([companyId])
@@ -72,6 +98,7 @@ model Company {
   auditEvents AuditEvent[]
   selfReports SelfReport[]
   dailyEntries DailyEntry[]
+  savingsGoals SavingsGoal[]
 
   @@index([active])
   @@map("companies")
@@ -158,4 +185,37 @@ model ContentPiece {
 
   @@unique([stage, orderInStage])
   @@map("content_pieces")
+}
+
+/// Meta de guarda pessoal. Mede intenção e hábito de guarda, NUNCA valor em
+/// dinheiro: não há, e não deve haver, nenhum campo monetário. O cumprimento
+/// mensal deriva da declaração do mês (SelfReport), não de saldo. Recurso
+/// estritamente pessoal — nunca agregado nem exposto ao gestor.
+model SavingsGoal {
+  id           String                   @id @default(uuid())
+  userId       String                   @map("user_id")
+  companyId    String                   @map("company_id")
+  kind         ESavingsGoalKind
+  /// Valor-alvo autodeclarado, em centavos (inteiro, evita float). No modo
+  /// duradouro, dividido pelos meses dá o alvo mensal. É intenção da pessoa,
+  /// nunca verificado contra saldo. Privado — nunca vai ao painel do gestor.
+  targetAmountCents Int                 @map("target_amount_cents")
+  /// Só para ENDURING: por quantos meses manter a guarda. MONTHLY não usa.
+  targetMonths Int?                     @map("target_months")
+  /// Primeiro dia do mês em que a meta começa (UTC), do relógio do servidor.
+  startMonth   DateTime                 @map("start_month") @db.Date
+  status       ESavingsGoalStatus       @default(ACTIVE)
+  /// Preenchido só quando a pessoa encerra sem cumprir e escolhe dizer. Opção
+  /// fechada, nunca texto livre. Privado por definição.
+  unmetReason  ESavingsGoalUnmetReason? @map("unmet_reason")
+  active       Boolean                  @default(true)
+  createdAt    DateTime                 @default(now()) @map("created_at")
+  updatedAt    DateTime                 @updatedAt @map("updated_at")
+  deletedAt    DateTime?                @map("deleted_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([userId, companyId])
+  @@map("savings_goals")
 }

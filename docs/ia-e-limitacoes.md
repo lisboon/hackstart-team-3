@@ -44,7 +44,7 @@ A razão da terceira e da quarta linha: há dependência emocional patológica d
 | Resposta da peça | a própria pessoa escolhe | só ela |
 | Indicadores da unidade | agregação dos acima | gestor, sem individualizar |
 
-**Não há acesso a movimentação bancária, extrato, saldo ou histórico de transações.** Tudo é autodeclarado. Essa não é uma limitação técnica que pretendemos remover: é a escolha que torna o produto aceitável dentro de uma empresa.
+**Não há acesso a movimentação bancária, extrato, saldo ou histórico de transações.** Tudo é autodeclarado — a situação do mês, o humor do dia e, na meta de guarda, o valor-alvo que a própria pessoa define (#71). O produto não prescreve nem verifica esse valor contra saldo: quem escolhe é a pessoa. Essa não é uma limitação técnica que pretendemos remover: é a escolha que torna o produto aceitável dentro de uma empresa.
 
 Os gateways de `SelfReport` e `DailyEntry` exigem `userId` e `companyId` juntos em toda assinatura, e nenhum dos dois expõe um `findById` — não existe caminho no código para ler o dado de bem-estar de alguém sem saber de antemão de quem é e de que empresa, nem para um `ADMIN`. `User` tem `findById`, usado pela autenticação, e um `findByIdInCompany` separado para quando o acesso vem de fora da própria sessão.
 
