@@ -71,10 +71,16 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+        # Mesma origem, como em producao. Assado com o endereco absoluto da API,
+        # o app so funcionava no navegador da maquina que subiu o Compose:
+        # `localhost:3001` visto de um celular na mesma rede, ou de um tunel, e a
+        # propria maquina de quem abriu. Por `/api` o caminho e relativo, e o
+        # servidor Next encaminha para o container vizinho.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
+        API_URL: http://api:3001
     ports:
+      # A 3001 da API continua publicada para o smoke e para o Swagger; o que
+      # mudou e o navegador nao depender mais dela.
       - "127.0.0.1:3000:3000"
     depends_on:
       - api

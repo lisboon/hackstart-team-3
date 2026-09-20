@@ -1,0 +1,9 @@
+# Copie para backend.hcl (que é gitignored) e aponte para o bucket que você criou
+# à mão.
+#   terraform init -backend-config=backend.hcl
+#
+# O state guarda a senha do RDS em texto claro. Versionamento ligado, bloqueio de
+# acesso público ligado, SSE-S3.
+
+bucket = "colheita-tfstate-000000000000"
+region = "us-east-1"

@@ -63,6 +63,19 @@ O smoke verifica web por HTTP, readiness, login, tenant e SSE via Core API/Pytho
 O script lê `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` do ambiente; exporte os mesmos valores do `.env` se alterou os defaults.
 Testes de integração com PostgreSQL e smoke do Compose também rodam no GitHub Actions.
 
+## Publicar na AWS
+
+`infra/` tem o Terraform do ambiente: uma task Fargate com os três containers,
+ALB, CloudFront para o HTTPS que o service worker do PWA exige, e RDS Postgres.
+O provider da IA é o Bedrock pelo endpoint compatível com a OpenAI, então não há
+chave guardada — a task role assina uma credencial de curta duração por
+requisição. O runbook, os passos manuais e o custo estimado estão em
+[`infra/README.md`](infra/README.md).
+
+Na imagem de produção o navegador fala com a Core API na mesma origem:
+`NEXT_PUBLIC_API_URL=/api` e um rewrite do Next levam `/api/*` para a 3001 dentro
+da task. As portas da Core API e do Python não entram em security group nenhum.
+
 ## Contrato e limites
 
 - `POST /ai/runs/stream`: recebe `messages` e `conversationId` opcional; identidade vem da sessão.
