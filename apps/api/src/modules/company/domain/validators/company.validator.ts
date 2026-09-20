@@ -1,7 +1,25 @@
-import { Length, Matches } from "class-validator";
+import {
+  Length,
+  Matches,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from "class-validator";
 import { Notification } from "@/modules/@shared/domain/entity/validators/notification";
 import { ClassValidatorFields } from "@/modules/@shared/domain/entity/validators/class-validator-fields";
+import { isValidTimeZone } from "../journey-window";
 import { Company } from "../company.entity";
+
+/**
+ * Não há decorador pronto para fuso IANA, e não existe lista para comparar: a
+ * verificação é pedir a `Intl` e ver se ela aceita.
+ */
+@ValidatorConstraint({ name: "isIanaTimeZone" })
+export class IsIanaTimeZone implements ValidatorConstraintInterface {
+  validate(value: unknown): boolean {
+    return typeof value === "string" && isValidTimeZone(value);
+  }
+}
 
 export class CompanyRules {
   @Length(2, 120, {
@@ -15,6 +33,12 @@ export class CompanyRules {
     groups: ["create", "slug", "update"],
   })
   slug: string;
+
+  @Validate(IsIanaTimeZone, {
+    message: "Invalid journeyZone",
+    groups: ["create", "journeyZone", "update"],
+  })
+  journeyZone: string;
 
   constructor(data: Company) {
     Object.assign(this, data.toJSON());

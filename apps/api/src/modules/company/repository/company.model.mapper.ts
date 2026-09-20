@@ -8,6 +8,7 @@ export class CompanyModelMapper {
       name: data.name,
       slug: data.slug,
       active: data.active,
+      journeyZone: data.journeyZone,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
       deletedAt: data.deletedAt ?? undefined,

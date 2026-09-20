@@ -1,11 +1,25 @@
 import BaseUseCase from "@/modules/@shared/usecase/base.usecase";
-import { Company } from "../../domain/company.entity";
+import { JourneyShiftView } from "../../domain/journey-window";
 
 export interface FindCompanyByIdUseCaseInputDto {
   id: string;
 }
 
-export type FindCompanyByIdUseCaseOutputDto = Company;
+/**
+ * A organização como a tela do gestor precisa dela: os dados da unidade mais a
+ * janela de escrita, para ele conferir e ajustar o que gravou.
+ */
+export interface FindCompanyByIdUseCaseOutputDto {
+  id: string;
+  name: string;
+  slug: string;
+  active: boolean;
+  journeyZone: string;
+  journeyShifts: JourneyShiftView[];
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+}
 
 export interface FindCompanyByIdUseCaseInterface extends BaseUseCase<
   FindCompanyByIdUseCaseInputDto,

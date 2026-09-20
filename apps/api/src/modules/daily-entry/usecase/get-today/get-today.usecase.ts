@@ -2,11 +2,12 @@ import { normalizeToDayStart } from "@/modules/@shared/domain/utils/day";
 import { ContentPiece } from "@/modules/content-piece/domain/content-piece.entity";
 import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-piece.gateway";
 import { DailyEntryGateway } from "../../gateway/daily-entry.gateway";
+import { CompanyGateway } from "@/modules/company/gateway/company.gateway";
 import {
   DEFAULT_JOURNEY_WINDOW,
   JourneyWindow,
   journeyWindowAt,
-} from "../../domain/journey-window";
+} from "@/modules/company/domain/journey-window";
 import {
   GetTodayEntryUseCaseInputDto,
   GetTodayEntryUseCaseInterface,
@@ -18,7 +19,12 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
   constructor(
     private readonly dailyEntryGateway: DailyEntryGateway,
     private readonly contentPieceGateway: ContentPieceGateway,
-    private readonly window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
+    private readonly companyGateway: CompanyGateway,
+    /**
+     * A janela vem da unidade (#76). O padrão do processo é só o que vale para
+     * empresa que nunca configurou a sua.
+     */
+    private readonly fallbackWindow: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
   ) {}
 
   async execute(
@@ -29,7 +35,11 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
     const entry = await this.dailyEntryGateway.findByDate(owner, entryDate);
     // A tela precisa do horario para mostrar "abre segunda, as 07:30" em vez de
     // uma pergunta que o servidor vai recusar.
-    const window = journeyWindowAt(data.today, this.window);
+    const window = journeyWindowAt(
+      data.today,
+      (await this.companyGateway.findJourneyWindow(data.companyId)) ??
+        this.fallbackWindow,
+    );
 
     // "Respondido" é ter declarado o humor — não a entrada que a colheita
     // possa ter aberto automaticamente. Enquanto o humor for o neutro

@@ -3,23 +3,20 @@ import { ForbiddenError } from "@/modules/@shared/domain/errors/forbidden.error"
 import { DailyEntry } from "../../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../../gateway/daily-entry.gateway";
 import RecordMoodUseCase from "../../../usecase/record-mood/record-mood.usecase";
-import { JourneyWindow } from "../../../domain/journey-window";
+import {
+  alwaysOpenUnit,
+  companyGatewayDouble,
+} from "@/modules/company/__tests__/company-gateway.double";
 
 const userId = "3f1b2c8e-0f4a-4a1a-9c7d-2f9a1b3c4d5e";
 const companyId = "7a2c4d6e-1b3f-4c5d-8e9f-0a1b2c3d4e5f";
 const lateInTheDay = new Date(Date.UTC(2026, 8, 19, 22, 40));
 /**
- * Estes testes provam a regra do humor e da colheita, nao o horario. Uma janela
- * sempre aberta mantem cada teste sobre uma coisa so — a janela tem os seus em
- * `__tests__/domain/journey-window.spec.ts`, e a recusa fora dela tem o seu
- * caso proprio no fim deste arquivo.
+ * Estes testes provam a regra do humor e da colheita, nao o horario. Uma
+ * unidade sempre aberta mantem cada teste sobre uma coisa so — a janela tem os
+ * seus em `modules/company/__tests__/domain/journey-window.spec.ts`, e a
+ * recusa fora dela tem o seu caso proprio no fim deste arquivo.
  */
-const ALWAYS_OPEN: JourneyWindow = {
-  zone: "UTC",
-  days: [0, 1, 2, 3, 4, 5, 6],
-  opensAt: { hour: 0, minute: 0 },
-  closesAt: { hour: 23, minute: 59 },
-};
 
 const gatewayWith = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
@@ -34,7 +31,10 @@ describe("RecordMoodUseCase", () => {
   it("creates the entry for the normalized day", async () => {
     const gateway = gatewayWith(null);
 
-    const output = await new RecordMoodUseCase(gateway, ALWAYS_OPEN).execute({
+    const output = await new RecordMoodUseCase(
+      gateway,
+      alwaysOpenUnit(),
+    ).execute({
       userId,
       companyId,
       entryDate: lateInTheDay,
@@ -55,7 +55,7 @@ describe("RecordMoodUseCase", () => {
     const gateway = gatewayWith(existing);
 
     await expect(
-      new RecordMoodUseCase(gateway, ALWAYS_OPEN).execute({
+      new RecordMoodUseCase(gateway, alwaysOpenUnit()).execute({
         userId,
         companyId,
         entryDate: lateInTheDay,
@@ -78,7 +78,10 @@ describe("RecordMoodUseCase", () => {
     );
     const gateway = gatewayWith(automatic);
 
-    const output = await new RecordMoodUseCase(gateway, ALWAYS_OPEN).execute({
+    const output = await new RecordMoodUseCase(
+      gateway,
+      alwaysOpenUnit(),
+    ).execute({
       userId,
       companyId,
       entryDate: lateInTheDay,
@@ -95,7 +98,7 @@ describe("RecordMoodUseCase", () => {
   it("looks the day up by owner, never by user alone", async () => {
     const gateway = gatewayWith(null);
 
-    await new RecordMoodUseCase(gateway, ALWAYS_OPEN).execute({
+    await new RecordMoodUseCase(gateway, alwaysOpenUnit()).execute({
       userId,
       companyId,
       entryDate: lateInTheDay,
@@ -114,7 +117,7 @@ describe("RecordMoodUseCase", () => {
     const gateway = gatewayWith(null);
 
     await expect(
-      new RecordMoodUseCase(gateway).execute({
+      new RecordMoodUseCase(gateway, companyGatewayDouble()).execute({
         userId,
         companyId,
         entryDate: lateInTheDay,

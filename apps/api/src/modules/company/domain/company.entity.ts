@@ -1,6 +1,7 @@
 import BaseEntity from "@/modules/@shared/domain/entity/base.entity";
 import { EntityValidationError } from "@/modules/@shared/domain/errors/validation.error";
 import { normalizeSlug } from "@/modules/@shared/domain/utils/slug";
+import { DEFAULT_JOURNEY_WINDOW } from "./journey-window";
 import CompanyValidatorFactory from "./validators/company.validator";
 
 export interface CompanyProps {
@@ -8,6 +9,8 @@ export interface CompanyProps {
   name: string;
   slug: string;
   active?: boolean;
+  /** Fuso da unidade. As faixas da janela vivem em tabela própria. */
+  journeyZone?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
@@ -16,6 +19,7 @@ export interface CompanyProps {
 export class Company extends BaseEntity {
   private _name: string;
   private _slug: string;
+  private _journeyZone: string;
 
   constructor(props: CompanyProps) {
     super(
@@ -27,6 +31,7 @@ export class Company extends BaseEntity {
     );
     this._name = props.name;
     this._slug = normalizeSlug(props.slug);
+    this._journeyZone = props.journeyZone ?? DEFAULT_JOURNEY_WINDOW.zone;
   }
 
   get name(): string {
@@ -37,6 +42,10 @@ export class Company extends BaseEntity {
     return this._slug;
   }
 
+  get journeyZone(): string {
+    return this._journeyZone;
+  }
+
   changeName(name: string): void {
     this._name = name;
   }
@@ -45,9 +54,18 @@ export class Company extends BaseEntity {
     this._slug = normalizeSlug(slug);
   }
 
-  updateCompany(props: Partial<Pick<CompanyProps, "name" | "slug">>): void {
+  changeJourneyZone(zone: string): void {
+    this._journeyZone = zone;
+  }
+
+  updateCompany(
+    props: Partial<Pick<CompanyProps, "name" | "slug" | "journeyZone">>,
+  ): void {
     if (props.name !== undefined) this.changeName(props.name);
     if (props.slug !== undefined) this.changeSlug(props.slug);
+    if (props.journeyZone !== undefined) {
+      this.changeJourneyZone(props.journeyZone);
+    }
 
     this.update();
     this.validate(["update"]);
@@ -79,6 +97,7 @@ export class Company extends BaseEntity {
       name: this._name,
       slug: this._slug,
       active: this._active,
+      journeyZone: this._journeyZone,
       createdAt: this._createdAt,
       updatedAt: this._updatedAt,
       deletedAt: this._deletedAt,

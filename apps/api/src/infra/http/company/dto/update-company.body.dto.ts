@@ -1,4 +1,36 @@
-import { IsOptional, Length, Matches } from "class-validator";
+import { Type } from "class-transformer";
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  Max,
+  Min,
+  ValidateNested,
+} from "class-validator";
+
+/** `"07:30"`, ou `"24:00"` no fechamento de um turno que vira o dia. */
+const CLOCK = /^(([01]\d|2[0-3]):[0-5]\d|24:00)$/;
+
+export class JourneyShiftBodyDto {
+  @IsInt({ message: "Weekday must be an integer from 0 (Sunday) to 6" })
+  @Min(0, { message: "Weekday must be an integer from 0 (Sunday) to 6" })
+  @Max(6, { message: "Weekday must be an integer from 0 (Sunday) to 6" })
+  weekday: number;
+
+  @IsString({ message: "opensAt must be a time of day in HH:MM" })
+  @Matches(CLOCK, { message: "opensAt must be a time of day in HH:MM" })
+  opensAt: string;
+
+  @IsString({ message: "closesAt must be a time of day in HH:MM or 24:00" })
+  @Matches(CLOCK, {
+    message: "closesAt must be a time of day in HH:MM or 24:00",
+  })
+  closesAt: string;
+}
 
 export class UpdateCompanyBodyDto {
   @IsOptional()
@@ -10,4 +42,24 @@ export class UpdateCompanyBodyDto {
     message: "Slug must be kebab-case (lowercase letters, numbers and hyphens)",
   })
   slug?: string;
+
+  /**
+   * Fuso IANA da unidade. Validado de verdade no domínio, contra a `Intl` —
+   * não existe lista de fusos para comparar aqui.
+   */
+  @IsOptional()
+  @IsString({ message: "journeyZone must be an IANA time zone name" })
+  @Length(1, 64, { message: "journeyZone must be an IANA time zone name" })
+  journeyZone?: string;
+
+  /**
+   * Substitui a janela inteira da unidade. Turno que atravessa a meia-noite
+   * são duas faixas em dias diferentes — 22:00→24:00 e 00:00→06:00.
+   */
+  @IsOptional()
+  @IsArray({ message: "journeyShifts must be a list of shifts" })
+  @ArrayMaxSize(21, { message: "journeyShifts must have at most 21 shifts" })
+  @ValidateNested({ each: true })
+  @Type(() => JourneyShiftBodyDto)
+  journeyShifts?: JourneyShiftBodyDto[];
 }

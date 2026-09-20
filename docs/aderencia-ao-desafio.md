@@ -113,8 +113,15 @@ Isso não é limitação a contornar. O art. 4º da CLT conta como serviço efet
 **O que a janela ainda não faz, e está declarado:**
 
 - **Feriado não é tratado.** Só dia da semana e hora. Feriado nacional, estadual, municipal e ponto facultativo abrem a janela normalmente — issue #77
-- **Turno não é tratado.** A indústria roda turno da noite e sábado; esta janela atende o administrativo e o primeiro turno, e quem entra às 22:00 não consegue registrar nada — issue #77
-- **A janela é a mesma para todos.** Ela já é configuração — `JOURNEY_WINDOW_*` —, mas ainda não vem de `Company`. E a cooperativa é **Ouro Verde MT/PA**: Cuiabá é UTC−4 e Belém é UTC−3, então a janela abre uma hora mais tarde para quem está no Pará — issue #76
+- **Turno noturno já é representável, mas ainda não foi ao ar.** A janela é uma
+  lista de faixas por dia, e 22:00–06:00 são duas faixas em dias diferentes —
+  coberto em `modules/company/__tests__/domain/journey-window.spec.ts`. Falta a
+  unidade de demonstração usar uma — issue #77
+A janela **deixou de ser a mesma para todos**: fuso e faixas de expediente são
+colunas da unidade, e `PATCH /organizations/current` as ajusta sem deploy. Cuiabá
+em UTC−4 e Belém em UTC−3 abrem às 07:30 de cada uma — `test/journey-window-by-unit.e2e-spec.ts`
+prova, contra banco de verdade, que a mesma hora de parede vira dois instantes.
+A unidade que nunca configurou a sua segue em seg–sex, 07:30–18:00.
 
 O roteiro de apresentação e as armadilhas conhecidas estão em [`demonstracao.md`](demonstracao.md).
 

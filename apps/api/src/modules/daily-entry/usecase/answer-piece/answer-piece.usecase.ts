@@ -1,11 +1,12 @@
 import { ConflictError } from "@/modules/@shared/domain/errors/conflict.error";
 import { ForbiddenError } from "@/modules/@shared/domain/errors/forbidden.error";
 import { NotFoundError } from "@/modules/@shared/domain/errors/not-found.error";
+import { CompanyGateway } from "@/modules/company/gateway/company.gateway";
 import {
   DEFAULT_JOURNEY_WINDOW,
   JourneyWindow,
   journeyWindowAt,
-} from "../../domain/journey-window";
+} from "@/modules/company/domain/journey-window";
 import { normalizeToDayStart } from "@/modules/@shared/domain/utils/day";
 import { findOption } from "@/modules/content-piece/domain/content-piece.entity";
 import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-piece.gateway";
@@ -22,13 +23,21 @@ export default class AnswerPieceUseCase implements AnswerPieceUseCaseInterface {
   constructor(
     private readonly dailyEntryGateway: DailyEntryGateway,
     private readonly contentPieceGateway: ContentPieceGateway,
-    private readonly window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
+    private readonly companyGateway: CompanyGateway,
+    /**
+     * A janela vem da unidade (#76). O padrão do processo é só o que vale para
+     * empresa que nunca configurou a sua.
+     */
+    private readonly fallbackWindow: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
   ) {}
 
   async execute(
     data: AnswerPieceUseCaseInputDto,
   ): Promise<AnswerPieceUseCaseOutputDto> {
-    if (!journeyWindowAt(data.today, this.window).open) {
+    const window =
+      (await this.companyGateway.findJourneyWindow(data.companyId)) ??
+      this.fallbackWindow;
+    if (!journeyWindowAt(data.today, window).open) {
       throw new ForbiddenError(
         "The daily journey is open on working hours only",
       );

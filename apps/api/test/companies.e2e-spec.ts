@@ -88,6 +88,97 @@ describe("Current organization (e2e)", () => {
       .expect(422);
   });
 
+  it("starts with no window of its own, which means the process default", async () => {
+    const response = await request(app.getHttpServer())
+      .get("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.journeyZone).toBe("America/Cuiaba");
+    expect(response.body.journeyShifts).toEqual([]);
+  });
+
+  it("lets the manager set the unit's zone and shifts, and reads them back", async () => {
+    // Turno da noite: 22:00–06:00 são duas faixas em dias diferentes, e a
+    // primeira fecha em 24:00 — a meia-noite seguinte.
+    const journeyShifts = [
+      { weekday: 1, opensAt: "22:00", closesAt: "24:00" },
+      { weekday: 2, opensAt: "00:00", closesAt: "06:00" },
+    ];
+
+    const updated = await request(app.getHttpServer())
+      .patch("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ journeyZone: "America/Belem", journeyShifts })
+      .expect(200);
+
+    expect(updated.body.journeyZone).toBe("America/Belem");
+    expect(updated.body.journeyShifts).toEqual(journeyShifts);
+
+    const reread = await request(app.getHttpServer())
+      .get("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(reread.body.journeyShifts).toEqual(journeyShifts);
+  });
+
+  it("replaces the whole list, it does not append to it", async () => {
+    const response = await request(app.getHttpServer())
+      .patch("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        journeyShifts: [{ weekday: 3, opensAt: "07:30", closesAt: "18:00" }],
+      })
+      .expect(200);
+
+    expect(response.body.journeyShifts).toEqual([
+      { weekday: 3, opensAt: "07:30", closesAt: "18:00" },
+    ]);
+  });
+
+  it("refuses a zone that does not exist", async () => {
+    await request(app.getHttpServer())
+      .patch("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ journeyZone: "America/Nowhere" })
+      .expect(422);
+  });
+
+  it("refuses a shift that closes before it opens", async () => {
+    await request(app.getHttpServer())
+      .patch("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        journeyShifts: [{ weekday: 1, opensAt: "18:00", closesAt: "07:30" }],
+      })
+      .expect(422);
+  });
+
+  it("leaves the window untouched when a shift in the list is rejected", async () => {
+    // A tradução acontece antes de qualquer escrita: meia janela gravada
+    // seria pior que janela nenhuma.
+    await request(app.getHttpServer())
+      .patch("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        journeyShifts: [
+          { weekday: 1, opensAt: "07:30", closesAt: "18:00" },
+          { weekday: 2, opensAt: "18:00", closesAt: "07:30" },
+        ],
+      })
+      .expect(422);
+
+    const response = await request(app.getHttpServer())
+      .get("/organizations/current")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.journeyShifts).toEqual([
+      { weekday: 3, opensAt: "07:30", closesAt: "18:00" },
+    ]);
+  });
+
   it("does not expose global company administration routes", async () => {
     await request(app.getHttpServer())
       .get("/companies")

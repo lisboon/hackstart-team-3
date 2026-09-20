@@ -143,7 +143,14 @@ Escrever a diária acontece dentro do expediente da unidade — por padrão segu
 
 A tela lê daqui em vez de descobrir pelo erro. `POST /me/today/mood` e `POST /me/today/answer` respondem **`403`** fora da janela — é a rede para quem chamar a API direto, não o caminho normal.
 
-Configuração por `JOURNEY_WINDOW_ZONE`, `JOURNEY_WINDOW_DAYS` (0 é domingo), `JOURNEY_WINDOW_OPENS` e `JOURNEY_WINDOW_CLOSES`. Vir de `Company` é o passo seguinte.
+A janela é **da unidade**, não do processo: fuso e faixas de expediente vivem na
+organização e são lidos a cada requisição. `GET /organizations/current` mostra os
+dois, e `PATCH /organizations/current` os altera sem passar por deploy.
+
+As variáveis `JOURNEY_WINDOW_ZONE`, `JOURNEY_WINDOW_DAYS` (0 é domingo),
+`JOURNEY_WINDOW_OPENS` e `JOURNEY_WINDOW_CLOSES` continuam existindo como **o
+padrão de quem nunca configurou a sua** — e é isso que mantém a demonstração
+sob controle, porque a unidade da demo não tem janela própria.
 
 ### A peça
 
@@ -366,6 +373,47 @@ não for da pessoa (o isolamento é por `userId`+`companyId`, sem `findById`).
 ```
 
 Criar, estender e encerrar geram `AuditEvent` com ação e recurso, **sem teor**.
+
+---
+
+## `GET /organizations/current` · `PATCH /organizations/current`
+
+A organização da sessão. O `PATCH` é **só `ADMIN`**, e o id vem da sessão: não
+existe parâmetro de empresa.
+
+```json
+{
+  "id": "...",
+  "name": "Unidade Rondonópolis",
+  "slug": "unidade-rondonopolis",
+  "active": true,
+  "journeyZone": "America/Belem",
+  "journeyShifts": [
+    { "weekday": 1, "opensAt": "22:00", "closesAt": "24:00" },
+    { "weekday": 2, "opensAt": "00:00", "closesAt": "06:00" }
+  ]
+}
+```
+
+| Campo | O quê |
+|---|---|
+| `journeyZone` | nome IANA do fuso da unidade. Cuiabá é `America/Cuiaba`, Belém é `America/Belem` |
+| `journeyShifts` | as faixas de expediente, no relógio da unidade. Vazia quando ela nunca configurou a sua |
+
+`weekday` vai de 0 (domingo) a 6. **Um turno que atravessa a meia-noite são duas
+faixas em dias diferentes** — 22:00→24:00 na segunda e 00:00→06:00 na terça.
+`"24:00"` só vale em `closesAt`, e quer dizer a meia-noite seguinte.
+
+Um dia pode ter mais de uma faixa: expediente com intervalo de almoço é
+06:00→10:00 e 14:00→18:00 no mesmo `weekday`.
+
+**`journeyShifts` substitui a lista inteira.** Mandar duas faixas deixa a unidade
+com exatamente essas duas; omitir o campo não mexe nas que existem. Uma faixa
+inválida no meio da lista devolve **422** e **não grava nada** — meia janela
+gravada seria pior que janela nenhuma.
+
+**Erros:** `422` em fuso que não existe, em hora fora de `HH:MM` e em faixa que
+fecha antes de abrir. `403` para quem não é `ADMIN`.
 
 ---
 

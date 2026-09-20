@@ -1,4 +1,5 @@
 import { CompanyGateway } from "../../../gateway/company.gateway";
+import { companyGatewayDouble } from "../../company-gateway.double";
 import {
   MINIMUM_GROUP_SIZE,
   UnitPopulation,
@@ -25,17 +26,14 @@ const gatewayWith = (
   current: UnitTally,
   previous: UnitTally = tally(),
   population: UnitPopulation = { headcount: 20, reach: 14 },
-): CompanyGateway => ({
-  findById: jest.fn(),
-  findBySlug: jest.fn(),
-  create: jest.fn(),
-  update: jest.fn(),
-  countPopulation: jest.fn().mockResolvedValue(population),
-  findTally: jest
-    .fn()
-    .mockResolvedValueOnce(current)
-    .mockResolvedValueOnce(previous),
-});
+): CompanyGateway =>
+  companyGatewayDouble({
+    countPopulation: jest.fn().mockResolvedValue(population),
+    findTally: jest
+      .fn()
+      .mockResolvedValueOnce(current)
+      .mockResolvedValueOnce(previous),
+  });
 
 const run = (gateway: CompanyGateway) =>
   new GetUnitIndicatorsUseCase(gateway).execute({

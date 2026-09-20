@@ -21,8 +21,7 @@ export default class CompanyFacade implements CompanyFacadeInterface {
   async findById(
     data: FindCompanyByIdFacadeInputDto,
   ): Promise<FindCompanyByIdFacadeOutputDto> {
-    const company = await this.findCompanyByIdUseCase.execute(data);
-    return company.toJSON();
+    return this.findCompanyByIdUseCase.execute(data);
   }
 
   async update(
