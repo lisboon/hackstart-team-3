@@ -15,12 +15,13 @@ import { useState } from "react";
 import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
- * `GET /me/today` decide a tela: dia sem humor mostra só a pergunta; dia com
- * humor mostra o app. A pergunta de abertura é uma resposta por dia, sem
- * correção.
+ * `GET /me/today` diz se o humor do dia já foi registrado. A pergunta de humor
+ * fica integrada no topo da Home: interativa até responder, e depois marcada e
+ * desabilitada (uma resposta por dia, sem correção). Abaixo dela vêm a ofensiva
+ * da semana e o resumo pessoal, quando o dia está aberto.
  *
  * A peça do COOPS não vive aqui: ela é a trilha (`/trilha`), aberta ao tocar na
- * colheita. A Home é o dia — humor, a ofensiva da semana e o resumo pessoal.
+ * colheita.
  */
 export function DailyJourney({
   token,
@@ -76,18 +77,22 @@ export function DailyJourney({
   if (!today.window.open)
     return <WindowClosed opensAt={today.window.opensAt} />;
 
-  if (!today.answered)
-    return <MoodPrompt pending={pending} error={error} onSelect={answer} />;
-
   return (
     <>
-      {/* Depois da resposta a pergunta sai da tela e levaria o h1 com ela. */}
       <h1 className="sr-only">Seu dia</h1>
-      {/* O humor fica fixo no topo, agora como registro do dia (só leitura). */}
-      {today.mood !== null && <MoodBadge mood={today.mood} />}
-      {today.mood !== null && isSuffering(today.mood) && (
+      {/* No topo, sempre: sem humor, a pergunta interativa; com humor, a
+          exibição do tempo que a pessoa escolheu (MoodBadge). */}
+      {today.answered && today.mood !== null ? (
+        <MoodBadge mood={today.mood} />
+      ) : (
+        <MoodPrompt pending={pending} error={error} onSelect={answer} />
+      )}
+      {/* O acolhimento só quando a pessoa declarou sofrimento (humor 1–2):
+          sem humor não há o que acolher. */}
+      {today.answered && today.mood !== null && isSuffering(today.mood) && (
         <SupportPaths takeFocus={answeredNow} />
       )}
+      {/* Ofensiva e resumo não dependem do humor de hoje: aparecem sempre. */}
       {streak && <WeeklyHarvestCard streak={streak} />}
       <PersonalSummary
         token={token}
