@@ -89,14 +89,14 @@ export function useDailyMood(token: string, onUnauthorized: () => void) {
    * O 409 não é erro para quem responde: significa que o dia já foi respondido,
    * por toque duplo ou corrida. Recarregar mostra o app em vez de acusar.
    */
-  async function record(mood: MoodScale): Promise<boolean> {
+  async function record(mood: MoodScale, note?: string): Promise<boolean> {
     if (writing.current) return false;
     const controller = new AbortController();
     writing.current = controller;
     setPending(true);
     setError("");
     try {
-      await recordMood(mood, token, controller.signal);
+      await recordMood(mood, note, token, controller.signal);
       if (writing.current !== controller) return false;
       toast.success("Humor registrado", "Obrigado por contar como você está.");
       // O 201 confirma o humor mas não traz a peça: o dia só fica completo

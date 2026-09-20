@@ -48,12 +48,17 @@ export async function fetchJourney(
  * Uma resposta por dia, sem correção. O 201 confirma o humor, mas não traz a
  * peça — quem chama recarrega o dia para recebê-la. O 409 é rede de segurança
  * para toque duplo e fica a cargo de quem chama.
+ *
+ * `note` é a especificação opcional do que a pessoa está sentindo (#91): dado
+ * pessoal. Vazio ou só espaços não é enviado — o dia é registrado sem nota.
  */
 export async function recordMood(
   mood: MoodScale,
+  note: string | undefined,
   token: string,
   signal: AbortSignal,
 ): Promise<void> {
+  const trimmed = note?.trim();
   const result = await requestJson("/me/today/mood", {
     method: "POST",
     signal,
@@ -61,7 +66,7 @@ export async function recordMood(
       "content-type": "application/json",
       authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ mood }),
+    body: JSON.stringify(trimmed ? { mood, note: trimmed } : { mood }),
   });
   if (!moodRecordSchema.safeParse(result).success)
     throw new Error("O serviço retornou uma resposta inválida.");

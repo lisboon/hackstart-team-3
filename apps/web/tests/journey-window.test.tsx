@@ -16,6 +16,7 @@ function stubDay(open: boolean, opensAt: string) {
           entryDate: ENTRY_DATE,
           answered: false,
           mood: null,
+          note: null,
           pieceAnswered: false,
           piece: null,
           window: {

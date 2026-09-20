@@ -36,8 +36,8 @@ export function DailyJourney({
   const [answeredNow, setAnsweredNow] = useState(false);
   const { streak } = useStreak(token, onUnauthorized);
 
-  async function answer(mood: MoodScale) {
-    if (await record(mood)) setAnsweredNow(true);
+  async function answer(mood: MoodScale, note?: string) {
+    if (await record(mood, note)) setAnsweredNow(true);
   }
 
   if (!today && loading)
@@ -77,7 +77,7 @@ export function DailyJourney({
     return <WindowClosed opensAt={today.window.opensAt} />;
 
   if (!today.answered)
-    return <MoodPrompt pending={pending} error={error} onSelect={answer} />;
+    return <MoodPrompt pending={pending} error={error} onConfirm={answer} />;
 
   return (
     <>

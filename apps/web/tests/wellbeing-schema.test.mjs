@@ -19,6 +19,7 @@ test("the day accepts the published contract in both states", () => {
       entryDate: ENTRY_DATE,
       answered: false,
       mood: null,
+      note: null,
       pieceAnswered: false,
       piece: null,
       window: WINDOW,
@@ -27,6 +28,7 @@ test("the day accepts the published contract in both states", () => {
       entryDate: ENTRY_DATE,
       answered: false,
       mood: null,
+      note: null,
       pieceAnswered: false,
       piece: null,
       window: WINDOW,
@@ -37,6 +39,7 @@ test("the day accepts the published contract in both states", () => {
       entryDate: ENTRY_DATE,
       answered: true,
       mood: 3,
+      note: "Preocupado com o mês.",
       pieceAnswered: false,
       piece: null,
       window: WINDOW,
@@ -45,6 +48,7 @@ test("the day accepts the published contract in both states", () => {
       entryDate: ENTRY_DATE,
       answered: true,
       mood: 3,
+      note: "Preocupado com o mês.",
       pieceAnswered: false,
       piece: null,
       window: WINDOW,
@@ -72,18 +76,28 @@ test("the day rejects what the screen cannot trust", () => {
 });
 
 test("the record confirms a day that was answered, never an empty one", () => {
-  assert.deepEqual(moodRecordSchema.parse({ entryDate: ENTRY_DATE, mood: 1 }), {
-    entryDate: ENTRY_DATE,
-    mood: 1,
-  });
+  assert.deepEqual(
+    moodRecordSchema.parse({ entryDate: ENTRY_DATE, mood: 1, note: null }),
+    {
+      entryDate: ENTRY_DATE,
+      mood: 1,
+      note: null,
+    },
+  );
   assert.equal(
-    moodRecordSchema.safeParse({ entryDate: ENTRY_DATE, mood: null }).success,
+    moodRecordSchema.safeParse({ entryDate: ENTRY_DATE, mood: null, note: null })
+      .success,
     false,
   );
   assert.deepEqual(
     Object.keys(
-      moodRecordSchema.parse({ entryDate: ENTRY_DATE, mood: 2, userId: "x" }),
+      moodRecordSchema.parse({
+        entryDate: ENTRY_DATE,
+        mood: 2,
+        note: "oi",
+        userId: "x",
+      }),
     ),
-    ["entryDate", "mood"],
+    ["entryDate", "mood", "note"],
   );
 });
