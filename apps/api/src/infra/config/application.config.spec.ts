@@ -41,6 +41,64 @@ describe("ApplicationConfig", () => {
         internalToken: "an-internal-token-with-at-least-32-characters",
         timeoutMs: 45000,
       },
+      journeyWindow: {
+        zone: "America/Cuiaba",
+        days: [1, 2, 3, 4, 5],
+        opensAt: { hour: 7, minute: 30 },
+        closesAt: { hour: 18, minute: 0 },
+      },
+    });
+  });
+
+  describe("the journey window", () => {
+    it("opens the whole week when the unit asks for it", () => {
+      // E assim que a demonstracao roda: configuracao, nao excecao no codigo.
+      const config = loadApplicationConfig({
+        ...validEnvironment(),
+        JOURNEY_WINDOW_DAYS: "0,1,2,3,4,5,6",
+      });
+
+      expect(config.journeyWindow.days).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    });
+
+    it("reads a different zone and a different pair of hours", () => {
+      const config = loadApplicationConfig({
+        ...validEnvironment(),
+        JOURNEY_WINDOW_ZONE: "America/Belem",
+        JOURNEY_WINDOW_OPENS: "06:00",
+        JOURNEY_WINDOW_CLOSES: "14:20",
+      });
+
+      expect(config.journeyWindow.zone).toBe("America/Belem");
+      expect(config.journeyWindow.opensAt).toEqual({ hour: 6, minute: 0 });
+      expect(config.journeyWindow.closesAt).toEqual({ hour: 14, minute: 20 });
+    });
+
+    it("refuses a zone that does not exist, instead of failing at the first request", () => {
+      expect(() =>
+        loadApplicationConfig({
+          ...validEnvironment(),
+          JOURNEY_WINDOW_ZONE: "America/Nowhere",
+        }),
+      ).toThrow(/JOURNEY_WINDOW_ZONE/);
+    });
+
+    it("refuses an empty day list, which would close the journey forever", () => {
+      expect(() =>
+        loadApplicationConfig({
+          ...validEnvironment(),
+          JOURNEY_WINDOW_DAYS: "",
+        }),
+      ).toThrow(/JOURNEY_WINDOW_DAYS/);
+    });
+
+    it("refuses a time that is not a time of day", () => {
+      expect(() =>
+        loadApplicationConfig({
+          ...validEnvironment(),
+          JOURNEY_WINDOW_OPENS: "7h30",
+        }),
+      ).toThrow(/JOURNEY_WINDOW_OPENS/);
     });
   });
 

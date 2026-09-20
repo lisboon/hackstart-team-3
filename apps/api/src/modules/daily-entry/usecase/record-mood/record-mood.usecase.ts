@@ -1,4 +1,10 @@
 import { ConflictError } from "@/modules/@shared/domain/errors/conflict.error";
+import { ForbiddenError } from "@/modules/@shared/domain/errors/forbidden.error";
+import {
+  DEFAULT_JOURNEY_WINDOW,
+  JourneyWindow,
+  journeyWindowAt,
+} from "../../domain/journey-window";
 import { normalizeToDayStart } from "@/modules/@shared/domain/utils/day";
 import { DailyEntry } from "../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../gateway/daily-entry.gateway";
@@ -9,11 +15,24 @@ import {
 } from "./record-mood.usecase.dto";
 
 export default class RecordMoodUseCase implements RecordMoodUseCaseInterface {
-  constructor(private readonly dailyEntryGateway: DailyEntryGateway) {}
+  constructor(
+    private readonly dailyEntryGateway: DailyEntryGateway,
+    private readonly window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
+  ) {}
 
   async execute(
     data: RecordMoodUseCaseInputDto,
   ): Promise<RecordMoodUseCaseOutputDto> {
+    // A janela guarda a escrita, nao a porta: entrar, consultar e alcancar o
+    // CVV seguem livres. Quem ja abriu a tela dentro da janela nao passa por
+    // aqui depois do fechamento — a tela sabe do horario pelo GET /me/today, e
+    // este 403 e a rede para quem tentar pelo DevTools.
+    if (!journeyWindowAt(data.entryDate, this.window).open) {
+      throw new ForbiddenError(
+        "The daily journey is open on working hours only",
+      );
+    }
+
     const owner = { userId: data.userId, companyId: data.companyId };
     const entryDate = normalizeToDayStart(data.entryDate);
     const existing = await this.dailyEntryGateway.findByDate(owner, entryDate);

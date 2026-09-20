@@ -8,15 +8,29 @@ import GetJourneyUseCase from "../usecase/get-journey/get-journey.usecase";
 import GetStreakUseCase from "../usecase/get-streak/get-streak.usecase";
 import RecordMoodUseCase from "../usecase/record-mood/record-mood.usecase";
 import DailyEntryFacade from "../facade/daily-entry.facade";
+import {
+  DEFAULT_JOURNEY_WINDOW,
+  JourneyWindow,
+} from "../domain/journey-window";
 
 export default class DailyEntryFacadeFactory {
-  static create(): DailyEntryFacade {
+  static create(
+    window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
+  ): DailyEntryFacade {
     const dailyEntryRepository = new DailyEntryRepository(prisma);
     const contentPieceRepository = new ContentPieceRepository(prisma);
     return new DailyEntryFacade(
-      new RecordMoodUseCase(dailyEntryRepository),
-      new GetTodayEntryUseCase(dailyEntryRepository, contentPieceRepository),
-      new AnswerPieceUseCase(dailyEntryRepository, contentPieceRepository),
+      new RecordMoodUseCase(dailyEntryRepository, window),
+      new GetTodayEntryUseCase(
+        dailyEntryRepository,
+        contentPieceRepository,
+        window,
+      ),
+      new AnswerPieceUseCase(
+        dailyEntryRepository,
+        contentPieceRepository,
+        window,
+      ),
       new GetTrackUseCase(dailyEntryRepository, contentPieceRepository),
       new GetJourneyUseCase(dailyEntryRepository, contentPieceRepository),
       new GetStreakUseCase(dailyEntryRepository),
