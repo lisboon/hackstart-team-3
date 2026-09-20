@@ -5,7 +5,11 @@ import {
   UnitPopulation,
   UnitTally,
 } from "../domain/unit-indicators";
-import { SelfReportSituation, UserRole } from "@/modules/@shared/domain/enums";
+import {
+  SUPPORT_OPENED_ACTION,
+  SelfReportSituation,
+  UserRole,
+} from "@/modules/@shared/domain/enums";
 import { Company } from "../domain/company.entity";
 import { TransactionContext } from "@/modules/@shared/domain/transaction/transaction-manager.interface";
 import { normalizeSlug } from "@/modules/@shared/domain/utils/slug";
@@ -105,35 +109,51 @@ export default class CompanyRepository implements CompanyGateway {
     // Cada indicador vem com o tamanho da própria população, porque é ela que
     // decide se ele pode ser publicado. Tudo contado no banco: nenhuma linha
     // individual sobe para a memória.
-    const [active, declarers, tightDeclarers, moodPeople, mood, entryCount] =
-      await Promise.all([
-        this.prisma.user.count({
-          where: {
-            ...unit,
-            OR: [
-              { dailyEntries: { some: entries } },
-              { selfReports: { some: reports } },
-            ],
-          },
-        }),
-        this.prisma.user.count({
-          where: { ...unit, selfReports: { some: reports } },
-        }),
-        this.prisma.user.count({
-          where: {
-            ...unit,
-            selfReports: { some: { ...reports, situation: { in: SHORTFALL } } },
-          },
-        }),
-        this.prisma.user.count({
-          where: { ...unit, dailyEntries: { some: entries } },
-        }),
-        this.prisma.dailyEntry.aggregate({
-          _avg: { mood: true },
-          where: entries,
-        }),
-        this.prisma.dailyEntry.count({ where: entries }),
-      ]);
+    const [
+      active,
+      declarers,
+      tightDeclarers,
+      moodPeople,
+      mood,
+      entryCount,
+      supportUses,
+    ] = await Promise.all([
+      this.prisma.user.count({
+        where: {
+          ...unit,
+          OR: [
+            { dailyEntries: { some: entries } },
+            { selfReports: { some: reports } },
+          ],
+        },
+      }),
+      this.prisma.user.count({
+        where: { ...unit, selfReports: { some: reports } },
+      }),
+      this.prisma.user.count({
+        where: {
+          ...unit,
+          selfReports: { some: { ...reports, situation: { in: SHORTFALL } } },
+        },
+      }),
+      this.prisma.user.count({
+        where: { ...unit, dailyEntries: { some: entries } },
+      }),
+      this.prisma.dailyEntry.aggregate({
+        _avg: { mood: true },
+        where: entries,
+      }),
+      this.prisma.dailyEntry.count({ where: entries }),
+      // Os eventos de apoio não guardam ator, então contar é tudo o que dá
+      // para fazer com eles — e é tudo o que o painel precisa.
+      this.prisma.auditEvent.count({
+        where: {
+          companyId,
+          action: SUPPORT_OPENED_ACTION,
+          createdAt: window,
+        },
+      }),
+    ]);
 
     return {
       active,
@@ -142,6 +162,7 @@ export default class CompanyRepository implements CompanyGateway {
       moodPeople,
       averageMood: mood._avg.mood,
       entries: entryCount,
+      supportUses,
     };
   }
 

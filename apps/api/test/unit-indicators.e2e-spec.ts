@@ -9,6 +9,8 @@ import { configureApp } from "../src/infra/http/app.setup";
 import prisma from "../src/infra/database/prisma.instance";
 import {
   SelfReportSituation,
+  SUPPORT_OPENED_ACTION,
+  SupportResource,
   UserRole,
 } from "../src/modules/@shared/domain/enums";
 import { MINIMUM_GROUP_SIZE } from "../src/modules/company/domain/unit-indicators";
@@ -29,7 +31,12 @@ const entryDate = new Date(
  * com ativos bastantes mas poucos declarantes — é essa terceira que prova a
  * supressão por indicador.
  */
-async function seedUnit(slug: string, workers: number, declarers = workers) {
+async function seedUnit(
+  slug: string,
+  workers: number,
+  declarers = workers,
+  supportOpenings = 0,
+) {
   const company = await prisma.company.create({
     data: { id: randomUUID(), name: slug, slug },
   });
@@ -79,6 +86,23 @@ async function seedUnit(slug: string, workers: number, declarers = workers) {
     }
   }
 
+  // Aberturas de apoio: eventos de auditoria sem ator, contados por unidade.
+  // É assim que a rota POST /me/support/opened registra, e é o que o painel
+  // soma em supportUses.
+  for (let i = 0; i < supportOpenings; i++) {
+    await prisma.auditEvent.create({
+      data: {
+        id: randomUUID(),
+        companyId: company.id,
+        actorUserId: null,
+        action: SUPPORT_OPENED_ACTION,
+        resourceType: SupportResource.CRISIS_LINE,
+        requestId: null,
+        createdAt: entryDate,
+      },
+    });
+  }
+
   return company.id;
 }
 
@@ -111,8 +135,18 @@ describe("Unit indicators (e2e)", () => {
     });
 
     companyIds = [
-      await seedUnit("e2e-indicators-big", MINIMUM_GROUP_SIZE),
-      await seedUnit("e2e-indicators-small", MINIMUM_GROUP_SIZE - 1),
+      await seedUnit(
+        "e2e-indicators-big",
+        MINIMUM_GROUP_SIZE,
+        MINIMUM_GROUP_SIZE,
+        3,
+      ),
+      await seedUnit(
+        "e2e-indicators-small",
+        MINIMUM_GROUP_SIZE - 1,
+        MINIMUM_GROUP_SIZE - 1,
+        2,
+      ),
       await seedUnit("e2e-indicators-mixed", MINIMUM_GROUP_SIZE, 3),
     ];
 
@@ -124,6 +158,7 @@ describe("Unit indicators (e2e)", () => {
 
   afterAll(async () => {
     const where = { companyId: { in: companyIds } };
+    await prisma.auditEvent.deleteMany({ where });
     await prisma.dailyEntry.deleteMany({ where });
     await prisma.selfReport.deleteMany({ where });
     await prisma.user.deleteMany({ where });
@@ -142,6 +177,9 @@ describe("Unit indicators (e2e)", () => {
     expect(response.body.active).toBe(MINIMUM_GROUP_SIZE);
     expect(response.body.averageMood).toBe(4);
     expect(response.body.tightRatio).toBe(1);
+    // Três aberturas de apoio semeadas no mês: a unidade tem gente suficiente,
+    // então a contagem passa inteira.
+    expect(response.body.supportUses).toBe(3);
   });
 
   it("hides every number when the unit is below the minimum group size", async () => {
@@ -156,6 +194,9 @@ describe("Unit indicators (e2e)", () => {
     expect(response.body.headcount).toBeNull();
     expect(response.body.averageMood).toBeNull();
     expect(response.body.tightRatio).toBeNull();
+    // Duas aberturas foram semeadas nesta unidade, mas abaixo do mínimo nem a
+    // contagem de apoio sai: o portão fecha antes de qualquer número.
+    expect(response.body.supportUses).toBeNull();
     expect(response.body.previous).toBeNull();
   });
 

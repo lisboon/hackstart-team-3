@@ -42,6 +42,7 @@ const SUPPRESSED: GetUnitIndicatorsUseCaseOutputDto = {
   reach: null,
   active: null,
   frequency: null,
+  supportUses: null,
   tightRatio: null,
   averageMood: null,
   previous: null,
@@ -77,6 +78,9 @@ export default class GetUnitIndicatorsUseCase implements GetUnitIndicatorsUseCas
       headcount: population.headcount,
       reach: population.reach,
       active: tally.active,
+      // Sem `overGroup`: aberturas de apoio não têm população própria de
+      // declarantes. Elas caem com o portão geral, como headcount e reach.
+      supportUses: tally.supportUses,
       // Dias com registro por pessoa que registrou. Dividir pelos ativos
       // misturaria quem só declarou o mês no denominador de uma conta que é
       // só sobre o diário.

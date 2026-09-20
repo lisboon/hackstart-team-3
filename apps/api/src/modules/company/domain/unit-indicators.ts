@@ -19,6 +19,13 @@ export interface UnitTally {
   moodPeople: number;
   averageMood: number | null;
   entries: number;
+  /**
+   * Aberturas de recurso de apoio no período. Contagem da unidade, sem
+   * população de declarantes atrás: os eventos não sabem de quem são, então não
+   * há grupo individual para proteger — este indicador cai com o portão geral,
+   * como `headcount` e `reach`.
+   */
+  supportUses: number;
 }
 
 /** Tamanho da unidade, independente de período. */
