@@ -52,7 +52,7 @@ Na demonstração, todos os dados são **fictícios** (Anexo V 4.4). O aviso na 
 
 ## O que o produto não faz
 
-**Não diagnostica e não substitui atendimento profissional** (Anexo V 5.III). O aviso está fixo no rodapé do app, em toda tela autenticada, junto do CVV 188 — gratuito, 24 horas, a um toque. Ele continua alcançável fora do horário da jornada: a janela fecha a escrita da diária, nunca o apoio.
+**Não diagnostica e não substitui atendimento profissional** (Anexo V 5.III). O aviso e o CVV 188 — gratuito, 24 horas — vivem no **Perfil** do usuário, junto dos caminhos de apoio. **Decisão de produto:** por escolha do time, esse bloco deixou de ficar em toda tela e passou a ficar só no Perfil; antes era fixo no rodapé de todas as rotas. A tela offline mantém o CVV por conta própria, por ser um fallback sem rede.
 
 ## Limitações e riscos, declarados
 

@@ -1,26 +1,21 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AppShell } from "@/components/layout/app-shell";
+import { SafetyFooter } from "@/components/layout/safety-footer";
 
 afterEach(cleanup);
 
 function shell() {
-  return render(
-    <AppShell>
-      <p>qualquer rota</p>
-    </AppShell>,
-  );
+  return render(<SafetyFooter />);
 }
 
 const trigger = () => screen.getByRole("button", { name: /apoio disponível/i });
 
 describe("aba de apoio", () => {
-  it("fica alcançável de qualquer tela, não só no humor de sofrimento", () => {
+  it("fica alcançável a partir do rodapé de segurança (no Perfil)", () => {
     shell();
 
-    // O gatilho vive no rodapé do shell, que desenha em toda rota — inclusive
-    // antes do login. Recurso que só aparece no pior dia não é disponível.
+    // O gatilho vive no rodapé de segurança, que agora fica no Perfil.
     expect(trigger()).toBeInTheDocument();
     expect(trigger()).toHaveAttribute("aria-expanded", "false");
   });

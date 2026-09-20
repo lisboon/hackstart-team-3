@@ -5,39 +5,17 @@ import { AppShell } from "@/components/layout/app-shell";
 afterEach(cleanup);
 
 describe("AppShell", () => {
-  it("keeps the emergency line one tap away from any screen", () => {
+  it("no longer carries the safety footer — it lives on the profile now", () => {
     render(
       <AppShell>
         <p>qualquer tela</p>
       </AppShell>,
     );
 
-    // Vale inclusive antes do login: o app coleta sofrimento e o acesso a
-    // emergencia nao pode depender de a pessoa ter entrado.
-    const line = screen.getByRole("link", { name: /CVV 188/ });
-    expect(line).toHaveAttribute("href", "tel:188");
-  });
-
-  it("states that it does not diagnose, as Anexo V 5.III requires", () => {
-    render(
-      <AppShell>
-        <p>qualquer tela</p>
-      </AppShell>,
-    );
-
-    expect(screen.getByText(/não faz diagnóstico/i)).toBeInTheDocument();
-  });
-
-  it("declares the data as fictional, as Anexo V 4.4 requires", () => {
-    render(
-      <AppShell>
-        <p>qualquer tela</p>
-      </AppShell>,
-    );
-
-    // O histórico da demonstração é inventado. Deixar isso implícito seria
-    // deixar o avaliador supor que os números vieram de gente real.
-    expect(screen.getByText(/dados fictícios/i)).toBeInTheDocument();
+    // Decisão de produto: o bloco de segurança saiu de toda tela e passou a
+    // viver só no Perfil (ver SafetyFooter).
+    expect(screen.queryByRole("link", { name: /CVV 188/ })).toBeNull();
+    expect(screen.queryByText(/não faz diagnóstico/i)).toBeNull();
   });
 
   it("holds the journey inside a phone-sized column", () => {
