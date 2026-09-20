@@ -1,6 +1,10 @@
 import { EntityValidationError } from "@/modules/@shared/domain/errors/validation.error";
 import { DailyEntry } from "../../domain/daily-entry.entity";
-import { HIGHEST_MOOD, LOWEST_MOOD, MAX_MOOD_NOTE_LENGTH } from "../../domain/mood";
+import {
+  HIGHEST_MOOD,
+  LOWEST_MOOD,
+  MAX_MOOD_NOTE_LENGTH,
+} from "../../domain/mood";
 
 const validProps = {
   userId: "3f1b2c8e-0f4a-4a1a-9c7d-2f9a1b3c4d5e",
@@ -64,7 +68,9 @@ describe("DailyEntry entity", () => {
   });
 
   it("trims the note so the length limit is about content", () => {
-    expect(DailyEntry.create({ ...validProps, note: "  oi  " }).note).toBe("oi");
+    expect(DailyEntry.create({ ...validProps, note: "  oi  " }).note).toBe(
+      "oi",
+    );
   });
 
   it("attaches the note when the person declares over an automatic mood", () => {

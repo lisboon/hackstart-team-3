@@ -1,4 +1,12 @@
-import { IsInt, IsOptional, IsString, MaxLength, IsUUID, Max, Min } from "class-validator";
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsUUID,
+  Max,
+  Min,
+} from "class-validator";
 import { Notification } from "@/modules/@shared/domain/entity/validators/notification";
 import { ClassValidatorFields } from "@/modules/@shared/domain/entity/validators/class-validator-fields";
 import type { DailyEntry } from "../daily-entry.entity";

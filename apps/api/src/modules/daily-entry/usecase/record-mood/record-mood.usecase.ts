@@ -73,6 +73,10 @@ export default class RecordMoodUseCase implements RecordMoodUseCaseInterface {
     });
     await this.dailyEntryGateway.create(entry);
 
-    return { entryDate: entry.entryDate, mood: entry.mood, note: entry.note ?? null };
+    return {
+      entryDate: entry.entryDate,
+      mood: entry.mood,
+      note: entry.note ?? null,
+    };
   }
 }

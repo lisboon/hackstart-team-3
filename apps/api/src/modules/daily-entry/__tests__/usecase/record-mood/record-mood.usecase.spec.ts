@@ -60,7 +60,8 @@ describe("RecordMoodUseCase", () => {
     });
 
     expect(gateway.create).toHaveBeenCalledTimes(1);
-    const created = (gateway.create as jest.Mock).mock.calls[0][0] as DailyEntry;
+    const created = (gateway.create as jest.Mock).mock
+      .calls[0][0] as DailyEntry;
     expect(created.note).toBe("Ansioso com as contas.");
     expect(output.note).toBe("Ansioso com as contas.");
   });
