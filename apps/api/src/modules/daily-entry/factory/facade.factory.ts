@@ -46,7 +46,11 @@ export default class DailyEntryFacadeFactory {
       ),
       new GetTrackUseCase(dailyEntryRepository, contentPieceRepository),
       new GetJourneyUseCase(dailyEntryRepository, contentPieceRepository),
-      new GetStreakUseCase(dailyEntryRepository),
+      new GetStreakUseCase(
+        dailyEntryRepository,
+        companyRepository,
+        fallbackWindow,
+      ),
       new GetProgressUseCase(dailyEntryRepository),
     );
   }

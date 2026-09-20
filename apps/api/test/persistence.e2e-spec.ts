@@ -14,9 +14,12 @@ describe("Persistence (e2e)", () => {
   const companyIds: string[] = [];
   const companyRepository = new CompanyRepository(prisma);
   const userRepository = new UserRepository(prisma);
-  const transactionManager = new PrismaTransactionManager(prisma, {
-    retryDelayMs: 0,
-  });
+  /**
+   * Com `retryDelayMs: 0` as tentativas saíam em laço quente contra o mesmo
+   * lock de predicado, que é a pior forma possível de disputá-lo. O
+   * espaçamento padrão é parte do que se quer exercitar aqui.
+   */
+  const transactionManager = new PrismaTransactionManager(prisma);
   const makeCompany = (): Company => {
     const id = randomUUID();
     companyIds.push(id);

@@ -1,5 +1,8 @@
 import BaseUseCase from "@/modules/@shared/usecase/base.usecase";
-import { JourneyShiftView } from "../../domain/journey-window";
+import {
+  JourneyExceptionView,
+  JourneyShiftView,
+} from "../../domain/journey-window";
 
 export interface FindCompanyByIdUseCaseInputDto {
   id: string;
@@ -16,6 +19,7 @@ export interface FindCompanyByIdUseCaseOutputDto {
   active: boolean;
   journeyZone: string;
   journeyShifts: JourneyShiftView[];
+  journeyExceptions: JourneyExceptionView[];
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

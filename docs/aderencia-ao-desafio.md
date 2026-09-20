@@ -106,17 +106,26 @@ Desenho: quatro semanas, adesão voluntária, sem meta individual. O que se mede
 
 ### 3.1 A janela da jornada
 
-Registrar humor e responder à colheita acontecem **de segunda a sexta, das 07:30 às 18:00**, no fuso da unidade. Consultar o que já foi registrado, rever a trilha, entrar no app e alcançar o CVV 188 seguem disponíveis 24 horas.
+Registrar humor e responder à colheita acontecem dentro do expediente da unidade — **por padrão de segunda a sexta, das 07:30 às 18:00**, no fuso dela. Consultar o que já foi registrado, rever a trilha, entrar no app e alcançar o CVV 188 seguem disponíveis 24 horas.
 
 Isso não é limitação a contornar. O art. 4º da CLT conta como serviço efetivo o tempo em que a pessoa está à disposição do empregador, e a jurisprudência do TST já aplicou isso a aplicativo corporativo usado fora do expediente — vira hora extra, ou sobreaviso por analogia à Súmula 428. Pedir cinco minutos à noite num app de saúde ocupacional seria pedir trabalho não pago, e criar passivo para quem adotasse o produto.
 
-**O que a janela ainda não faz, e está declarado:**
+**A janela é da unidade, e sabe o que é dia de trabalho:**
 
-- **Feriado não é tratado.** Só dia da semana e hora. Feriado nacional, estadual, municipal e ponto facultativo abrem a janela normalmente — issue #77
-- **Turno noturno já é representável, mas ainda não foi ao ar.** A janela é uma
-  lista de faixas por dia, e 22:00–06:00 são duas faixas em dias diferentes —
-  coberto em `modules/company/__tests__/domain/journey-window.spec.ts`. Falta a
-  unidade de demonstração usar uma — issue #77
+- **Feriado fecha a janela.** Cada unidade mantém a sua lista de dias sem
+  expediente — feriado nacional, estadual, municipal, ponto facultativo, recesso
+  e parada de fábrica. Não é biblioteca de feriados: MT e PA não têm o mesmo
+  calendário, e quem decide é a empresa. `test/journey-window-exceptions.e2e-spec.ts`
+  prova que o dia fecha e que nada é escrito nele
+- **Turno da noite é uma janela como outra qualquer.** A janela é uma lista de
+  faixas por dia, e 22:00–06:00 são duas faixas em dias diferentes — a segunda
+  fechando em 24:00, a meia-noite seguinte. Quem entra às 22:00 registra
+- **Dia sem janela não conta como falha.** Fim de semana e feriado não zeram a
+  ofensiva nem gastam o congelamento: aparecem como `closed`, não como falta. A
+  pesquisa que embasou a #60 já diz que ofensiva que quebra gera culpa, e num app
+  para quem está sob sofrimento financeiro punir quem não trabalhou no feriado
+  seria o oposto do produto
+
 A janela **deixou de ser a mesma para todos**: fuso e faixas de expediente são
 colunas da unidade, e `PATCH /organizations/current` as ajusta sem deploy. Cuiabá
 em UTC−4 e Belém em UTC−3 abrem às 07:30 de cada uma — `test/journey-window-by-unit.e2e-spec.ts`

@@ -71,6 +71,8 @@ infra/http/<contexto>/           controller, module, service, dto
 
 Registre o module em `infra/http/app.module.ts`. Use `@UseGuards(AuthGuard)` e `@CurrentSession()`.
 
+`apps/api/src/metadata.ts` também é gerada pelo build e **não** é versionada. Ela fica velha ao trocar de branch, e aí o typecheck quebra apontando DTO que não existe — rode `corepack pnpm --dir apps/api build`, ou apague o arquivo, antes de acusar o código.
+
 **Migrations são escritas à mão** em `prisma/migrations/<timestamp>_<nome>/migration.sql` — as existentes são manuais. A saída de `prisma:generate` em `apps/api/generated` **não** é versionada: ao puxar uma alteração de schema, rode `corepack pnpm --dir apps/api prisma:generate` antes do typecheck.
 
 ### Frontend — fronteiras verificadas por teste

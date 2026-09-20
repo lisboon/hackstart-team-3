@@ -76,6 +76,14 @@ export default class UserRepository implements UserGateway {
     });
   }
 
+  async lockCompany(companyId: string, trx: TransactionContext): Promise<void> {
+    const client = resolvePrismaClient(this.prisma, trx);
+    // `FOR UPDATE` e não um `SELECT` comum: é o bloqueio que faz a segunda
+    // transação esperar a primeira terminar, em vez de as duas decidirem
+    // sobre o mesmo quadro e uma ser abortada no commit.
+    await client.$queryRaw`SELECT "id" FROM "companies" WHERE "id" = ${companyId} FOR UPDATE`;
+  }
+
   async countActiveAdmins(
     companyId: string,
     trx?: TransactionContext,

@@ -11,7 +11,11 @@ import {
   UserRole,
 } from "@/modules/@shared/domain/enums";
 import { Company } from "../domain/company.entity";
-import { JourneyShift, JourneyWindow } from "../domain/journey-window";
+import {
+  JourneyExceptionView,
+  JourneyShift,
+  JourneyWindow,
+} from "../domain/journey-window";
 import { TransactionContext } from "@/modules/@shared/domain/transaction/transaction-manager.interface";
 import { normalizeSlug } from "@/modules/@shared/domain/utils/slug";
 import { resolvePrismaClient } from "@/infra/database/prisma-transaction.context";
@@ -34,6 +38,13 @@ const member = (companyId: string) => ({
   active: true,
   deletedAt: null,
 });
+
+/**
+ * A coluna é `DATE`, e o driver a devolve como meia-noite UTC. Recortar os dez
+ * primeiros caracteres é o caminho mais curto de volta ao dia do calendário,
+ * sem passar por fuso local nenhum.
+ */
+const toIsoDate = (date: Date): string => date.toISOString().slice(0, 10);
 
 const slugAlreadyInUse = () =>
   new EntityValidationError([
@@ -114,13 +125,21 @@ export default class CompanyRepository implements CompanyGateway {
         journeyShifts: {
           select: { weekday: true, opensAt: true, closesAt: true },
         },
+        journeyExceptions: { select: { date: true } },
       },
     });
 
     // Sem faixa nenhuma a unidade não é "sempre fechada": é uma unidade que
-    // nunca configurou a janela, e quem chama aplica o padrão.
+    // nunca configurou a janela, e quem chama aplica o padrão. Exceção sem
+    // faixa não muda isso — um feriado não descreve um expediente.
     if (!row || row.journeyShifts.length === 0) return null;
-    return { zone: row.journeyZone, shifts: row.journeyShifts };
+    return {
+      zone: row.journeyZone,
+      shifts: row.journeyShifts,
+      exceptions: row.journeyExceptions.map((exception) =>
+        toIsoDate(exception.date),
+      ),
+    };
   }
 
   async replaceJourneyShifts(
@@ -133,6 +152,41 @@ export default class CompanyRepository implements CompanyGateway {
     if (shifts.length === 0) return;
     await client.companyJourneyShift.createMany({
       data: shifts.map((shift) => ({ companyId, ...shift })),
+    });
+  }
+
+  async findJourneyExceptions(
+    companyId: string,
+    trx?: TransactionContext,
+  ): Promise<JourneyExceptionView[]> {
+    const rows = await resolvePrismaClient(
+      this.prisma,
+      trx,
+    ).companyJourneyException.findMany({
+      where: { companyId },
+      orderBy: { date: "asc" },
+      select: { date: true, reason: true },
+    });
+    return rows.map((row) => ({
+      date: toIsoDate(row.date),
+      reason: row.reason,
+    }));
+  }
+
+  async replaceJourneyExceptions(
+    companyId: string,
+    exceptions: readonly JourneyExceptionView[],
+    trx?: TransactionContext,
+  ): Promise<void> {
+    const client = resolvePrismaClient(this.prisma, trx);
+    await client.companyJourneyException.deleteMany({ where: { companyId } });
+    if (exceptions.length === 0) return;
+    await client.companyJourneyException.createMany({
+      data: exceptions.map((exception) => ({
+        companyId,
+        date: new Date(`${exception.date}T00:00:00.000Z`),
+        reason: exception.reason,
+      })),
     });
   }
 
