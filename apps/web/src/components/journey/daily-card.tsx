@@ -99,7 +99,7 @@ function Outcome({
 }
 
 /** Anexo V 5.V: a orientação precisa dizer de onde veio. */
-function Source({ href }: { href: string }) {
+export function Source({ href }: { href: string }) {
   return (
     <p className="text-xs text-muted-foreground">
       Conteúdo baseado no{" "}

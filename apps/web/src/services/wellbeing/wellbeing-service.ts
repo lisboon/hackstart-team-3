@@ -1,9 +1,11 @@
 import { requestJson } from "@/lib/http/client";
 import {
   dailyEntrySchema,
+  journeySchema,
   moodRecordSchema,
   pieceAnswerSchema,
   type DailyEntry,
+  type Journey,
   type MoodScale,
   type PieceAnswer,
 } from "@/schemas/wellbeing";
@@ -20,6 +22,26 @@ export async function fetchToday(
   const entry = dailyEntrySchema.safeParse(result);
   if (!entry.success) throw new Error("O serviço retornou um dia inválido.");
   return entry.data;
+}
+
+/**
+ * A trilha inteira como nós. O servidor já derivou o estado de cada um; a tela
+ * só desenha. Peças respondidas voltam em leitura, nunca reabertas para
+ * responder de novo.
+ */
+export async function fetchJourney(
+  token: string,
+  signal: AbortSignal,
+): Promise<Journey> {
+  const result = await requestJson("/me/journey", {
+    method: "GET",
+    signal,
+    headers: { authorization: `Bearer ${token}` },
+  });
+  const journey = journeySchema.safeParse(result);
+  if (!journey.success)
+    throw new Error("O serviço retornou uma trilha inválida.");
+  return journey.data;
 }
 
 /**
