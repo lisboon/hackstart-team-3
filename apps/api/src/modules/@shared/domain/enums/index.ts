@@ -9,3 +9,8 @@ export {
   SUPPORT_RESOURCES,
   SupportResource,
 } from "./support-resource.enum";
+export {
+  SavingsGoalKind,
+  SavingsGoalStatus,
+  SavingsGoalUnmetReason,
+} from "./savings-goal.enum";
