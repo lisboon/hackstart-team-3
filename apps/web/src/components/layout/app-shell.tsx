@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TabBar } from "@/components/layout/tab-bar";
 import {
   CARE_DISCLAIMER,
   CRISIS_LINE,
@@ -23,6 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {children}
         </div>
         <SafetyFooter />
+        <TabBar />
       </main>
     </div>
   );
