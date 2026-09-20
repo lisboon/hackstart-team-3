@@ -24,7 +24,7 @@ export AWS_PROFILE="${AWS_PROFILE:-hack2}"
 export AWS_PAGER=""
 
 # O Windows instala a CLI fora do PATH do Git Bash com frequência.
-AWS="$(command -v aws || echo "/c/Users/$USER/AppData/Local/Programs/Amazon/AWSCLIV2/aws.exe")"
+AWS="$(command -v aws || echo "$HOME/AppData/Local/Programs/Amazon/AWSCLIV2/aws.exe")"
 
 raiz="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$raiz"

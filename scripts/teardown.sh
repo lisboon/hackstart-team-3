@@ -26,7 +26,7 @@ SG_TASK="sg-00057b5684b3eddaf"
 export AWS_PROFILE="${AWS_PROFILE:-hack2}"
 export AWS_PAGER=""
 
-AWS="$(command -v aws || echo "/c/Users/$USER/AppData/Local/Programs/Amazon/AWSCLIV2/aws.exe")"
+AWS="$(command -v aws || echo "$HOME/AppData/Local/Programs/Amazon/AWSCLIV2/aws.exe")"
 
 if [ "${1:-}" != "--apagar" ]; then
   cat <<AVISO
