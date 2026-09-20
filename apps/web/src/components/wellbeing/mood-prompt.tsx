@@ -94,7 +94,7 @@ export function MoodPrompt({
   }
 
   return (
-    <Card aria-labelledby={id} className="gap-3">
+    <Card aria-labelledby={id} className="gap-3 rounded-b-none rounded-t-2xl">
       <h2 id={id} className="text-lg font-semibold tracking-tight">
         Como você está se sentindo hoje?
       </h2>
