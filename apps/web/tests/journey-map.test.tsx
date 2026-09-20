@@ -115,9 +115,38 @@ describe("JourneyMap", () => {
   it("shows the call to action on the current node", () => {
     render(<JourneyMap nodes={nodes} onOpen={vi.fn()} />);
 
-    // O "+15 XP" é enfeite estático (placeholder #60), mas aparece no visual.
+    // Os pontos deixaram de ser enfeite: o cliente aprovou brinde por ponto, e
+    // o número vem do que a pessoa respondeu. "pontos", e não "XP", porque é a
+    // palavra do programa de brindes.
     expect(screen.getByText("COMEÇAR")).toBeInTheDocument();
-    expect(screen.getByText("+15 XP")).toBeInTheDocument();
+    expect(screen.getByText("+15 pontos")).toBeInTheDocument();
+  });
+
+  it("calls to action on the current node only, never per stage", () => {
+    render(<JourneyMap nodes={nodes} onOpen={vi.fn()} />);
+
+    // Uma chamada só na tela: uma por etapa faria a pessoa procurar qual é a
+    // de hoje, que é exatamente o que o mapa existe para responder.
+    expect(screen.getAllByText("COMEÇAR")).toHaveLength(1);
+  });
+
+  it("shows each COOPS stage as its own section", () => {
+    render(<JourneyMap nodes={nodes} onOpen={vi.fn()} />);
+
+    // O método é o produto. As três etapas com peça aparecem nomeadas, na
+    // ordem do COOPS.
+    const headings = screen
+      .getAllByRole("heading", { level: 2 })
+      .map((heading) => heading.textContent);
+    expect(headings).toEqual(["Conscientizar", "Observar", "Organizar"]);
+  });
+
+  it("counts how far the person got in each stage", () => {
+    render(<JourneyMap nodes={nodes} onOpen={vi.fn()} />);
+
+    // Conscientizar tem uma peça e ela foi respondida; Organizar nem começou.
+    expect(screen.getByText("1 de 1")).toBeInTheDocument();
+    expect(screen.getByText("ainda trancada")).toBeInTheDocument();
   });
 
   it("never leaks the body of a locked node", () => {
