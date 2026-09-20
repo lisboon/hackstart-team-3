@@ -3,6 +3,7 @@ import {
   JourneyWindow,
   MINUTES_IN_DAY,
   journeyWindowAt,
+  opensOnDay,
   uniformShifts,
 } from "@/modules/company/domain/journey-window";
 
@@ -202,6 +203,62 @@ describe("journeyWindowAt", () => {
       // local, que já é 06:30Z. Uma passada só de deslocamento erraria uma hora.
       const state = atLisbon("2026-03-27T20:00:00Z");
       expect(state.opensAt.toISOString()).toBe("2026-03-30T06:30:00.000Z");
+    });
+  });
+  /**
+   * 7 de setembro de 2026 cai numa terça: a janela abriria, o app pediria a
+   * diária, e ninguém estaria trabalhando. Pelo mesmo argumento que sustenta a
+   * janela — art. 4º da CLT — pedir a diária num feriado é pedir exatamente o
+   * que ela existe para não pedir (#77).
+   */
+  describe("a day the unit does not work", () => {
+    const withHoliday = (...dates: string[]): JourneyWindow => ({
+      ...DEFAULT_JOURNEY_WINDOW,
+      exceptions: dates,
+    });
+
+    it("stays closed on a holiday that falls on a working day", () => {
+      const holiday = withHoliday("2026-09-08");
+      // Terça, 09:00 em Cuiabá: seria dentro da janela em qualquer outro dia.
+      expect(
+        journeyWindowAt(new Date("2026-09-08T13:00:00Z"), holiday).open,
+      ).toBe(false);
+      expect(at("2026-09-08T13:00:00Z").open).toBe(true);
+    });
+
+    it("points at the next working day, skipping the holiday", () => {
+      const holiday = withHoliday("2026-09-08");
+      const state = journeyWindowAt(new Date("2026-09-08T13:00:00Z"), holiday);
+      expect(state.opensAt.toISOString()).toBe("2026-09-09T11:30:00.000Z");
+    });
+
+    it("walks across a whole shutdown instead of giving up after a week", () => {
+      // Recesso de fim de ano: de 21/12 a 01/01 a fábrica para. Uma busca de
+      // sete dias à frente não alcançaria a reabertura.
+      const recess = withHoliday(
+        "2026-12-21",
+        "2026-12-22",
+        "2026-12-23",
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+      );
+      const state = journeyWindowAt(new Date("2026-12-21T13:00:00Z"), recess);
+      expect(state.open).toBe(false);
+      // 04/01/2027 é a segunda-feira seguinte ao recesso.
+      expect(state.opensAt.toISOString()).toBe("2027-01-04T11:30:00.000Z");
+    });
+
+    it("tells the streak which calendar days never opened", () => {
+      const holiday = withHoliday("2026-09-08");
+      // Segunda abre, terça é feriado, sábado nunca abriu.
+      expect(opensOnDay(holiday, new Date("2026-09-07T00:00:00Z"))).toBe(true);
+      expect(opensOnDay(holiday, new Date("2026-09-08T00:00:00Z"))).toBe(false);
+      expect(opensOnDay(holiday, new Date("2026-09-12T00:00:00Z"))).toBe(false);
     });
   });
 });

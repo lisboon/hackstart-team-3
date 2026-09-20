@@ -50,6 +50,17 @@ describe("WeeklyHarvestCard", () => {
     expect(screen.queryByText(/falhou|falha|perdeu/i)).not.toBeInTheDocument();
   });
 
+  it("mostra o dia sem expediente como tal, nunca como falta", () => {
+    // Fim de semana, feriado, recesso: nao havia diaria a fazer, entao a tela
+    // nao tem o que cobrar (#77).
+    const s = streak({});
+    s.week[5].state = "closed";
+    s.week[6].state = "closed";
+    render(<WeeklyHarvestCard streak={s} />);
+    expect(screen.getAllByLabelText(/sem expediente/)).toHaveLength(2);
+    expect(screen.queryByLabelText(/sem registro/)).not.toBeInTheDocument();
+  });
+
   it("acolhe uma ofensiva zerada, sem culpa", () => {
     render(
       <WeeklyHarvestCard

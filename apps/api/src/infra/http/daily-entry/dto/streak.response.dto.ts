@@ -3,8 +3,13 @@ export class StreakWeekDayResponseDto {
   date: Date;
   /** 0 = segunda … 6 = domingo. */
   weekday: number;
-  /** done · today · future · missed · protected */
-  state: "done" | "today" | "future" | "missed" | "protected";
+  /**
+   * done · today · future · missed · protected · closed
+   *
+   * `closed` é o dia em que a unidade não abriu — fim de semana, feriado,
+   * recesso. Não é falta: não havia diária a fazer.
+   */
+  state: "done" | "today" | "future" | "missed" | "protected" | "closed";
 }
 
 /**

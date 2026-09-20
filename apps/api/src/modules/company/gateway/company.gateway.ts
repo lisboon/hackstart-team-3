@@ -1,5 +1,9 @@
 import { Company } from "../domain/company.entity";
-import { JourneyShift, JourneyWindow } from "../domain/journey-window";
+import {
+  JourneyExceptionView,
+  JourneyShift,
+  JourneyWindow,
+} from "../domain/journey-window";
 import {
   UnitPeriod,
   UnitPopulation,
@@ -31,6 +35,19 @@ export interface CompanyGateway {
   replaceJourneyShifts(
     companyId: string,
     shifts: readonly JourneyShift[],
+    trx?: TransactionContext,
+  ): Promise<void>;
+
+  /** Os dias sem expediente da unidade, com o motivo, para a tela do gestor. */
+  findJourneyExceptions(
+    companyId: string,
+    trx?: TransactionContext,
+  ): Promise<JourneyExceptionView[]>;
+
+  /** Substitui os dias sem expediente pela lista inteira. Idempotente. */
+  replaceJourneyExceptions(
+    companyId: string,
+    exceptions: readonly JourneyExceptionView[],
     trx?: TransactionContext,
   ): Promise<void>;
 

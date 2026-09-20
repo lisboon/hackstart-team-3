@@ -376,6 +376,69 @@ Criar, estender e encerrar geram `AuditEvent` com ação e recurso, **sem teor**
 
 ---
 
+## `GET /me/streak`
+
+A Colheita Semanal da Home: a ofensiva, o recorde pessoal, os sete dias da
+semana e a proteção. **Contra o próprio passado, nunca contra outras pessoas.**
+
+```json
+{
+  "currentStreak": 4,
+  "longestStreak": 11,
+  "week": [
+    { "date": "2026-09-14T00:00:00.000Z", "weekday": 0, "state": "done" },
+    { "date": "2026-09-15T00:00:00.000Z", "weekday": 1, "state": "protected" },
+    { "date": "2026-09-16T00:00:00.000Z", "weekday": 2, "state": "today" },
+    { "date": "2026-09-17T00:00:00.000Z", "weekday": 3, "state": "future" },
+    { "date": "2026-09-18T00:00:00.000Z", "weekday": 4, "state": "future" },
+    { "date": "2026-09-19T00:00:00.000Z", "weekday": 5, "state": "closed" },
+    { "date": "2026-09-20T00:00:00.000Z", "weekday": 6, "state": "closed" }
+  ],
+  "freezesAvailable": 0,
+  "freezeApplied": true
+}
+```
+
+| Campo | O quê |
+|---|---|
+| `currentStreak` | dias seguidos até hoje — ou até ontem, se hoje ainda não foi registrado |
+| `longestStreak` | a maior sequência que **a própria pessoa** já alcançou |
+| `week` | os sete dias da semana corrente, sempre de segunda a domingo |
+| `freezesAvailable` | congelamentos disponíveis nesta semana |
+| `freezeApplied` | se um congelamento está segurando a ofensiva agora |
+
+`weekday` é 0 para segunda e 6 para domingo — é a ordem em que a tela desenha, e
+não o `getDay()` do JavaScript. `date` é o início do dia em UTC.
+
+### Os seis estados de um dia
+
+| `state` | O quê | Como a tela mostra |
+|---|---|---|
+| `done` | registrado | cheio |
+| `today` | é hoje, e ainda está em aberto | destacado, sem cobrança |
+| `future` | ainda não chegou | apagado |
+| `missed` | dia útil sem registro | apagado, **sem vermelho e sem rótulo de falha** |
+| `protected` | um dia perdido que o congelamento cobriu | ícone de proteção |
+| `closed` | a unidade não abriu — fim de semana, feriado, recesso | mais apagado que `missed` |
+
+### Por que a ofensiva não zera
+
+O congelamento é **um por semana, aplicado sozinho**. Ele existe para não punir:
+perder um dia sob estresse não pode zerar a sequência de quem mais precisa
+(aversão à perda, [`ia-e-limitacoes.md`](ia-e-limitacoes.md)). **Não é moeda nem
+prêmio comprável** — é folga concedida pela regra, sem loja e sem ranking.
+
+Dia em que a unidade não abriu não gasta congelamento e não interrompe a
+sequência: ele não é dia perdido, é dia que não existiu.
+
+### O que nunca sai daqui
+
+Nada disso chega ao painel do gestor. Não há comparação, classificação nem
+posição entre pessoas — o recorde é da pessoa contra ela mesma. A leitura exige
+dono e empresa juntos, como todo recurso pessoal.
+
+---
+
 ## `GET /organizations/current` · `PATCH /organizations/current`
 
 A organização da sessão. O `PATCH` é **só `ADMIN`**, e o id vem da sessão: não
@@ -399,6 +462,7 @@ existe parâmetro de empresa.
 |---|---|
 | `journeyZone` | nome IANA do fuso da unidade. Cuiabá é `America/Cuiaba`, Belém é `America/Belem` |
 | `journeyShifts` | as faixas de expediente, no relógio da unidade. Vazia quando ela nunca configurou a sua |
+| `journeyExceptions` | os dias em que a unidade não trabalha: feriado, ponto facultativo, recesso, parada de fábrica |
 
 `weekday` vai de 0 (domingo) a 6. **Um turno que atravessa a meia-noite são duas
 faixas em dias diferentes** — 22:00→24:00 na segunda e 00:00→06:00 na terça.
@@ -412,8 +476,30 @@ com exatamente essas duas; omitir o campo não mexe nas que existem. Uma faixa
 inválida no meio da lista devolve **422** e **não grava nada** — meia janela
 gravada seria pior que janela nenhuma.
 
-**Erros:** `422` em fuso que não existe, em hora fora de `HH:MM` e em faixa que
-fecha antes de abrir. `403` para quem não é `ADMIN`.
+### Os dias em que a unidade não trabalha
+
+```json
+{ "journeyExceptions": [{ "date": "2026-09-07", "reason": "Independência" }] }
+```
+
+A lista é **da empresa**, e não uma biblioteca de feriados: feriado municipal e
+ponto facultativo não saem de biblioteca nenhuma com confiança, e a cooperativa
+atende MT e PA, que não têm o mesmo calendário. Uma lista que a unidade mantém é
+honesta sobre de quem é a decisão, e a mesma tabela serve ao recesso e à parada
+de fábrica — por isso `reason` é texto, e não uma opção fechada nossa.
+
+Um dia na lista fecha a janela o dia inteiro: `POST /me/today/mood` e
+`POST /me/today/answer` respondem **403**, e `GET /me/today` aponta a próxima
+abertura, pulando o feriado. Como `journeyShifts`, a lista é **substituída
+inteira**.
+
+**Dia sem janela não é falta.** Ele não zera a ofensiva, não gasta congelamento e
+aparece em `GET /me/streak` com o estado `closed` — nunca `missed`. Punir alguém
+por não ter trabalhado no feriado seria o oposto do produto.
+
+**Erros:** `422` em fuso que não existe, em hora fora de `HH:MM`, em faixa que
+fecha antes de abrir, em data fora de `YYYY-MM-DD` ou que não existe no
+calendário, e em motivo vazio. `403` para quem não é `ADMIN`.
 
 ---
 
