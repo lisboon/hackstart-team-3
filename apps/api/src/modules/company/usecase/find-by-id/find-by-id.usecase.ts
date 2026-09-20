@@ -21,11 +21,15 @@ export default class FindCompanyByIdUseCase implements FindCompanyByIdUseCaseInt
 
     // Sem faixa própria a unidade roda no padrão do processo, e a tela mostra
     // a lista vazia — que é a verdade: não há configuração desta unidade.
-    const window = await this.companyGateway.findJourneyWindow(data.id);
+    const [window, journeyExceptions] = await Promise.all([
+      this.companyGateway.findJourneyWindow(data.id),
+      this.companyGateway.findJourneyExceptions(data.id),
+    ]);
 
     return {
       ...company.toJSON(),
       journeyShifts: describeShifts(window?.shifts ?? []),
+      journeyExceptions,
     };
   }
 }

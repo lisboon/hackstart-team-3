@@ -102,6 +102,7 @@ model Company {
   dailyEntries DailyEntry[]
   savingsGoals SavingsGoal[]
   journeyShifts CompanyJourneyShift[]
+  journeyExceptions CompanyJourneyException[]
 
   @@index([active])
   @@map("companies")
@@ -124,6 +125,23 @@ model CompanyJourneyShift {
   @@unique([companyId, weekday, opensAt])
   @@index([companyId])
   @@map("company_journey_shifts")
+}
+
+/// Um dia em que a unidade nao trabalha: feriado, ponto facultativo, recesso
+/// ou parada de fabrica. A empresa mantem a lista, porque feriado municipal
+/// nao sai de biblioteca nenhuma com confianca.
+model CompanyJourneyException {
+  id        String   @id @default(uuid())
+  companyId String   @map("company_id")
+  /// A data no calendario da unidade, sem hora.
+  date      DateTime @db.Date
+  reason    String
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, date])
+  @@index([companyId])
+  @@map("company_journey_exceptions")
 }
 
 model AuditEvent {

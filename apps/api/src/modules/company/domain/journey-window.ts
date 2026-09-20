@@ -42,6 +42,13 @@ export interface JourneyWindow {
   /** Nome IANA. `Intl` lança em zona desconhecida, e é assim que se valida. */
   zone: string;
   shifts: readonly JourneyShift[];
+  /**
+   * Dias em que a unidade não trabalha, como data local `YYYY-MM-DD`: feriado,
+   * ponto facultativo, recesso, parada de fábrica. A lista é da empresa, e não
+   * de uma biblioteca de feriados — feriado municipal não sai de biblioteca
+   * nenhuma com confiança, e MT e PA não têm o mesmo calendário.
+   */
+  exceptions?: readonly string[];
 }
 
 export interface JourneyWindowState {
@@ -71,6 +78,13 @@ export function clockFromMinutes(minutes: number): string {
   const hour = Math.floor(minutes / 60);
   const minute = minutes % 60;
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+/** Um dia sem expediente, com o motivo que a unidade registrou. */
+export interface JourneyExceptionView {
+  /** Data local, `YYYY-MM-DD`. */
+  date: string;
+  reason: string;
 }
 
 /** Uma faixa no relógio de quem lê, que é como ela entra e sai pela API. */
@@ -227,11 +241,44 @@ function shiftDays(from: LocalParts, offset: number): LocalParts {
   };
 }
 
-/** As faixas daquele dia da semana, da primeira abertura para a última. */
-function shiftsOn(window: JourneyWindow, weekday: number): JourneyShift[] {
+/** A data local daquele dia, no formato em que as exceções são guardadas. */
+function isoDate(date: { year: number; month: number; day: number }): string {
+  const month = String(date.month).padStart(2, "0");
+  const day = String(date.day).padStart(2, "0");
+  return `${date.year}-${month}-${day}`;
+}
+
+/**
+ * As faixas daquele dia, da primeira abertura para a última. Feriado não tem
+ * faixa nenhuma: é o dia inteiro que sai, não um horário dele.
+ */
+function shiftsOn(window: JourneyWindow, day: LocalParts): JourneyShift[] {
+  if (window.exceptions?.includes(isoDate(day))) return [];
   return window.shifts
-    .filter((shift) => shift.weekday === weekday)
+    .filter((shift) => shift.weekday === day.weekday)
     .sort((a, b) => a.opensAt - b.opensAt);
+}
+
+/**
+ * Se a unidade abre em algum momento daquele dia do calendário. É o que a
+ * ofensiva precisa saber: um dia sem janela não é dia perdido, é dia que não
+ * existiu — e a #77 é explícita em que ele não pode contar como falha.
+ *
+ * Recebe a data como início do dia em UTC, que é a mesma chave com que a
+ * jornada diária é guardada (`DailyEntry.entryDate`).
+ */
+export function opensOnDay(window: JourneyWindow, day: Date): boolean {
+  return (
+    shiftsOn(window, {
+      year: day.getUTCFullYear(),
+      month: day.getUTCMonth() + 1,
+      day: day.getUTCDate(),
+      hour: 0,
+      minute: 0,
+      second: 0,
+      weekday: day.getUTCDay(),
+    }).length > 0
+  );
 }
 
 /**
@@ -247,7 +294,7 @@ export function journeyWindowAt(
 
   // A primeira faixa de hoje que ainda não fechou responde pelas duas
   // perguntas: se estamos dentro dela, e senão quando ela abre.
-  for (const shift of shiftsOn(window, today.weekday)) {
+  for (const shift of shiftsOn(window, today)) {
     const closesAt = instantOf(window.zone, today, shift.closesAt);
     if (instant >= closesAt) continue;
     const opensAt = instantOf(window.zone, today, shift.opensAt);
@@ -264,7 +311,7 @@ function nextOpening(
 ): { opensAt: Date; closesAt: Date } {
   for (let offset = 1; offset <= SEARCH_HORIZON_DAYS; offset += 1) {
     const day = shiftDays(today, offset);
-    for (const shift of shiftsOn(window, day.weekday)) {
+    for (const shift of shiftsOn(window, day)) {
       const opensAt = instantOf(window.zone, day, shift.opensAt);
       if (opensAt <= instant) continue;
       return { opensAt, closesAt: instantOf(window.zone, day, shift.closesAt) };
