@@ -44,7 +44,7 @@ O backend é TypeScript, linguagem mantida pela Microsoft. Os três serviços j�
 
 ### 2.2 Proteção de dados e privacidade — *LGPD, minimização, anonimização*
 
-**Minimização.** O produto não tem acesso a extrato, saldo, transação ou histórico bancário. Tudo é autodeclarado: a situação do mês, o humor do dia e o valor-alvo que a pessoa define na meta de guarda (#71) — nunca verificado contra saldo. Essa não é limitação técnica a remover — é a escolha que torna o produto aceitável dentro de uma empresa.
+**Minimização.** O produto não tem acesso a extrato, saldo, transação ou histórico bancário. Tudo é autodeclarado: a situação do mês, o humor do dia e o valor-alvo que a pessoa define na meta de guarda (#71) — nunca verificado contra saldo. A nota opcional do humor (#91), quando a pessoa escreve o que está sentindo, é estritamente pessoal: só volta para ela em `GET /me/today` e `POST /me/today/mood`, nunca entra em nenhum indicador do gestor. Essa não é limitação técnica a remover — é a escolha que torna o produto aceitável dentro de uma empresa.
 
 **Anonimização, em dois níveis.** O painel do gestor suprime a unidade inteira abaixo de cinco pessoas com registro no mês, e suprime **cada indicador separadamente** quando a população daquele número é menor que cinco. Dez pessoas ativas das quais só três declararam produzem uma estatística de três pessoas; publicá-la porque outras sete registraram humor seria o mesmo vazamento pela porta de trás.
 

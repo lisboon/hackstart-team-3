@@ -41,6 +41,7 @@ A razão da terceira e da quarta linha: há dependência emocional patológica d
 |---|---|---|
 | Situação do mês | a própria pessoa declara | só ela |
 | Humor do dia | a própria pessoa declara | só ela |
+| Nota do humor (texto livre, opcional) | a própria pessoa escreve | só ela |
 | Resposta da peça | a própria pessoa escolhe | só ela |
 | Indicadores da unidade | agregação dos acima | gestor, sem individualizar |
 

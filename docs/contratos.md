@@ -116,6 +116,7 @@ Chamado **ao abrir o app**. Diz o que a tela deve mostrar.
   "entryDate": "2026-09-19T00:00:00.000Z",
   "answered": false,
   "mood": null,
+  "note": null,
   "pieceAnswered": false,
   "piece": null,
   "window": {
@@ -134,6 +135,8 @@ Chamado **ao abrir o app**. Diz o que a tela deve mostrar.
 | `answered: true`, `pieceAnswered: true` | o app, sem peça — a diária está completa |
 
 **Sem humor não vem peça.** A pergunta de abertura é pré-requisito, e o `piece` vem `null` até ela ser respondida.
+
+**`note` é a nota pessoal do humor.** Texto livre e opcional que a pessoa pode escrever ao declarar o tempo do dia ("quer especificar mais o que está sentindo?"). Vem `null` quando ela não especificou. É dado **estritamente pessoal**: só volta aqui e em `POST /me/today/mood`, para a própria sessão — **nunca** é agregado nem exposto ao painel do gestor.
 
 ### A janela
 
