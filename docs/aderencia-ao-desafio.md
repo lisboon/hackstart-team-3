@@ -111,9 +111,11 @@ Isso não é limitação a contornar. O art. 4º da CLT conta como serviço efet
 
 **O que a janela ainda não faz, e está declarado:**
 
-- **Feriado não é tratado.** Só dia da semana e hora. Feriado nacional e ponto facultativo abrem a janela normalmente
-- **Turno não é tratado.** A indústria roda turno da noite e sábado; esta janela atende o administrativo e o primeiro turno
-- **A janela é a mesma para todos.** Ela já é configuração — `JOURNEY_WINDOW_*` —, mas ainda não vem de `Company`. E a cooperativa é **Ouro Verde MT/PA**: Cuiabá é UTC−4 e Belém é UTC−3, então uma janela só já está uma hora deslocada para parte da área de atuação
+- **Feriado não é tratado.** Só dia da semana e hora. Feriado nacional, estadual, municipal e ponto facultativo abrem a janela normalmente — issue #77
+- **Turno não é tratado.** A indústria roda turno da noite e sábado; esta janela atende o administrativo e o primeiro turno, e quem entra às 22:00 não consegue registrar nada — issue #77
+- **A janela é a mesma para todos.** Ela já é configuração — `JOURNEY_WINDOW_*` —, mas ainda não vem de `Company`. E a cooperativa é **Ouro Verde MT/PA**: Cuiabá é UTC−4 e Belém é UTC−3, então a janela abre uma hora mais tarde para quem está no Pará — issue #76
+
+O roteiro de apresentação e as armadilhas conhecidas estão em [`demonstracao.md`](demonstracao.md).
 
 ## 4. Limites que a evidência impõe
 
