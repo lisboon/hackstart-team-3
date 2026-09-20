@@ -30,6 +30,11 @@ export default class DeleteUserUseCase implements DeleteUserUseCaseInterface {
         }
 
         if (user.isAdmin && user.active) {
+          // Em fila, e não em disputa: sem o lock, duas exclusões simultâneas
+          // lêem o mesmo total, as duas passam, e o Postgres aborta uma por
+          // anomalia de serialização — a regra de negócio some atrás de um
+          // erro de infraestrutura (#68).
+          await this.userGateway.lockCompany(data.companyId, trx);
           const activeAdmins = await this.userGateway.countActiveAdmins(
             data.companyId,
             trx,

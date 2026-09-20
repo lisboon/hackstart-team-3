@@ -1,3 +1,4 @@
+import { Logger, LoggerService } from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
 import {
   TransactionManager,
@@ -10,18 +11,37 @@ import { isTransactionWriteConflict } from "./prisma-error.inspector";
 interface PrismaTransactionManagerOptions {
   maxRetries?: number;
   retryDelayMs?: number;
+  logger?: LoggerService;
 }
+
+/**
+ * Seis tentativas com base de 50ms: no pior caso algo em torno de três
+ * segundos somando o jitter, contra os 400ms de antes. Não muda semântica, só
+ * dá espaço para a contenção resolver — e o caminho que mais colidia agora
+ * entra em fila antes de decidir, então isto é rede, não plano principal.
+ */
+const DEFAULT_MAX_RETRIES = 6;
+const DEFAULT_RETRY_DELAY_MS = 50;
 
 export class PrismaTransactionManager implements TransactionManager {
   private readonly maxRetries: number;
   private readonly retryDelayMs: number;
+  private readonly logger: LoggerService;
 
   constructor(
     private readonly prisma: PrismaClient,
     options: PrismaTransactionManagerOptions = {},
   ) {
-    this.maxRetries = this.normalizeOption(options.maxRetries, 4, true);
-    this.retryDelayMs = this.normalizeOption(options.retryDelayMs, 25);
+    this.maxRetries = this.normalizeOption(
+      options.maxRetries,
+      DEFAULT_MAX_RETRIES,
+      true,
+    );
+    this.retryDelayMs = this.normalizeOption(
+      options.retryDelayMs,
+      DEFAULT_RETRY_DELAY_MS,
+    );
+    this.logger = options.logger ?? new Logger(PrismaTransactionManager.name);
   }
 
   async execute<T>(
@@ -43,7 +63,18 @@ export class PrismaTransactionManager implements TransactionManager {
           prismaOptions,
         );
       } catch (error) {
-        if (!isTransactionWriteConflict(error) || retry >= this.maxRetries) {
+        if (!isTransactionWriteConflict(error)) throw error;
+        if (retry >= this.maxRetries) {
+          // Quando o orçamento acaba, quem chamou recebe o erro do driver no
+          // lugar da regra de negócio. Registrar quantas tentativas foram
+          // gastas é o que transforma a hipótese em dado — contagem, nunca
+          // teor.
+          this.logger.warn({
+            message: "Transaction retry budget exhausted",
+            attempts: retry + 1,
+            maxRetries: this.maxRetries,
+            isolationLevel: options?.isolationLevel,
+          });
           throw error;
         }
 
