@@ -34,6 +34,15 @@ USER node
 
 CMD ["pnpm", "exec", "prisma", "migrate", "deploy"]
 
+# So o que roda em producao. O estagio `dependencies` instala tambem as 31
+# dependencias de desenvolvimento — typescript, jest, eslint, nest cli — e
+# copia-las para a imagem final custava 593MB de nada: elas nao sao usadas em
+# tempo de execucao, e cada MB aqui e tempo de push e de arranque de conteiner.
+FROM base AS production-deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/package.json
+RUN pnpm install --filter hackathon-star-nest... --frozen-lockfile --prod
+
 FROM node:24-bookworm-slim AS runner
 
 ENV NODE_ENV=production \
@@ -42,8 +51,8 @@ ENV NODE_ENV=production \
 USER node
 WORKDIR /app/apps/api
 
-COPY --from=builder --chown=node:node /app/node_modules/ /app/node_modules/
-COPY --from=builder --chown=node:node /app/apps/api/node_modules/ ./node_modules/
+COPY --from=production-deps --chown=node:node /app/node_modules/ /app/node_modules/
+COPY --from=production-deps --chown=node:node /app/apps/api/node_modules/ ./node_modules/
 COPY --from=builder --chown=node:node /app/apps/api/package.json ./
 COPY --from=builder --chown=node:node /app/apps/api/generated/ ./generated/
 COPY --from=builder --chown=node:node /app/apps/api/dist/ ./dist/

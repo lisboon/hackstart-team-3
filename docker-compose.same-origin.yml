@@ -1,0 +1,23 @@
+# Sobreposição para servir API e web sob **um endereço só**.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.same-origin.yml up -d --build web
+#
+# `NEXT_PUBLIC_API_URL` é assado no build do Next, então publicar o app num
+# endereço novo normalmente obriga a reconstruir a imagem — e ainda a liberar
+# CORS entre dois domínios.
+#
+# Deixando-o vazio, o cliente passa a chamar caminho relativo (`/me/streak` em
+# vez de `http://host:3001/me/streak`), e os `rewrites` de `next.config.ts`
+# levam a chamada até a API por dentro da rede dos contêineres. Mesma origem:
+# um endereço público basta, e CORS deixa de existir.
+#
+# O padrão do projeto não muda: sem esta sobreposição, o navegador continua
+# falando direto com `http://localhost:3001`.
+services:
+  web:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: ""
+    environment:
+      NEXT_PUBLIC_API_URL: ""
+      API_INTERNAL_URL: http://api:3001

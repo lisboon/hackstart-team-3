@@ -75,3 +75,6 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /package-lock.json
+
+# Permissoes locais do Claude Code: e escolha de cada maquina, nao do projeto.
+.claude/settings.local.json
