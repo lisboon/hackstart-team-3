@@ -66,6 +66,21 @@ export default class DailyEntryRepository implements DailyEntryGateway {
     return answers;
   }
 
+  async findEntryDates(
+    owner: DailyEntryOwner,
+    trx?: TransactionContext,
+  ): Promise<Date[]> {
+    const rows = await resolvePrismaClient(
+      this.prisma,
+      trx,
+    ).dailyEntry.findMany({
+      where: { ...owner, deletedAt: null },
+      select: { entryDate: true },
+      orderBy: { entryDate: "asc" },
+    });
+    return rows.map((row) => row.entryDate);
+  }
+
   async create(entry: DailyEntry, trx?: TransactionContext): Promise<void> {
     await resolvePrismaClient(this.prisma, trx).dailyEntry.create({
       data: {

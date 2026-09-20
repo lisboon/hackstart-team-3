@@ -5,6 +5,7 @@ import {
   GetTodayEntryFacadeInputDto,
   GetTrackFacadeInputDto,
   GetJourneyFacadeInputDto,
+  GetStreakFacadeInputDto,
   RecordMoodFacadeInputDto,
 } from "@/modules/daily-entry/facade/daily-entry.facade.dto";
 
@@ -31,5 +32,9 @@ export class DailyEntryService {
 
   async getJourney(input: GetJourneyFacadeInputDto) {
     return this.dailyEntryFacade.getJourney(input);
+  }
+
+  async getStreak(input: GetStreakFacadeInputDto) {
+    return this.dailyEntryFacade.getStreak(input);
   }
 }

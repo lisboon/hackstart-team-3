@@ -1,24 +1,25 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useDailyMood } from "@/hooks/wellbeing/use-daily-mood";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
-import { DailyCard } from "@/components/journey/daily-card";
+import { WeeklyHarvestCard } from "@/components/streak/weekly-harvest-card";
+import { useStreak } from "@/hooks/streak/use-streak";
 import { WindowClosed } from "@/components/journey/window-closed";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
+import { useState } from "react";
 import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
- * `GET /me/today` decide a tela: dia sem resposta mostra só a pergunta; dia
- * respondido mostra o app. Como é uma resposta por dia, sem correção, a
- * pergunta deixa de existir depois de respondida.
+ * `GET /me/today` decide a tela: dia sem humor mostra só a pergunta; dia com
+ * humor mostra o app. A pergunta de abertura é uma resposta por dia, sem
+ * correção.
  *
- * A trilha inteira não vive aqui: ela é a rota `/trilha`, alcançada pelo botão
- * central da barra. A Home é o dia — humor, a peça de hoje e o resumo pessoal.
+ * A peça do COOPS não vive aqui: ela é a trilha (`/trilha`), aberta ao tocar na
+ * colheita. A Home é o dia — humor, a ofensiva da semana e o resumo pessoal.
  */
 export function DailyJourney({
   token,
@@ -27,18 +28,12 @@ export function DailyJourney({
   token: string;
   onUnauthorized: () => void;
 }) {
-  const {
-    today,
-    answer: pieceAnswer,
-    error,
-    loading,
-    pending,
-    record,
-    decide,
-    reload,
-  } = useDailyMood(token, onUnauthorized);
-  const [lessonSkipped, setLessonSkipped] = useState(false);
+  const { today, error, loading, pending, record, reload } = useDailyMood(
+    token,
+    onUnauthorized,
+  );
   const [answeredNow, setAnsweredNow] = useState(false);
+  const { streak } = useStreak(token, onUnauthorized);
 
   async function answer(mood: MoodScale) {
     if (await record(mood)) setAnsweredNow(true);
@@ -88,21 +83,9 @@ export function DailyJourney({
       {/* Depois da resposta a pergunta sai da tela e levaria o h1 com ela. */}
       <h1 className="sr-only">Seu dia</h1>
       {today.mood !== null && isSuffering(today.mood) && (
-        <SupportPaths
-          lessonSkipped={lessonSkipped}
-          takeFocus={answeredNow}
-          onSkipLesson={() => setLessonSkipped(true)}
-          onResumeLesson={() => setLessonSkipped(false)}
-        />
+        <SupportPaths takeFocus={answeredNow} />
       )}
-      {!lessonSkipped && today.piece && (
-        <DailyCard
-          piece={today.piece}
-          answer={pieceAnswer}
-          pending={pending}
-          onDecide={(label) => void decide(today.piece!.id, label)}
-        />
-      )}
+      {streak && <WeeklyHarvestCard streak={streak} />}
       <PersonalSummary token={token} onUnauthorized={onUnauthorized} />
     </>
   );

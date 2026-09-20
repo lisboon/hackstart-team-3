@@ -59,6 +59,18 @@ function stubApi({
       );
     }
     if (pathname === "/me/summary") return Response.json(summary);
+    if (pathname === "/me/streak")
+      return Response.json({
+        currentStreak: 0,
+        longestStreak: 0,
+        week: Array.from({ length: 7 }, (_, i) => ({
+          date: ENTRY_DATE,
+          weekday: i,
+          state: "future",
+        })),
+        freezesAvailable: 1,
+        freezeApplied: false,
+      });
     return new Response("", { status: 404 });
   });
   vi.stubGlobal("fetch", fetch);
@@ -89,7 +101,7 @@ it("records the day with a single tap and never shows the scale", async () => {
     <MoodPrompt pending={false} error="" onSelect={onSelect} />,
   );
   expect(screen.getAllByRole("button")).toHaveLength(5);
-  await userEvent.click(screen.getByRole("button", { name: "Difícil" }));
+  await userEvent.click(screen.getByRole("button", { name: "Chuva" }));
   expect(onSelect).toHaveBeenCalledExactlyOnceWith(2);
   expect(container.textContent).not.toMatch(/[1-5]/);
   expect(screen.queryByRole("textbox")).toBeNull();
@@ -101,7 +113,7 @@ it("walking the scale with the keyboard records nothing", async () => {
   await userEvent.tab();
   await userEvent.tab();
   await userEvent.tab();
-  expect(screen.getByRole("button", { name: "Mais ou menos" })).toHaveFocus();
+  expect(screen.getByRole("button", { name: "Nublado" })).toHaveFocus();
   expect(onSelect).not.toHaveBeenCalled();
   await userEvent.keyboard("{Enter}");
   expect(onSelect).toHaveBeenCalledExactlyOnceWith(3);
@@ -149,7 +161,7 @@ it("asks the mood alone while the day has no answer", async () => {
   expect(
     await screen.findByRole("heading", {
       level: 1,
-      name: "Como você está hoje?",
+      name: "Como está o seu tempo hoje?",
     }),
   ).toBeInTheDocument();
   expect(screen.queryByText("Seu mês")).toBeNull();
@@ -159,7 +171,7 @@ it("sends the chosen level and opens the app", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Bem" }));
+  await userEvent.click(screen.getByRole("button", { name: "Sol entre nuvens" }));
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
   const post = fetch.mock.calls.find(([url]) =>
     String(url).endsWith("/me/today/mood"),
@@ -167,7 +179,7 @@ it("sends the chosen level and opens the app", async () => {
   expect(post?.[1]?.method).toBe("POST");
   expect(JSON.parse(String(post?.[1]?.body))).toEqual({ mood: 4 });
   expect(
-    screen.queryByRole("heading", { level: 1, name: "Como você está hoje?" }),
+    screen.queryByRole("heading", { level: 1, name: "Como está o seu tempo hoje?" }),
   ).toBeNull();
 });
 
@@ -197,7 +209,7 @@ it("moves focus to the welcome when it answers a tap", async () => {
   stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
+  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
   await waitFor(() =>
     expect(screen.getByRole("heading", { name: WELCOME })).toHaveFocus(),
   );
@@ -214,7 +226,7 @@ it("treats a day already answered as answered, not as an error", async () => {
   stubApi({ answered: false, moodStatus: 409 });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Muito difícil" }));
+  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
   expect(screen.queryByRole("alert")).toBeNull();
 });
@@ -223,7 +235,7 @@ it("records one answer even under a double tap", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  const option = screen.getByRole("button", { name: "Muito bem" });
+  const option = screen.getByRole("button", { name: "Sol" });
   await Promise.all([userEvent.click(option), userEvent.click(option)]);
   await screen.findByText("Seu mês");
   const posts = fetch.mock.calls.filter(([url]) =>

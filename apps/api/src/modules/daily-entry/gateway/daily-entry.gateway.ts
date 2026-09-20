@@ -34,6 +34,16 @@ export interface DailyEntryGateway {
     trx?: TransactionContext,
   ): Promise<Map<string, string>>;
 
+  /**
+   * As datas com registro da pessoa, em ordem crescente. É o que a ofensiva
+   * precisa: dias contam como presença por existirem, não pelo humor ou pela
+   * peça. Como todo recurso pessoal, exige dono e empresa juntos.
+   */
+  findEntryDates(
+    owner: DailyEntryOwner,
+    trx?: TransactionContext,
+  ): Promise<Date[]>;
+
   create(entry: DailyEntry, trx?: TransactionContext): Promise<void>;
 
   update(entry: DailyEntry, trx?: TransactionContext): Promise<void>;

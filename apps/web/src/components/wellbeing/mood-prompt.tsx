@@ -34,10 +34,10 @@ export function MoodPrompt({
   return (
     <Card aria-labelledby={id} className="min-h-[60vh] place-content-center">
       <h1 id={id} className="text-xl font-semibold tracking-tight md:text-2xl">
-        Como você está hoje?
+        Como está o seu tempo hoje?
       </h1>
       <p className="text-sm text-muted-foreground">
-        Um toque é suficiente. Nada além disso é perguntado.
+        Um toque é suficiente. Ninguém além de você vê esta resposta.
       </p>
       <div role="group" aria-labelledby={id} className="grid grid-cols-5 gap-2">
         {MOOD_LEVELS.map((level) => (
