@@ -24,7 +24,7 @@ const STATE_TEXT: Readonly<Record<WeekDayState, string>> = {
  */
 export function WeeklyHarvestCard({ streak }: { streak: Streak }) {
   return (
-    <section className="relative space-y-3.5 overflow-hidden rounded-3xl bg-primary p-4 text-primary-foreground shadow-md">
+    <section className="relative space-y-3.5 overflow-hidden rounded-2xl bg-primary p-4 text-primary-foreground shadow-md">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span aria-hidden className="text-sm">
