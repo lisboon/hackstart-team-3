@@ -92,7 +92,7 @@ export function DailyJourney({
       <PersonalSummary
         token={token}
         onUnauthorized={onUnauthorized}
-        className="rounded-none rounded-b-2xl"
+        className="rounded-none"
       />
     </>
   );
