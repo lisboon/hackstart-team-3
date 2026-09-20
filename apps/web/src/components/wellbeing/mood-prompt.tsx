@@ -149,7 +149,7 @@ export function MoodPrompt({
             aria-modal="true"
             aria-labelledby={titleId}
             onKeyDown={trap}
-            className="absolute inset-x-4 top-1/2 z-20 m-0 grid max-w-[calc(100%-2rem)] -translate-y-1/2 gap-3 rounded-2xl border border-border bg-card p-5 text-foreground shadow-xl"
+            className="absolute inset-x-0 bottom-0 z-20 m-0 grid w-full max-w-full gap-3 rounded-t-2xl border border-border bg-card p-5 text-foreground shadow-xl"
           >
             <h3
               id={titleId}
