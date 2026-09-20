@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import { Toaster } from "@/components/layout/toaster";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function RootLayout({
           }}
         />
         {children}
+        <Toaster />
         <ServiceWorkerRegistration />
       </body>
     </html>

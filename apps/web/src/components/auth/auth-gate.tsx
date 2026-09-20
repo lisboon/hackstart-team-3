@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
+import { toast } from "@/lib/toast";
 import type { AuthUser } from "@/services/auth/auth-service";
 import { LoginScreen } from "@/components/auth/login-screen";
 
@@ -14,8 +15,8 @@ import { LoginScreen } from "@/components/auth/login-screen";
  * O portão não desenha "Sair". Ele desenhava, no canto de toda tela logada, e
  * era o botão mais fácil de acertar por acidente num app que a pessoa abre em
  * cinco minutos de intervalo. Sair agora mora no fim de Perfil → Configurações,
- * com confirmação. `onUnauthorized` continua sendo o `logout`: 401 devolve à
- * tela de acesso sem pedir nada a ninguém.
+ * com confirmação. `onUnauthorized` é o `logout` mais um aviso: 401 devolve à
+ * tela de acesso sem pedir nada a ninguém, mas dizendo por quê.
  */
 export function AuthGate({
   children,
@@ -27,7 +28,18 @@ export function AuthGate({
   }) => ReactNode;
 }) {
   const { token, user, error, pending, signIn, logout } = useAuth();
+
+  /**
+   * O 401 chega aqui como `logout`. Sem o aviso a tela simplesmente volta
+   * a pedir e-mail e senha, e quem estava no meio de responder o dia acha
+   * que o aplicativo perdeu o que ela escreveu.
+   */
+  const onUnauthorized = useCallback(() => {
+    logout();
+    toast.warning("Sua sessão expirou", "Entre de novo para continuar.");
+  }, [logout]);
+
   if (!token)
     return <LoginScreen onSubmit={signIn} pending={pending} error={error} />;
-  return <>{children({ token, user, onUnauthorized: logout })}</>;
+  return <>{children({ token, user, onUnauthorized })}</>;
 }
