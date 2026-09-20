@@ -14,15 +14,15 @@ import { SupportChannels } from "./support-channels";
  * desorientar quem não pediu nada.
  */
 export function SupportPaths({
-  lessonSkipped,
+  lessonSkipped = false,
   takeFocus,
   onSkipLesson,
   onResumeLesson,
 }: {
-  lessonSkipped: boolean;
+  lessonSkipped?: boolean;
   takeFocus: boolean;
-  onSkipLesson: () => void;
-  onResumeLesson: () => void;
+  onSkipLesson?: () => void;
+  onResumeLesson?: () => void;
 }) {
   const id = useId();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -30,6 +30,10 @@ export function SupportPaths({
   useEffect(() => {
     if (takeFocus) heading.current?.focus();
   }, [takeFocus]);
+
+  // Sem lição na tela (a peça vive na trilha, não na Home), não há o que pular:
+  // o acolhimento aparece só com os canais de apoio.
+  const hasLessonToggle = Boolean(onSkipLesson && onResumeLesson);
 
   return (
     <Card aria-labelledby={id}>
@@ -44,28 +48,29 @@ export function SupportPaths({
       <p className="text-sm text-muted-foreground">
         Obrigado por dizer. Você não precisa explicar nada.
       </p>
-      {lessonSkipped ? (
-        <div className="grid gap-2">
-          <p className="text-sm">Combinado: hoje sem lição.</p>
+      {hasLessonToggle &&
+        (lessonSkipped ? (
+          <div className="grid gap-2">
+            <p className="text-sm">Combinado: hoje sem lição.</p>
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full sm:w-auto sm:justify-self-start"
+              onClick={onResumeLesson}
+            >
+              Mudei de ideia
+            </Button>
+          </div>
+        ) : (
           <Button
             type="button"
             variant="secondary"
             className="w-full sm:w-auto sm:justify-self-start"
-            onClick={onResumeLesson}
+            onClick={onSkipLesson}
           >
-            Mudei de ideia
+            Pular a lição de hoje
           </Button>
-        </div>
-      ) : (
-        <Button
-          type="button"
-          variant="secondary"
-          className="w-full sm:w-auto sm:justify-self-start"
-          onClick={onSkipLesson}
-        >
-          Pular a lição de hoje
-        </Button>
-      )}
+        ))}
       <div className="grid gap-3">
         <SupportChannels />
       </div>

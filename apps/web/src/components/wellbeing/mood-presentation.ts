@@ -2,18 +2,20 @@ import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
  * Cinco níveis, um toque. O número é o valor do contrato, de 1 a 5 com 1 no
- * pior; a tela mostra só emoji e palavra.
+ * pior. A metáfora é o tempo, não a carinha (base: stitch/home.html): o clima
+ * descreve o dia sem pedir que a pessoa se classifique nem a acusar. A tela
+ * mostra o ícone do tempo e a palavra.
  */
 export const MOOD_LEVELS: readonly {
   value: MoodScale;
   emoji: string;
   label: string;
 }[] = [
-  { value: 1, emoji: "😞", label: "Muito difícil" },
-  { value: 2, emoji: "😕", label: "Difícil" },
-  { value: 3, emoji: "😐", label: "Mais ou menos" },
-  { value: 4, emoji: "🙂", label: "Bem" },
-  { value: 5, emoji: "😄", label: "Muito bem" },
+  { value: 1, emoji: "⛈️", label: "Tempestade" },
+  { value: 2, emoji: "🌧️", label: "Chuva" },
+  { value: 3, emoji: "☁️", label: "Nublado" },
+  { value: 4, emoji: "🌤️", label: "Sol entre nuvens" },
+  { value: 5, emoji: "☀️", label: "Sol" },
 ];
 
 export function moodLabel(mood: MoodScale): string {
