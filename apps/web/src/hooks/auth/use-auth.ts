@@ -21,11 +21,18 @@ const USER_KEY = "colheita_user";
  * sair numa tela deixaria a barra de navegação acesa até alguém remontar a
  * árvore — o que navegar com `next/link` não faz.
  *
- * O snapshot lê o `sessionStorage` a cada chamada em vez de guardar o valor:
- * assim a sessão que o teste escreve direto no storage, ou que outra aba
- * encerra, é vista sem depender de ninguém avisar.
+ * Enquanto o `sessionStorage` aceita guardar, ele é a fonte: é o que faz a
+ * sessão sobreviver ao refresh e o que permite ao teste escrever direto nele.
+ * Quando ele recusa — aba privada, política da empresa, cota estourada — a
+ * sessão passa a viver em memória, e só aí o espelho abaixo é lido. Sem isso o
+ * login falha calado: a escrita morre no `catch`, o snapshot relê o storage
+ * vazio, e a pessoa fica na tela de entrada sem sessão e sem erro.
  */
 const listeners = new Set<() => void>();
+
+let memoryOnly = false;
+let memoryToken = "";
+let memoryUser: AuthUser | null = null;
 
 function subscribe(onChange: () => void) {
   listeners.add(onChange);
@@ -42,16 +49,17 @@ function readKey(key: string): string | null {
   try {
     return typeof window === "undefined" ? null : sessionStorage.getItem(key);
   } catch {
-    // Navegador com storage bloqueado: a sessão vale só para esta página.
     return null;
   }
 }
 
-function writeKey(key: string, value: string) {
+/** Devolve se ficou guardado, porque é isso que decide qual é a fonte. */
+function writeKey(key: string, value: string): boolean {
   try {
     sessionStorage.setItem(key, value);
+    return true;
   } catch {
-    // Sem storage o login ainda funciona; só não sobrevive ao refresh.
+    return false;
   }
 }
 
@@ -65,6 +73,7 @@ function clearKeys() {
 }
 
 function tokenSnapshot(): string {
+  if (memoryOnly) return memoryToken;
   return readKey(TOKEN_KEY) ?? "";
 }
 
@@ -77,6 +86,7 @@ let parsedFrom: string | null = null;
 let parsedUser: AuthUser | null = null;
 
 function userSnapshot(): AuthUser | null {
+  if (memoryOnly) return memoryUser;
   const raw = readKey(USER_KEY);
   if (raw !== parsedFrom) {
     parsedFrom = raw;
@@ -98,11 +108,7 @@ const notHydrated = () => false;
 export function useAuth() {
   const token = useSyncExternalStore(subscribe, tokenSnapshot, noToken);
   const user = useSyncExternalStore(subscribe, userSnapshot, noUser);
-  const isInitialized = useSyncExternalStore(
-    subscribe,
-    hydrated,
-    notHydrated,
-  );
+  const isInitialized = useSyncExternalStore(subscribe, hydrated, notHydrated);
 
   // Erro e "em andamento" são da tentativa de login desta tela, não da sessão:
   // duas árvores não deveriam herdar a mensagem de erro uma da outra.
@@ -123,6 +129,9 @@ export function useAuth() {
     active.current = null;
     setError("");
     setPending(false);
+    memoryOnly = false;
+    memoryToken = "";
+    memoryUser = null;
     clearKeys();
     announce();
   }, []);
@@ -136,8 +145,14 @@ export function useAuth() {
     try {
       const session = await login(values, controller.signal);
       if (active.current === controller) {
-        writeKey(TOKEN_KEY, session.accessToken);
-        writeKey(USER_KEY, JSON.stringify(session.user));
+        // A bandeira vale só para a tentativa mais recente, entao um navegador
+        // que volta a aceitar storage volta a ser a fonte sem ninguem intervir.
+        memoryOnly = !(
+          writeKey(TOKEN_KEY, session.accessToken) &&
+          writeKey(USER_KEY, JSON.stringify(session.user))
+        );
+        memoryToken = session.accessToken;
+        memoryUser = session.user;
         announce();
       }
     } catch (cause) {
