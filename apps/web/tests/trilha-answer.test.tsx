@@ -2,8 +2,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+// O mock cobre o modulo inteiro: um componente novo na arvore que chame
+// `useRouter` quebraria aqui, longe de onde foi escrito.
 vi.mock("next/navigation", () => ({
   usePathname: () => "/trilha",
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 import TrilhaPage from "@/app/trilha/page";

@@ -5,8 +5,12 @@ import { TabBar } from "@/components/layout/tab-bar";
 import { ICON_STROKE } from "@/components/ui/icon";
 
 const pathname = vi.hoisted(() => ({ current: "/" }));
+// O mock cobre o modulo inteiro: um componente novo na arvore que chame
+// `useRouter` quebraria aqui, longe de onde foi escrito.
 vi.mock("next/navigation", () => ({
   usePathname: () => pathname.current,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 function signedIn() {

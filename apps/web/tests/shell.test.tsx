@@ -77,7 +77,7 @@ describe("AppShell", () => {
     expect(container.querySelector(".overflow-y-auto")).toBeInTheDocument();
   });
 
-  it("is a phone below md and a web page above it", () => {
+  it("is the same phone frame at every width", () => {
     const { container } = render(
       <AppShell>
         <p>conteudo</p>
@@ -88,11 +88,9 @@ describe("AppShell", () => {
     // No celular: largura de aparelho e rolagem presa dentro da moldura.
     expect(frame?.className).toMatch(/max-w-\[393px\]/);
     expect(frame?.className).toMatch(/\bh-\[100dvh\]/);
-    // No desktop: sem teto de aparelho, altura livre, rolagem da propria
-    // pagina, e nenhuma moldura. Quem quiser ver o celular abre o modo
-    // dispositivo do navegador.
-    expect(frame?.className).toMatch(/md:max-w-none/);
-    expect(frame?.className).toMatch(/md:h-auto/);
-    expect(frame?.className).not.toMatch(/md:rounded/);
+    // O app do trabalhador e de celular em qualquer largura. Um `md:`
+    // aqui significa uma segunda forma para manter, e ja foi tentada
+    // duas vezes.
+    expect(frame?.className).not.toMatch(/\bmd:/);
   });
 });
