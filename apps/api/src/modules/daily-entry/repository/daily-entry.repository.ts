@@ -90,6 +90,7 @@ export default class DailyEntryRepository implements DailyEntryGateway {
         entryDate: entry.entryDate,
         mood: entry.mood,
         moodDeclared: entry.moodDeclared,
+        note: entry.note ?? null,
         active: entry.active,
         createdAt: entry.createdAt,
         updatedAt: entry.updatedAt,
@@ -103,6 +104,7 @@ export default class DailyEntryRepository implements DailyEntryGateway {
       data: {
         mood: entry.mood,
         moodDeclared: entry.moodDeclared,
+        note: entry.note ?? null,
         contentPieceId: entry.contentPieceId,
         answer: entry.answer,
         comprehended: entry.comprehended,

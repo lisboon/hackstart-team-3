@@ -4,6 +4,8 @@ import { CoopsStage } from "@/modules/@shared/domain/enums";
 export class DailyMoodResponseDto {
   entryDate: Date;
   mood: number;
+  /** Nota pessoal opcional (#91). `null` quando a pessoa não especificou. */
+  note: string | null;
 }
 
 export class TodayPieceOptionDto {
@@ -33,6 +35,11 @@ export class TodayEntryResponseDto {
   /** Quando false, a tela mostra so a pergunta de humor. */
   answered: boolean;
   mood: number | null;
+  /**
+   * A nota pessoal do humor de hoje (#91), quando a pessoa a escreveu. É dado
+   * da própria sessão: nunca sai daqui para o painel do gestor.
+   */
+  note: string | null;
   pieceAnswered: boolean;
   piece: TodayPieceDto | null;
   /**

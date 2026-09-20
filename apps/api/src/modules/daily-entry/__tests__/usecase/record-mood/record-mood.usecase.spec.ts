@@ -45,6 +45,37 @@ describe("RecordMoodUseCase", () => {
     expect(output.entryDate.toISOString()).toBe("2026-09-19T00:00:00.000Z");
   });
 
+  it("persists the optional note on a new entry and echoes it back", async () => {
+    const gateway = gatewayWith(null);
+
+    const output = await new RecordMoodUseCase(
+      gateway,
+      alwaysOpenUnit(),
+    ).execute({
+      userId,
+      companyId,
+      entryDate: lateInTheDay,
+      mood: 2,
+      note: "  Ansioso com as contas.  ",
+    });
+
+    expect(gateway.create).toHaveBeenCalledTimes(1);
+    const created = (gateway.create as jest.Mock).mock.calls[0][0] as DailyEntry;
+    expect(created.note).toBe("Ansioso com as contas.");
+    expect(output.note).toBe("Ansioso com as contas.");
+  });
+
+  it("records a mood without a note as null, never undefined", async () => {
+    const gateway = gatewayWith(null);
+
+    const output = await new RecordMoodUseCase(
+      gateway,
+      alwaysOpenUnit(),
+    ).execute({ userId, companyId, entryDate: lateInTheDay, mood: 4 });
+
+    expect(output.note).toBeNull();
+  });
+
   it("refuses a second answer on the same day once the mood was declared", async () => {
     const existing = DailyEntry.create({
       userId,
@@ -86,13 +117,16 @@ describe("RecordMoodUseCase", () => {
       companyId,
       entryDate: lateInTheDay,
       mood: 5,
+      note: "Melhorou depois de organizar.",
     });
 
     expect(gateway.update).toHaveBeenCalledTimes(1);
     expect(gateway.create).not.toHaveBeenCalled();
     expect(automatic.mood).toBe(5);
     expect(automatic.moodDeclared).toBe(true);
+    expect(automatic.note).toBe("Melhorou depois de organizar.");
     expect(output.mood).toBe(5);
+    expect(output.note).toBe("Melhorou depois de organizar.");
   });
 
   it("looks the day up by owner, never by user alone", async () => {

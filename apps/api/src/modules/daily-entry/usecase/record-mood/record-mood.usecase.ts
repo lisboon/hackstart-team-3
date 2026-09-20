@@ -54,15 +54,25 @@ export default class RecordMoodUseCase implements RecordMoodUseCaseInterface {
         throw new ConflictError("Today is already answered");
       }
       // O humor era automático (a colheita abriu o dia). Agora a pessoa
-      // declara de verdade: o real sobrescreve o neutro e passa a contar.
-      existing.changeMood(data.mood);
+      // declara de verdade: o real sobrescreve o neutro e passa a contar. A
+      // nota opcional acompanha essa declaração.
+      existing.changeMood(data.mood, data.note);
       await this.dailyEntryGateway.update(existing);
-      return { entryDate: existing.entryDate, mood: existing.mood };
+      return {
+        entryDate: existing.entryDate,
+        mood: existing.mood,
+        note: existing.note ?? null,
+      };
     }
 
-    const entry = DailyEntry.create({ ...owner, entryDate, mood: data.mood });
+    const entry = DailyEntry.create({
+      ...owner,
+      entryDate,
+      mood: data.mood,
+      note: data.note,
+    });
     await this.dailyEntryGateway.create(entry);
 
-    return { entryDate: entry.entryDate, mood: entry.mood };
+    return { entryDate: entry.entryDate, mood: entry.mood, note: entry.note ?? null };
   }
 }

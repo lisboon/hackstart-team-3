@@ -12,3 +12,10 @@ export const HIGHEST_MOOD = 5;
  * declaração, e é sobrescrito pelo humor real (ver `moodDeclared`).
  */
 export const NEUTRAL_MOOD = 3;
+
+/**
+ * Tamanho máximo da nota opcional que acompanha o humor (#91). O texto é livre
+ * e pessoal; o limite existe só para caber num campo e proteger o banco de
+ * envios abusivos, não para restringir o desabafo.
+ */
+export const MAX_MOOD_NOTE_LENGTH = 500;

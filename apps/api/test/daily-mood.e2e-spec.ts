@@ -112,11 +112,18 @@ describe("Daily mood (e2e)", () => {
     const response = await request(app.getHttpServer())
       .post("/me/today/mood")
       .set("Authorization", `Bearer ${workerToken}`)
-      .send({ mood: 2 })
+      .send({ mood: 2, note: "  Semana pesada no trabalho.  " })
       .expect(201);
 
     expect(response.body.mood).toBe(2);
     expect(response.body.entryDate).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00/);
+    // A nota volta aparada e é dado da própria pessoa.
+    expect(response.body.note).toBe("Semana pesada no trabalho.");
+
+    const stored = await prisma.dailyEntry.findFirst({
+      where: { companyId, mood: 2 },
+    });
+    expect(stored?.note).toBe("Semana pesada no trabalho.");
   });
 
   it("refuses a second answer on the same day", async () => {
@@ -191,7 +198,11 @@ describe("Daily mood (e2e)", () => {
       .get("/me/today")
       .set("Authorization", `Bearer ${workerToken}`)
       .expect(200);
-    expect(answered.body).toMatchObject({ answered: true, mood: 2 });
+    expect(answered.body).toMatchObject({
+      answered: true,
+      mood: 2,
+      note: "Semana pesada no trabalho.",
+    });
 
     const untouched = await request(app.getHttpServer())
       .get("/me/today")
