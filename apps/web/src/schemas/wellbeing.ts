@@ -45,14 +45,12 @@ export type ContentPiece = z.infer<typeof contentPieceSchema>;
  * `piece` vem `null` enquanto o humor não abrir o dia, e depois que a peça já
  * foi respondida — a diária termina, não se repete.
  */
-export const journeyWindowSchema = z.object({
+const journeyWindowSchema = z.object({
   open: z.boolean(),
   /** A abertura vigente, se aberta; a próxima, se fechada. */
   opensAt: z.iso.datetime(),
   closesAt: z.iso.datetime(),
 });
-
-export type JourneyWindow = z.infer<typeof journeyWindowSchema>;
 
 export const dailyEntrySchema = z.object({
   entryDate: z.iso.datetime(),
