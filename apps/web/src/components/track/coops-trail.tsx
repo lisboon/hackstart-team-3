@@ -51,13 +51,9 @@ export function CoopsTrail({ data }: { data: TrackResponse }) {
       state = "lock";
     }
 
-    // Identidade:
-    // done: border-accent text-accent
-    // now: bg-foreground border-foreground text-background
-    // lock: text-muted-foreground bg-background border-muted/30
     const coreClass =
       state === "done"
-        ? "border-accent text-accent"
+        ? "border-primary text-primary"
         : state === "now"
           ? "bg-foreground border-foreground text-background"
           : "border-muted-foreground/30 text-muted-foreground bg-background";

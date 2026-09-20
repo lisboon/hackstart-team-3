@@ -1,17 +1,20 @@
-import { type TrackResponse } from "@/schemas/track";
+import { requestJson } from "@/lib/http/client";
+import { trackResponseSchema, type TrackResponse } from "@/schemas/track";
 
+/**
+ * O progresso é de quem pede: a rota sai da sessão e não recebe usuário por
+ * parâmetro, como todo recurso pessoal.
+ */
 export async function fetchTrack(
-  _token: string,
-  _signal?: AbortSignal,
+  token: string,
+  signal: AbortSignal,
 ): Promise<TrackResponse> {
-  // TODO: Use requestJson("/me/track") once API is ready (issue #43)
-  return {
-    stages: [
-      { stage: "CONSCIENTIZAR", total: 6, answered: 6 },
-      { stage: "OBSERVAR", total: 6, answered: 6 },
-      { stage: "ORGANIZAR", total: 6, answered: 6 },
-      { stage: "PREPARAR", total: 6, answered: 4 },
-      { stage: "SUSTENTAR", total: 0, answered: 0 },
-    ],
-  };
+  const result = await requestJson("/me/track", {
+    method: "GET",
+    signal,
+    headers: { authorization: `Bearer ${token}` },
+  });
+  const track = trackResponseSchema.safeParse(result);
+  if (!track.success) throw new Error("O serviço retornou uma trilha inválida.");
+  return track.data;
 }
