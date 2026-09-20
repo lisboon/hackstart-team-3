@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useCallback } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
+import { toast } from "@/lib/toast";
 import type { AuthUser } from "@/services/auth/auth-service";
 import { LoginScreen } from "@/components/auth/login-screen";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,16 @@ export function AuthGate({
   }) => ReactNode;
 }) {
   const { token, user, error, pending, signIn, logout } = useAuth();
+
+  /**
+   * O 401 chega aqui como `logout`. Sem o aviso a tela simplesmente volta
+   * a pedir e-mail e senha, e quem estava no meio de responder o dia acha
+   * que o aplicativo perdeu o que ela escreveu.
+   */
+  const onUnauthorized = useCallback(() => {
+    logout();
+    toast.warning("Sua sessão expirou", "Entre de novo para continuar.");
+  }, [logout]);
   if (!token)
     return (
       <LoginScreen onSubmit={signIn} pending={pending} error={error} />
@@ -36,7 +48,7 @@ export function AuthGate({
       >
         Sair
       </Button>
-      {children({ token, user, onUnauthorized: logout })}
+      {children({ token, user, onUnauthorized })}
     </div>
   );
 }

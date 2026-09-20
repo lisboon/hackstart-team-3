@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { login, type AuthUser } from "@/services/auth/auth-service";
 import type { LoginValues } from "@/schemas/auth";
+import { toast } from "@/lib/toast";
 
 export function useAuth() {
   const [token, setToken] = useState(() => {
@@ -81,10 +82,14 @@ export function useAuth() {
         }
       }
     } catch (cause) {
-      if (active.current === controller && !controller.signal.aborted)
-        setError(
-          cause instanceof Error ? cause.message : "Falha ao autenticar.",
-        );
+      if (active.current === controller && !controller.signal.aborted) {
+        const message =
+          cause instanceof Error ? cause.message : "Falha ao autenticar.";
+        setError(message);
+        // O erro fica no formulário, que é o que um leitor de tela anuncia, e
+        // sobe em toast para quem está olhando o botão em vez do campo.
+        toast.error("Não foi possível entrar", message);
+      }
     } finally {
       if (active.current === controller) {
         active.current = null;

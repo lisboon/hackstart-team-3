@@ -14,6 +14,7 @@
   --color-destructive: var(--destructive);
   --color-brand: var(--brand);
   --color-shell: var(--shell);
+  --color-warning: var(--warning);
 }
 :root {
   color-scheme: light;
@@ -40,6 +41,10 @@
   /* Entorno da moldura no desktop. Precisa destoar do fundo do app, senão
      sobra um retângulo branco sobre branco e o aparelho some. */
   --shell: #dfe6dc;
+  /* Ambar do aviso. Nao existe verde que sirva: o verde do produto significa
+     que deu certo. 6.16:1 sobre o cartao claro, entao serve de letra tambem
+     se algum dia precisar. */
+  --warning: #8a5112;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -55,27 +60,33 @@
     --border: #5d7c52;
     --destructive: #ff9b84;
     --shell: #060d05;
+    --warning: #f5c56a;
   }
 }
+/* Mesma paleta do bloco acima, e tem de continuar sendo.
+   `.dark` e a escolha explicita e a media query e a preferencia do sistema; se
+   divergirem, a mesma pessoa ve dois aplicativos diferentes conforme tenha
+   tocado no alternador ou nao. */
 :root.dark {
   color-scheme: dark;
-  --background: #07100f;
-  --foreground: #f3f7f5;
-  --card: #101b19;
-  --primary: #9ef5c5;
-  --primary-foreground: #07100f;
-  --muted: #162521;
-  --muted-foreground: #acbdb7;
-  /* Visual boundary of inputs, cards and selectable options. WCAG 2.1 AA asks
-     for 3:1 on that outline (SC 1.4.11); the previous value scored 2.03:1 over
-     --card. tests/contrast.test.mjs guards the palette. */
-  --border: #54786a;
-  --destructive: #ffaaaa;
-  /* Âmbar dos marcos de trajetória — o de prestígio. Usado como acento (ponto e
-     anel), nunca como único indicador de estado: o marco também diz "Conquistado"
-     ou "A caminho" em texto e apaga quando não veio. */
+  --background: #0c1608;
+  --foreground: #eff5ea;
+  --card: #16240f;
+  --primary: #6acc3a;
+  --primary-foreground: #08210c;
+  --brand: #6acc3a;
+  --muted: #1b2c15;
+  --muted-foreground: #9db096;
+  --border: #5d7c52;
+  --destructive: #ff9b84;
+  --shell: #060d05;
+  --warning: #f5c56a;
+  /* Ambar dos marcos de trajetoria, o de prestigio. Usado como acento (ponto e
+     anel), nunca como unico indicador: o marco tambem diz "Conquistado" ou
+     "A caminho" em texto. */
   --achievement-trajectory: #f5c56a;
 }
+
 body {
   margin: 0;
   background: var(--background);
@@ -129,6 +140,27 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-bounce-gentle {
+    animation: none;
+  }
+}
+
+/* Entrada do aviso: desliza de cima e aparece. Curta de proposito — o aviso
+   interrompe, entao quanto antes estiver legivel, melhor. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-toast-in {
+  animation: toast-in 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-toast-in {
     animation: none;
   }
 }

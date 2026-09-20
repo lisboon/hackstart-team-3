@@ -90,6 +90,11 @@ const NON_TEXT_PAIRS = [
   // option or mood button that is currently selected.
   ["primary", "background"],
   ["primary", "card"],
+  // Tom do aviso: icone e faixa da esquerda do toast. E indicador, nao letra —
+  // o titulo do toast fica sempre em --foreground justamente porque --brand
+  // reprova como texto sobre o cartao claro.
+  ["brand", "card"],
+  ["warning", "card"],
 ];
 
 test("text meets WCAG 2.1 AA contrast in both themes", () => {
