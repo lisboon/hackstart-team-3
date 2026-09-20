@@ -26,6 +26,7 @@ const enduring = () =>
   SavingsGoal.create({
     ...owner,
     kind: SavingsGoalKind.ENDURING,
+    targetAmountCents: 60000,
     targetMonths: 3,
     startMonth: month(2026, 6),
   });
@@ -60,6 +61,7 @@ describe("ExtendGoalUseCase", () => {
     const monthly = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.MONTHLY,
+      targetAmountCents: 60000,
       startMonth: month(2026, 8),
     });
 

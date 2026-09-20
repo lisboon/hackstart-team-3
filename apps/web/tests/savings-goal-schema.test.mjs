@@ -10,6 +10,8 @@ const goal = (overrides) => ({
   kind: "MONTHLY",
   status: "ACTIVE",
   startMonth: "2026-09-01T00:00:00.000Z",
+  targetAmountCents: 20000,
+  monthlyTargetCents: 20000,
   targetMonths: 1,
   monthsMet: 0,
   currentMonthMet: false,
@@ -33,12 +35,19 @@ test("aceita metas mensal e duradoura com progresso derivado", () => {
   assert.equal(parsed.goals[1].targetMonths, 6);
 });
 
-test("nunca há campo de valor em dinheiro no contrato", () => {
-  const parsed = goalsSchema.parse({ goals: [goal({})] });
-  const keys = Object.keys(parsed.goals[0]);
-  for (const forbidden of ["amount", "value", "money", "reais", "balance"]) {
-    assert.ok(!keys.includes(forbidden), `campo proibido: ${forbidden}`);
-  }
+test("a meta carrega o valor-alvo autodeclarado, em centavos (decisão #71)", () => {
+  const parsed = goalsSchema.parse({
+    goals: [goal({ targetAmountCents: 60000, monthlyTargetCents: 10000 })],
+  });
+  assert.equal(parsed.goals[0].targetAmountCents, 60000);
+  assert.equal(parsed.goals[0].monthlyTargetCents, 10000);
+});
+
+test("rejeita valor-alvo não positivo", () => {
+  assert.equal(
+    goalsSchema.safeParse({ goals: [goal({ targetAmountCents: 0 })] }).success,
+    false,
+  );
 });
 
 test("rejeita o que a tela não pode confiar", () => {
@@ -52,16 +61,16 @@ test("rejeita o que a tela não pode confiar", () => {
   }
 });
 
-test("a criação devolve targetMonths anulável (mensal não tem prazo)", () => {
-  assert.equal(
-    createdGoalSchema.parse({
-      id: "11111111-1111-4111-8111-111111111111",
-      kind: "MONTHLY",
-      targetMonths: null,
-      startMonth: "2026-09-01T00:00:00.000Z",
-    }).targetMonths,
-    null,
-  );
+test("a criação devolve o valor-alvo e targetMonths anulável (mensal não tem prazo)", () => {
+  const parsed = createdGoalSchema.parse({
+    id: "11111111-1111-4111-8111-111111111111",
+    kind: "MONTHLY",
+    targetAmountCents: 20000,
+    targetMonths: null,
+    startMonth: "2026-09-01T00:00:00.000Z",
+  });
+  assert.equal(parsed.targetMonths, null);
+  assert.equal(parsed.targetAmountCents, 20000);
 });
 
 test("uma lista vazia é válida", () => {

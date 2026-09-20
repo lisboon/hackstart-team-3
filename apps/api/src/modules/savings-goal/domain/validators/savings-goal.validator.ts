@@ -28,6 +28,16 @@ export class SavingsGoalRules {
   })
   kind: SavingsGoalKind;
 
+  @IsInt({
+    message: "Invalid targetAmountCents",
+    groups: ["create", "targetAmountCents", "update"],
+  })
+  @Min(1, {
+    message: "Invalid targetAmountCents",
+    groups: ["create", "targetAmountCents", "update"],
+  })
+  targetAmountCents: number;
+
   @IsOptional({ groups: ["create", "targetMonths", "update"] })
   @IsInt({
     message: "Invalid targetMonths",

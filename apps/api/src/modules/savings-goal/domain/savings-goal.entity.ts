@@ -14,6 +14,8 @@ export interface SavingsGoalProps {
   userId: string;
   companyId: string;
   kind: SavingsGoalKind;
+  /** Valor-alvo autodeclarado, em centavos. */
+  targetAmountCents: number;
   /** Só para ENDURING: por quantos meses manter a guarda. */
   targetMonths?: number;
   startMonth: Date;
@@ -34,6 +36,7 @@ export class SavingsGoal extends BaseEntity {
   private _userId: string;
   private _companyId: string;
   private _kind: SavingsGoalKind;
+  private _targetAmountCents: number;
   private _targetMonths: number | undefined;
   private _startMonth: Date;
   private _status: SavingsGoalStatus;
@@ -50,6 +53,7 @@ export class SavingsGoal extends BaseEntity {
     this._userId = props.userId;
     this._companyId = props.companyId;
     this._kind = props.kind;
+    this._targetAmountCents = props.targetAmountCents;
     this._targetMonths = props.targetMonths;
     this._startMonth = normalizeToMonthStart(props.startMonth);
     this._status = props.status ?? SavingsGoalStatus.ACTIVE;
@@ -66,6 +70,22 @@ export class SavingsGoal extends BaseEntity {
 
   get kind(): SavingsGoalKind {
     return this._kind;
+  }
+
+  get targetAmountCents(): number {
+    return this._targetAmountCents;
+  }
+
+  /**
+   * O alvo por mês, em centavos. No duradouro é o valor total dividido pelos
+   * meses (arredondado para o centavo); no mensal é o próprio valor. É o número
+   * que a tela mostra como "guarde ~R$ X por mês".
+   */
+  get monthlyTargetCents(): number {
+    if (this._kind === SavingsGoalKind.ENDURING && this._targetMonths) {
+      return Math.round(this._targetAmountCents / this._targetMonths);
+    }
+    return this._targetAmountCents;
   }
 
   get targetMonths(): number | undefined {
@@ -168,6 +188,7 @@ export class SavingsGoal extends BaseEntity {
       userId: this._userId,
       companyId: this._companyId,
       kind: this._kind,
+      targetAmountCents: this._targetAmountCents,
       targetMonths: this._targetMonths,
       startMonth: this._startMonth,
       status: this._status,

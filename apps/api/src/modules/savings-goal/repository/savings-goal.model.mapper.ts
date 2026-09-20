@@ -13,6 +13,7 @@ export class SavingsGoalModelMapper {
       userId: data.userId,
       companyId: data.companyId,
       kind: data.kind as SavingsGoalKind,
+      targetAmountCents: data.targetAmountCents,
       targetMonths: data.targetMonths ?? undefined,
       startMonth: data.startMonth,
       status: data.status as SavingsGoalStatus,

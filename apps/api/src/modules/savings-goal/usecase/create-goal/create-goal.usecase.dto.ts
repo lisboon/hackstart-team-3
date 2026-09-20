@@ -5,6 +5,8 @@ export interface CreateGoalUseCaseInputDto {
   userId: string;
   companyId: string;
   kind: SavingsGoalKind;
+  /** Valor-alvo autodeclarado, em centavos. */
+  targetAmountCents: number;
   /** Obrigatório para ENDURING; ausente para MONTHLY. */
   targetMonths?: number;
   /** O relógio do servidor decide o mês de início. */
@@ -14,6 +16,7 @@ export interface CreateGoalUseCaseInputDto {
 export interface CreateGoalUseCaseOutputDto {
   id: string;
   kind: SavingsGoalKind;
+  targetAmountCents: number;
   targetMonths: number | null;
   startMonth: Date;
 }

@@ -2,11 +2,13 @@
 
 import { Card } from "@/components/ui/card";
 import { ProgressRing } from "@/components/ui/progress-ring";
+import { formatCents } from "@/lib/money";
 import type { Goal } from "@/schemas/savings-goal";
 import { GoalEndOfTerm } from "./goal-end-of-term";
 
 /**
- * O cartão "Colheita" de uma meta. Sem cifra: o anel conta meses, não reais.
+ * O cartão "Colheita" de uma meta. O anel conta meses; o texto mostra o valor
+ * autodeclarado por mês (ver #71).
  *
  * - MONTHLY: a meta do mês, cheia quando o mês corrente fechou no azul.
  * - ENDURING: "X de N meses", com a meta mensal do mês decomposta em texto.
@@ -64,17 +66,26 @@ export function GoalCard({
                 {goal.monthsMet} de {goal.targetMonths} meses guardados
               </p>
               <p className="text-xs text-muted-foreground">
+                Alvo do mês: {formatCents(goal.monthlyTargetCents)} de{" "}
+                {formatCents(goal.targetAmountCents)} no total.
+              </p>
+              <p className="text-xs text-muted-foreground">
                 {goal.currentMonthMet
                   ? "Este mês já conta. Continue regando."
-                  : "A meta do mês é guardar algo — mesmo que pouco."}
+                  : "A meta do mês é guardar esse valor — no seu ritmo."}
               </p>
             </>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {met
-                ? "Você guardou algo este mês. Isso é a colheita."
-                : "A meta é guardar algo este mês — o valor importa menos que o hábito."}
-            </p>
+            <>
+              <p className="text-sm text-muted-foreground">
+                Alvo do mês: {formatCents(goal.monthlyTargetCents)}.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {met
+                  ? "Você fechou o mês no azul. Isso é a colheita."
+                  : "O valor é o que você definiu para guardar este mês."}
+              </p>
+            </>
           )}
         </div>
       </div>

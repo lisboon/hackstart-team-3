@@ -6,19 +6,25 @@ import {
 export class CreateGoalResponseDto {
   id: string;
   kind: SavingsGoalKind;
+  targetAmountCents: number;
   targetMonths: number | null;
   startMonth: Date;
 }
 
 /**
- * A meta com o progresso já derivado das declarações mensais. Sem cifra:
- * tudo aqui conta meses, nunca dinheiro.
+ * A meta com o progresso já derivado das declarações mensais. O valor-alvo é
+ * autodeclarado, em centavos; `monthlyTargetCents` é o alvo por mês (total ÷
+ * meses no duradouro). É privado — nunca vai ao painel do gestor.
  */
 export class GoalResponseDto {
   id: string;
   kind: SavingsGoalKind;
   status: SavingsGoalStatus;
   startMonth: Date;
+  /** Valor-alvo total autodeclarado, em centavos. */
+  targetAmountCents: number;
+  /** Alvo por mês, em centavos. */
+  monthlyTargetCents: number;
   /** 1 para MONTHLY, N para ENDURING. */
   targetMonths: number;
   /** Meses do prazo já cumpridos (sobrou ou deu exato). */

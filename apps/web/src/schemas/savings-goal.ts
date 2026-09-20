@@ -32,6 +32,10 @@ export const goalSchema = z.object({
   kind: savingsGoalKindSchema,
   status: savingsGoalStatusSchema,
   startMonth: z.iso.datetime(),
+  /** Valor-alvo total autodeclarado, em centavos. */
+  targetAmountCents: z.number().int().min(1),
+  /** Alvo por mês, em centavos (total ÷ meses no duradouro). */
+  monthlyTargetCents: z.number().int().min(1),
   targetMonths: z.number().int().min(1),
   monthsMet: z.number().int().min(0),
   currentMonthMet: z.boolean(),
@@ -50,6 +54,7 @@ export type Goals = z.infer<typeof goalsSchema>;
 export const createdGoalSchema = z.object({
   id: z.uuid(),
   kind: savingsGoalKindSchema,
+  targetAmountCents: z.number().int().min(1),
   targetMonths: z.number().int().nullable(),
   startMonth: z.iso.datetime(),
 });

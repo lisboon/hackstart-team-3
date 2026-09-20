@@ -67,6 +67,7 @@ export class SavingsGoalController {
       userId: session.userId,
       companyId: session.companyId,
       kind: body.kind,
+      targetAmountCents: body.targetAmountCents,
       targetMonths: body.targetMonths,
       today: new Date(),
     });

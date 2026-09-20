@@ -121,8 +121,10 @@ export function useGoals(token: string, onUnauthorized: () => void) {
   );
 
   const create = useCallback(
-    (kind: SavingsGoalKind, targetMonths?: number) =>
-      write((signal) => createGoal({ kind, targetMonths }, token, signal)),
+    (kind: SavingsGoalKind, targetAmountCents: number, targetMonths?: number) =>
+      write((signal) =>
+        createGoal({ kind, targetAmountCents, targetMonths }, token, signal),
+      ),
     [write, token],
   );
 

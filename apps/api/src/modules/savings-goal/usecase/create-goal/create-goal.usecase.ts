@@ -22,6 +22,7 @@ export default class CreateGoalUseCase implements CreateGoalUseCaseInterface {
       userId: data.userId,
       companyId: data.companyId,
       kind: data.kind,
+      targetAmountCents: data.targetAmountCents,
       targetMonths: data.targetMonths,
       startMonth,
     });
@@ -31,6 +32,7 @@ export default class CreateGoalUseCase implements CreateGoalUseCaseInterface {
     return {
       id: goal.id,
       kind: goal.kind,
+      targetAmountCents: goal.targetAmountCents,
       targetMonths: goal.targetMonths ?? null,
       startMonth: goal.startMonth,
     };

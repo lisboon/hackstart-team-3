@@ -51,6 +51,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.MONTHLY,
+      targetAmountCents: 60000,
       startMonth: month(2026, 8),
     });
     const goals = savingsGateway([goal]);
@@ -73,6 +74,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.MONTHLY,
+      targetAmountCents: 60000,
       startMonth: month(2026, 8),
     });
 
@@ -90,6 +92,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.ENDURING,
+      targetAmountCents: 60000,
       targetMonths: 6,
       startMonth: month(2026, 6),
     });
@@ -117,6 +120,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.ENDURING,
+      targetAmountCents: 60000,
       targetMonths: 2,
       startMonth: month(2026, 7),
     });
@@ -140,6 +144,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.ENDURING,
+      targetAmountCents: 60000,
       targetMonths: 2,
       startMonth: month(2026, 6),
     });
@@ -160,6 +165,7 @@ describe("GetGoalsUseCase", () => {
     const goal = SavingsGoal.create({
       ...owner,
       kind: SavingsGoalKind.MONTHLY,
+      targetAmountCents: 60000,
       startMonth: month(2026, 8),
     });
     const goals = savingsGateway([goal]);

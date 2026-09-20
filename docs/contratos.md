@@ -263,11 +263,13 @@ Nenhum `userId`, nenhum nome, nenhuma lista, nenhum humor individual, nenhuma de
 
 ## `POST /me/goals` · `GET /me/goals` · `PATCH /me/goals/:id`
 
-Metas de guarda pessoais. **Nenhum campo é dinheiro.** A meta mede intenção e
-hábito de guarda; o cumprimento de cada mês deriva da declaração mensal
+Metas de guarda pessoais. A meta tem um **valor-alvo autodeclarado**
+(`targetAmountCents`, em centavos): a pessoa define quanto quer guardar. É
+**autodeclarado e não verificado** — o produto não acessa conta, saldo nem
+extrato. O cumprimento de cada mês continua vindo da declaração mensal
 (`SelfReport`): o mês fecha "no azul" quando `situation` é `SURPLUS` ou
-`BREAK_EVEN`. Recurso estritamente pessoal — meta e motivo **nunca** vão ao
-painel do gestor.
+`BREAK_EVEN`, e o valor entra como o alvo exibido. Recurso estritamente pessoal
+— valor, meta e motivo **nunca** vão ao painel do gestor.
 
 Vários objetivos convivem: a pessoa pode ter uma mensal e uma duradoura ativas
 ao mesmo tempo.
@@ -275,18 +277,19 @@ ao mesmo tempo.
 ### `POST /me/goals` — cria a meta
 
 ```json
-{ "kind": "ENDURING", "targetMonths": 6 }
+{ "kind": "ENDURING", "targetAmountCents": 60000, "targetMonths": 6 }
 ```
 
 `kind` é `MONTHLY` (o mês) ou `ENDURING` (manter a guarda por N meses).
-`targetMonths` (2 a 36) é **obrigatório para `ENDURING` e proibido para
-`MONTHLY`** — o contrário é **422**. Mês de início e identidade saem da sessão
-e do relógio do servidor.
+`targetAmountCents` é o valor-alvo autodeclarado, em centavos, **> 0 e
+obrigatório**. `targetMonths` (2 a 36) é **obrigatório para `ENDURING` e
+proibido para `MONTHLY`** — o contrário é **422**. Mês de início e identidade
+saem da sessão e do relógio do servidor.
 
 **Response `201`**
 
 ```json
-{ "id": "...", "kind": "ENDURING", "targetMonths": 6, "startMonth": "2026-09-01T00:00:00.000Z" }
+{ "id": "...", "kind": "ENDURING", "targetAmountCents": 60000, "targetMonths": 6, "startMonth": "2026-09-01T00:00:00.000Z" }
 ```
 
 ### `GET /me/goals` — as metas da própria pessoa, com progresso derivado
@@ -299,6 +302,8 @@ e do relógio do servidor.
       "kind": "ENDURING",
       "status": "ACTIVE",
       "startMonth": "2026-06-01T00:00:00.000Z",
+      "targetAmountCents": 60000,
+      "monthlyTargetCents": 10000,
       "targetMonths": 6,
       "monthsMet": 2,
       "currentMonthMet": false,
@@ -311,6 +316,8 @@ e do relógio do servidor.
 | Campo | O quê |
 |---|---|
 | `status` | `ACTIVE`, `MET` (cumprida) ou `ENDED` (encerrada pela pessoa) |
+| `targetAmountCents` | valor-alvo total autodeclarado, em centavos |
+| `monthlyTargetCents` | alvo por mês: total ÷ meses no duradouro; o total no mensal |
 | `targetMonths` | 1 para `MONTHLY`, N para `ENDURING` |
 | `monthsMet` | meses do prazo que fecharam no azul |
 | `currentMonthMet` | se o mês corrente, dentro do prazo, já foi cumprido |

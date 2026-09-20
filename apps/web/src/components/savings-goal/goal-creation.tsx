@@ -1,34 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { parseReaisToCents } from "@/lib/money";
 import type { SavingsGoalKind } from "@/schemas/savings-goal";
 import { GOAL_KIND_LABEL } from "./savings-goal-presentation";
 
 const ENDURING_MONTHS = [3, 6, 12] as const;
 
 /**
- * Criação da meta: a pessoa escolhe o horizonte. MONTHLY não pede mais nada;
- * ENDURING pede por quantos meses. Sem cifra — nenhum campo de valor.
+ * Criação da meta: a pessoa escolhe o horizonte e o valor-alvo (em reais, que a
+ * tela converte para centavos). ENDURING pede também por quantos meses; o alvo
+ * mensal é o valor dividido pelos meses, mostrado no cartão.
  */
 export function GoalCreation({
   pending,
   onCreate,
 }: {
   pending: boolean;
-  onCreate: (kind: SavingsGoalKind, targetMonths?: number) => void;
+  onCreate: (
+    kind: SavingsGoalKind,
+    targetAmountCents: number,
+    targetMonths?: number,
+  ) => void;
 }) {
+  const amountId = useId();
   const [kind, setKind] = useState<SavingsGoalKind | null>(null);
   const [months, setMonths] = useState<number>(6);
+  const [amount, setAmount] = useState("");
+
+  const cents = parseReaisToCents(amount);
+  const canSubmit = Boolean(kind) && cents !== null;
 
   return (
     <Card aria-label="Nova meta de guarda">
       <h2 className="text-base font-semibold">Criar uma meta de guarda</h2>
       <p className="text-sm text-muted-foreground">
-        A meta é sobre o hábito de guardar, não sobre quanto. Escolha o
-        horizonte.
+        Escolha o horizonte e quanto quer guardar. É um valor que você define
+        para si — o app não acessa conta nem saldo.
       </p>
 
       <div role="group" aria-label="Tipo de meta" className="grid gap-2">
@@ -49,6 +60,25 @@ export function GoalCreation({
             {GOAL_KIND_LABEL[option]}
           </button>
         ))}
+      </div>
+
+      <div className="grid gap-1">
+        <label htmlFor={amountId} className="text-sm font-medium">
+          {kind === "ENDURING" ? "Quanto quer guardar no total?" : "Quanto quer guardar?"}
+        </label>
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring">
+          <span aria-hidden className="text-sm text-muted-foreground">
+            R$
+          </span>
+          <input
+            id={amountId}
+            inputMode="decimal"
+            placeholder="200,00"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            className="w-full bg-transparent text-sm outline-none"
+          />
+        </div>
       </div>
 
       {kind === "ENDURING" && (
@@ -78,11 +108,12 @@ export function GoalCreation({
 
       <Button
         type="button"
-        disabled={pending || !kind}
+        disabled={pending || !canSubmit}
         className="w-full sm:w-auto sm:justify-self-start"
         onClick={() =>
           kind &&
-          onCreate(kind, kind === "ENDURING" ? months : undefined)
+          cents !== null &&
+          onCreate(kind, cents, kind === "ENDURING" ? months : undefined)
         }
       >
         Criar meta

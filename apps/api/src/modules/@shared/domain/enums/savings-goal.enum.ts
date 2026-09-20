@@ -1,7 +1,7 @@
 /**
- * Dois horizontes de meta de guarda, escolhidos pela pessoa. Nenhum deles
- * carrega valor em dinheiro: a meta é sobre o hábito de guardar, não sobre
- * quanto se guardou.
+ * Dois horizontes de meta de guarda, escolhidos pela pessoa. Cada meta carrega
+ * um valor-alvo autodeclarado (#71); no duradouro, dividido pelos meses dá o
+ * alvo mensal.
  */
 export enum SavingsGoalKind {
   MONTHLY = "MONTHLY",

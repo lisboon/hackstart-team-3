@@ -46,6 +46,7 @@ export default class SavingsGoalRepository implements SavingsGoalGateway {
         userId: goal.userId,
         companyId: goal.companyId,
         kind: goal.kind,
+        targetAmountCents: goal.targetAmountCents,
         targetMonths: goal.targetMonths ?? null,
         startMonth: goal.startMonth,
         status: goal.status,

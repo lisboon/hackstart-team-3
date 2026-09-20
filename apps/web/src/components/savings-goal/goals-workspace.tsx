@@ -53,7 +53,7 @@ export function GoalsWorkspace({
         <Card>
           <p className="text-sm text-muted-foreground">
             Você ainda não tem uma meta. Uma meta é o objetivo por trás da
-            colheita — sem valor em dinheiro, só o hábito de guardar.
+            colheita — você define quanto quer guardar e em quanto tempo.
           </p>
         </Card>
       )}

@@ -29,7 +29,11 @@ export async function fetchGoals(
  * saem da sessão e do relógio do servidor. Nenhum valor em dinheiro.
  */
 export async function createGoal(
-  input: { kind: SavingsGoalKind; targetMonths?: number },
+  input: {
+    kind: SavingsGoalKind;
+    targetAmountCents: number;
+    targetMonths?: number;
+  },
   token: string,
   signal: AbortSignal,
 ): Promise<CreatedGoal> {

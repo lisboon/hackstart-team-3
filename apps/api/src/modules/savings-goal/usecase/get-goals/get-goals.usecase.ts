@@ -108,6 +108,8 @@ export default class GetGoalsUseCase implements GetGoalsUseCaseInterface {
       kind: goal.kind,
       status: goal.status,
       startMonth: goal.startMonth,
+      targetAmountCents: goal.targetAmountCents,
+      monthlyTargetCents: goal.monthlyTargetCents,
       targetMonths,
       monthsMet,
       currentMonthMet,

@@ -108,7 +108,7 @@ describe("Savings goals (e2e)", () => {
     await request(app.getHttpServer()).get("/me/goals").expect(401);
     await request(app.getHttpServer())
       .post("/me/goals")
-      .send({ kind: SavingsGoalKind.MONTHLY })
+      .send({ kind: SavingsGoalKind.MONTHLY, targetAmountCents: 20000 })
       .expect(401);
   });
 
@@ -128,7 +128,7 @@ describe("Savings goals (e2e)", () => {
     await request(app.getHttpServer())
       .post("/me/goals")
       .set("Authorization", `Bearer ${workerAToken}`)
-      .send({ kind: SavingsGoalKind.ENDURING })
+      .send({ kind: SavingsGoalKind.ENDURING, targetAmountCents: 60000 })
       .expect(422);
   });
 
@@ -136,7 +136,7 @@ describe("Savings goals (e2e)", () => {
     const created = await request(app.getHttpServer())
       .post("/me/goals")
       .set("Authorization", `Bearer ${workerAToken}`)
-      .send({ kind: SavingsGoalKind.MONTHLY })
+      .send({ kind: SavingsGoalKind.MONTHLY, targetAmountCents: 20000 })
       .expect(201);
     expect(created.body.kind).toBe(SavingsGoalKind.MONTHLY);
     expect(created.body.targetMonths).toBeNull();
@@ -168,9 +168,14 @@ describe("Savings goals (e2e)", () => {
     const created = await request(app.getHttpServer())
       .post("/me/goals")
       .set("Authorization", `Bearer ${workerAToken}`)
-      .send({ kind: SavingsGoalKind.ENDURING, targetMonths: 3 })
+      .send({
+        kind: SavingsGoalKind.ENDURING,
+        targetAmountCents: 60000,
+        targetMonths: 3,
+      })
       .expect(201);
     expect(created.body.targetMonths).toBe(3);
+    expect(created.body.targetAmountCents).toBe(60000);
 
     const listed = await goals(workerAToken).expect(200);
     const view = listed.body.goals.find(
@@ -178,6 +183,9 @@ describe("Savings goals (e2e)", () => {
     );
     expect(view.targetMonths).toBe(3);
     expect(view.monthsMet).toBeGreaterThanOrEqual(0);
+    // O alvo mensal é o total dividido pelos meses: 60000 / 3 = 20000.
+    expect(view.targetAmountCents).toBe(60000);
+    expect(view.monthlyTargetCents).toBe(20000);
 
     const extended = await request(app.getHttpServer())
       .patch(`/me/goals/${created.body.id}`)
@@ -191,7 +199,11 @@ describe("Savings goals (e2e)", () => {
     const created = await request(app.getHttpServer())
       .post("/me/goals")
       .set("Authorization", `Bearer ${workerAToken}`)
-      .send({ kind: SavingsGoalKind.ENDURING, targetMonths: 4 })
+      .send({
+        kind: SavingsGoalKind.ENDURING,
+        targetAmountCents: 60000,
+        targetMonths: 4,
+      })
       .expect(201);
 
     const ended = await request(app.getHttpServer())
@@ -216,7 +228,11 @@ describe("Savings goals (e2e)", () => {
     const created = await request(app.getHttpServer())
       .post("/me/goals")
       .set("Authorization", `Bearer ${workerAToken}`)
-      .send({ kind: SavingsGoalKind.ENDURING, targetMonths: 3 })
+      .send({
+        kind: SavingsGoalKind.ENDURING,
+        targetAmountCents: 60000,
+        targetMonths: 3,
+      })
       .expect(201);
 
     // A pessoa da empresa B não alcança a meta da empresa A: 404, não 200.

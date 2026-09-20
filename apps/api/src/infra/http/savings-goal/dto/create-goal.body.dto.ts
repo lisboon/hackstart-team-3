@@ -13,6 +13,11 @@ export class CreateGoalBodyDto {
   @IsEnum(SavingsGoalKind, { message: "Invalid kind" })
   kind: SavingsGoalKind;
 
+  /** Valor-alvo autodeclarado, em centavos (> 0). */
+  @IsInt({ message: "Invalid targetAmountCents" })
+  @Min(1, { message: "Invalid targetAmountCents" })
+  targetAmountCents: number;
+
   /** Obrigatório para ENDURING; proibido para MONTHLY (regra na entidade). */
   @IsOptional()
   @IsInt({ message: "Invalid targetMonths" })

@@ -13,6 +13,10 @@ export interface GoalView {
   kind: SavingsGoalKind;
   status: SavingsGoalStatus;
   startMonth: Date;
+  /** Valor-alvo total autodeclarado, em centavos. */
+  targetAmountCents: number;
+  /** Alvo por mês, em centavos: total ÷ meses no duradouro; o total no mensal. */
+  monthlyTargetCents: number;
   /** Total de meses do prazo: 1 para MONTHLY, N para ENDURING. */
   targetMonths: number;
   /** Meses do prazo já cumpridos (SURPLUS ou BREAK_EVEN). */
