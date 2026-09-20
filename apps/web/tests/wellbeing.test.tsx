@@ -17,11 +17,20 @@ const summary = {
   declaredMonths: 6,
 };
 
+// A janela aberta e o caso normal destes testes, que sao sobre humor e
+// colheita. O caso fechado tem o seu arquivo: tests/journey-window.test.tsx.
+const OPEN_WINDOW = {
+  open: true,
+  opensAt: "2026-09-21T11:30:00.000Z",
+  closesAt: "2026-09-21T22:00:00.000Z",
+};
+
 function stubApi({
   answered = false,
   mood = null as number | null,
   moodStatus = 201,
   piece = null as object | null,
+  window = OPEN_WINDOW,
 }) {
   const day = {
     entryDate: ENTRY_DATE,
@@ -29,6 +38,7 @@ function stubApi({
     mood,
     pieceAnswered: false,
     piece,
+    window,
   };
   const fetch = vi.fn(async (url: string, options: RequestInit = {}) => {
     const { pathname } = new URL(String(url));

@@ -8,6 +8,7 @@ import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { DailyCard } from "@/components/journey/daily-card";
+import { WindowClosed } from "@/components/journey/window-closed";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
 import type { MoodScale } from "@/schemas/wellbeing";
 
@@ -72,6 +73,12 @@ export function DailyJourney({
         </Button>
       </Card>
     ) : null;
+
+  // Fora do expediente a pergunta some, mas o resto da tela fica: o rodapé com
+  // o CVV, a barra de abas e a trilha continuam onde estavam. Fecha a escrita,
+  // não a porta.
+  if (!today.window.open)
+    return <WindowClosed opensAt={today.window.opensAt} />;
 
   if (!today.answered)
     return <MoodPrompt pending={pending} error={error} onSelect={answer} />;

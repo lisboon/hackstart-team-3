@@ -3,6 +3,11 @@ import { ContentPiece } from "@/modules/content-piece/domain/content-piece.entit
 import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-piece.gateway";
 import { DailyEntryGateway } from "../../gateway/daily-entry.gateway";
 import {
+  DEFAULT_JOURNEY_WINDOW,
+  JourneyWindow,
+  journeyWindowAt,
+} from "../../domain/journey-window";
+import {
   GetTodayEntryUseCaseInputDto,
   GetTodayEntryUseCaseInterface,
   GetTodayEntryUseCaseOutputDto,
@@ -13,6 +18,7 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
   constructor(
     private readonly dailyEntryGateway: DailyEntryGateway,
     private readonly contentPieceGateway: ContentPieceGateway,
+    private readonly window: JourneyWindow = DEFAULT_JOURNEY_WINDOW,
   ) {}
 
   async execute(
@@ -21,6 +27,9 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
     const owner = { userId: data.userId, companyId: data.companyId };
     const entryDate = normalizeToDayStart(data.today);
     const entry = await this.dailyEntryGateway.findByDate(owner, entryDate);
+    // A tela precisa do horario para mostrar "abre segunda, as 07:30" em vez de
+    // uma pergunta que o servidor vai recusar.
+    const window = journeyWindowAt(data.today, this.window);
 
     // "Respondido" é ter declarado o humor — não a entrada que a colheita
     // possa ter aberto automaticamente. Enquanto o humor for o neutro
@@ -33,6 +42,7 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
         mood: null,
         pieceAnswered: entry?.pieceAnswered ?? false,
         piece: null,
+        window,
       };
     }
 
@@ -48,6 +58,7 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
       mood: entry.mood,
       pieceAnswered: entry.pieceAnswered,
       piece: piece ? this.present(piece) : null,
+      window,
     };
   }
 

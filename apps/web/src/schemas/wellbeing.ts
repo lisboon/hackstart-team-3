@@ -45,12 +45,27 @@ export type ContentPiece = z.infer<typeof contentPieceSchema>;
  * `piece` vem `null` enquanto o humor não abrir o dia, e depois que a peça já
  * foi respondida — a diária termina, não se repete.
  */
+export const journeyWindowSchema = z.object({
+  open: z.boolean(),
+  /** A abertura vigente, se aberta; a próxima, se fechada. */
+  opensAt: z.iso.datetime(),
+  closesAt: z.iso.datetime(),
+});
+
+export type JourneyWindow = z.infer<typeof journeyWindowSchema>;
+
 export const dailyEntrySchema = z.object({
   entryDate: z.iso.datetime(),
   answered: z.boolean(),
   mood: moodScaleSchema.nullable(),
   pieceAnswered: z.boolean(),
   piece: contentPieceSchema.nullable(),
+  /**
+   * O horário de escrita da unidade. A tela lê daqui em vez de descobrir pelo
+   * 403: oferecer uma pergunta que o servidor vai recusar é pior que não
+   * oferecer.
+   */
+  window: journeyWindowSchema,
 });
 
 export type DailyEntry = z.infer<typeof dailyEntrySchema>;

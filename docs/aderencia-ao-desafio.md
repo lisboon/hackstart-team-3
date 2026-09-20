@@ -16,10 +16,11 @@ O desafio diz que o problema estará resolvido quando o público demonstrar maio
 | Decisões mais conscientes | A pessoa escolhe antes de ver o efeito; a consequência fica no servidor até a escolha |
 | Redução da percepção de sofrimento | Humor diário de 1 a 5 — `POST /me/today/mood`, agregado em `averageMood` |
 | Redução dos níveis de estresse financeiro | Declaração mensal em `SelfReport.situation`, agregada em `tightRatio` |
-| Maior utilização dos recursos de apoio | **Ainda não medido.** É a issue #46 |
+| Maior utilização dos recursos de apoio | `supportUses` — quantas aberturas de canal no período, sem saber de quem |
 | Número de pessoas atendidas | `reach` |
 | Adesão às ações propostas | `active` |
 | Frequência de utilização | `frequency` |
+| Uso dentro da jornada de trabalho | Janela de escrita da unidade, em `GET /me/today` |
 | Evolução dos resultados ao longo do tempo | `previous` |
 
 As quatro últimas saem de `GET /organizations/current/indicators`, documentado em [`contratos.md`](contratos.md). Os nomes coincidem com os do desafio porque o endpoint foi escrito a partir da página 3.
@@ -98,10 +99,21 @@ Desenho: quatro semanas, adesão voluntária, sem meta individual. O que se mede
 
 - **Não usa inteligência artificial.** Nenhuma tela chama modelo. Ver [`ia-e-limitacoes.md`](ia-e-limitacoes.md)
 - **Não acessa conta bancária.** Open Finance com consentimento é evolução possível, não promessa
-- **Não diagnostica** e não substitui atendimento profissional. O aviso e o CVV 188 ficam em toda rota
-- **Não mede ainda o uso dos recursos de apoio**, que é item do gabarito. É a issue #46
+- **Não diagnostica** e não substitui atendimento profissional. O aviso e o CVV 188 ficam no rodapé de toda tela autenticada, inclusive fora do horário da jornada
 - **Não mede estresse especificamente financeiro** no dia a dia: o humor diário é geral. A declaração mensal é que carrega a dimensão financeira
 - **Não promete conformidade** com NR-1 nem com qualquer norma
+
+### 3.1 A janela da jornada
+
+Registrar humor e responder à colheita acontecem **de segunda a sexta, das 07:30 às 18:00**, no fuso da unidade. Consultar o que já foi registrado, rever a trilha, entrar no app e alcançar o CVV 188 seguem disponíveis 24 horas.
+
+Isso não é limitação a contornar. O art. 4º da CLT conta como serviço efetivo o tempo em que a pessoa está à disposição do empregador, e a jurisprudência do TST já aplicou isso a aplicativo corporativo usado fora do expediente — vira hora extra, ou sobreaviso por analogia à Súmula 428. Pedir cinco minutos à noite num app de saúde ocupacional seria pedir trabalho não pago, e criar passivo para quem adotasse o produto.
+
+**O que a janela ainda não faz, e está declarado:**
+
+- **Feriado não é tratado.** Só dia da semana e hora. Feriado nacional e ponto facultativo abrem a janela normalmente
+- **Turno não é tratado.** A indústria roda turno da noite e sábado; esta janela atende o administrativo e o primeiro turno
+- **A janela é a mesma para todos.** Ela já é configuração — `JOURNEY_WINDOW_*` —, mas ainda não vem de `Company`. E a cooperativa é **Ouro Verde MT/PA**: Cuiabá é UTC−4 e Belém é UTC−3, então uma janela só já está uma hora deslocada para parte da área de atuação
 
 ## 4. Limites que a evidência impõe
 
@@ -120,4 +132,4 @@ corepack pnpm --dir apps/api test:e2e --runInBand
 corepack pnpm --dir apps/api build && corepack pnpm --dir apps/api test:openapi
 ```
 
-225 testes de API, 71 de web e 63 end-to-end. O CI roda os quatro trabalhos — `api`, `web`, `ai` e `smoke` — em todo pull request.
+259 testes de API, 176 de web mais 58 de contrato, e 83 end-to-end. O CI roda os quatro trabalhos — `api`, `web`, `ai` e `smoke` — em todo pull request.

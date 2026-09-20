@@ -23,6 +23,14 @@ services:
       - SEED_ADMIN_PASSWORD=${SEED_ADMIN_PASSWORD:-change-me-strong-password}
       - SEED_WORKER_EMAIL=${SEED_WORKER_EMAIL:-colaborador@backend.com.br}
       - SEED_WORKER_PASSWORD=${SEED_WORKER_PASSWORD:-change-me-strong-password}
+      # A janela de escrita da jornada. O padrao do codigo e a regra de verdade
+      # — segunda a sexta, 07:30 as 18:00 no fuso da unidade. Aqui ela abre nos
+      # sete dias para a demonstracao poder rodar num domingo; e a mesma chave
+      # que uma unidade com turno de sabado usaria.
+      - JOURNEY_WINDOW_ZONE=${JOURNEY_WINDOW_ZONE:-America/Cuiaba}
+      - JOURNEY_WINDOW_DAYS=${JOURNEY_WINDOW_DAYS:-0,1,2,3,4,5,6}
+      - JOURNEY_WINDOW_OPENS=${JOURNEY_WINDOW_OPENS:-07:30}
+      - JOURNEY_WINDOW_CLOSES=${JOURNEY_WINDOW_CLOSES:-18:00}
     env_file:
       - path: .env
         required: false

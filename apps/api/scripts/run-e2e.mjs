@@ -18,6 +18,13 @@ const testEnvironment = {
   JWT_SECRET:
     process.env.JWT_SECRET ?? "test-jwt-secret-not-for-production-0123456789",
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "1h",
+  // A janela da jornada fica aberta o tempo todo aqui. Um teste que so passa
+  // de segunda a sexta, entre 07:30 e 18:00, nao e um teste — e um relogio. A
+  // recusa fora da janela tem o seu caso proprio em daily-mood.e2e-spec.ts,
+  // que monta a janela fechada de proposito.
+  JOURNEY_WINDOW_DAYS: "0,1,2,3,4,5,6",
+  JOURNEY_WINDOW_OPENS: "00:00",
+  JOURNEY_WINDOW_CLOSES: "23:59",
 };
 
 const run = (command, args) => {

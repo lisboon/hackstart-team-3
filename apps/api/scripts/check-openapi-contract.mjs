@@ -44,6 +44,7 @@ try {
     "RecordMoodBodyDto",
     "DailyMoodResponseDto",
     "TodayEntryResponseDto",
+    "JourneyWindowResponseDto",
     "TrackResponseDto",
     "TrackStageResponseDto",
     "TodayPieceDto",
