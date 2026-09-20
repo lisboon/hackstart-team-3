@@ -132,6 +132,7 @@ export class DailyEntryController {
       companyId: session.companyId,
       entryDate: new Date(),
       mood: body.mood,
+      note: body.note,
     });
   }
 

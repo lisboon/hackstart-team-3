@@ -5,11 +5,13 @@ export interface RecordMoodUseCaseInputDto {
   companyId: string;
   entryDate: Date;
   mood: number;
+  note?: string;
 }
 
 export interface RecordMoodUseCaseOutputDto {
   entryDate: Date;
   mood: number;
+  note: string | null;
 }
 
 export type RecordMoodUseCaseInterface = BaseUseCase<

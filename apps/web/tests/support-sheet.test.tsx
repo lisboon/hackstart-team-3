@@ -1,21 +1,21 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SafetyFooter } from "@/components/layout/safety-footer";
+import { SupportSheet } from "@/components/wellbeing/support-sheet";
 
 afterEach(cleanup);
 
 function shell() {
-  return render(<SafetyFooter />);
+  return render(<SupportSheet />);
 }
 
 const trigger = () => screen.getByRole("button", { name: /apoio disponível/i });
 
 describe("aba de apoio", () => {
-  it("fica alcançável a partir do rodapé de segurança (no Perfil)", () => {
+  it("fica alcançável a partir do gatilho de apoio (no Perfil)", () => {
     shell();
 
-    // O gatilho vive no rodapé de segurança, que agora fica no Perfil.
+    // O gatilho de apoio vive no card do final do Perfil.
     expect(trigger()).toBeInTheDocument();
     expect(trigger()).toHaveAttribute("aria-expanded", "false");
   });
@@ -24,9 +24,9 @@ describe("aba de apoio", () => {
     shell();
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    // O CVV do rodapé continua único: dois links iguais confundiriam leitor de
-    // tela e derrubariam o portão do shell.
-    expect(screen.getAllByRole("link", { name: /CVV 188/ })).toHaveLength(1);
+    // O CVV saiu do rodapé: agora vive só dentro do painel de apoio (e no card
+    // do final do Perfil). Antes de abrir, não há link de CVV na tela.
+    expect(screen.queryAllByRole("link", { name: /CVV 188/ })).toHaveLength(0);
   });
 
   it("abre com os cinco caminhos, o gestor por último e o CVV", async () => {

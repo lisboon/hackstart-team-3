@@ -19,6 +19,7 @@ import {
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileMilestones } from "@/components/profile/profile-milestones";
 import { ProfileStats } from "@/components/profile/profile-stats";
+import { SupportPaths } from "@/components/wellbeing/support-paths";
 
 /**
  * Perfil: o retrato do que a pessoa já construiu. A ordem é deliberada —
@@ -106,6 +107,8 @@ export function ProfileView({
           <ProfileMilestones
             milestones={milestones(data.summary, data.track)}
           />
+          {/* O acolhimento vive no final do Perfil, sempre alcançável. */}
+          <SupportPaths />
         </>
       )}
     </div>

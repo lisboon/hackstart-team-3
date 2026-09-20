@@ -5,13 +5,10 @@ import { Card } from "@/components/ui/card";
 import { useDailyMood } from "@/hooks/wellbeing/use-daily-mood";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { MoodBadge } from "@/components/wellbeing/mood-badge";
-import { SupportPaths } from "@/components/wellbeing/support-paths";
-import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { WeeklyHarvestCard } from "@/components/streak/weekly-harvest-card";
 import { useStreak } from "@/hooks/streak/use-streak";
 import { WindowClosed } from "@/components/journey/window-closed";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
-import { useState } from "react";
 import type { MoodScale } from "@/schemas/wellbeing";
 
 /**
@@ -20,8 +17,9 @@ import type { MoodScale } from "@/schemas/wellbeing";
  * desabilitada (uma resposta por dia, sem correção). Abaixo dela vêm a ofensiva
  * da semana e o resumo pessoal, quando o dia está aberto.
  *
- * A peça do COOPS não vive aqui: ela é a trilha (`/trilha`), aberta ao tocar na
- * colheita.
+ * O acolhimento ("Hoje não precisa ser produtivo") não vive mais aqui: ele foi
+ * para o final do Perfil, sempre alcançável. A peça do COOPS também não: ela é
+ * a trilha (`/trilha`), aberta ao tocar na colheita.
  */
 export function DailyJourney({
   token,
@@ -34,11 +32,10 @@ export function DailyJourney({
     token,
     onUnauthorized,
   );
-  const [answeredNow, setAnsweredNow] = useState(false);
   const { streak } = useStreak(token, onUnauthorized);
 
-  async function answer(mood: MoodScale) {
-    if (await record(mood)) setAnsweredNow(true);
+  async function answer(mood: MoodScale, note?: string) {
+    await record(mood, note);
   }
 
   if (!today && loading)
@@ -85,12 +82,7 @@ export function DailyJourney({
       {today.answered && today.mood !== null ? (
         <MoodBadge mood={today.mood} />
       ) : (
-        <MoodPrompt pending={pending} error={error} onSelect={answer} />
-      )}
-      {/* O acolhimento só quando a pessoa declarou sofrimento (humor 1–2):
-          sem humor não há o que acolher. */}
-      {today.answered && today.mood !== null && isSuffering(today.mood) && (
-        <SupportPaths takeFocus={answeredNow} />
+        <MoodPrompt pending={pending} error={error} onConfirm={answer} />
       )}
       {/* Ofensiva e resumo não dependem do humor de hoje: aparecem sempre. */}
       {streak && <WeeklyHarvestCard streak={streak} />}

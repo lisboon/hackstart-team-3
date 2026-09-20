@@ -1,8 +1,16 @@
-import { IsInt, IsUUID, Max, Min } from "class-validator";
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  MaxLength,
+  IsUUID,
+  Max,
+  Min,
+} from "class-validator";
 import { Notification } from "@/modules/@shared/domain/entity/validators/notification";
 import { ClassValidatorFields } from "@/modules/@shared/domain/entity/validators/class-validator-fields";
 import type { DailyEntry } from "../daily-entry.entity";
-import { HIGHEST_MOOD, LOWEST_MOOD } from "../mood";
+import { HIGHEST_MOOD, LOWEST_MOOD, MAX_MOOD_NOTE_LENGTH } from "../mood";
 
 export class DailyEntryRules {
   @IsUUID("4", { message: "Invalid userId", groups: ["create", "userId"] })
@@ -24,6 +32,14 @@ export class DailyEntryRules {
     groups: ["create", "mood", "update"],
   })
   mood: number;
+
+  @IsOptional({ groups: ["create", "note", "update"] })
+  @IsString({ message: "Invalid note", groups: ["create", "note", "update"] })
+  @MaxLength(MAX_MOOD_NOTE_LENGTH, {
+    message: "Note is too long",
+    groups: ["create", "note", "update"],
+  })
+  note?: string;
 
   constructor(data: DailyEntry) {
     Object.assign(this, data.toJSON());

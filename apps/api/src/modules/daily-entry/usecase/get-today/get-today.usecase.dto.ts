@@ -22,6 +22,7 @@ export interface GetTodayEntryUseCaseOutputDto {
   entryDate: Date;
   answered: boolean;
   mood: number | null;
+  note: string | null;
   pieceAnswered: boolean;
   piece: TodayPieceDto | null;
   window: JourneyWindowState;

@@ -11,6 +11,7 @@ export interface DailyEntryProps {
   entryDate: Date;
   mood: number;
   moodDeclared?: boolean;
+  note?: string;
   contentPieceId?: string;
   answer?: string;
   comprehended?: boolean;
@@ -26,6 +27,7 @@ export class DailyEntry extends BaseEntity {
   private _entryDate: Date;
   private _mood: number;
   private _moodDeclared: boolean;
+  private _note: string | undefined;
   private _contentPieceId: string | undefined;
   private _answer: string | undefined;
   private _comprehended: boolean | undefined;
@@ -45,6 +47,7 @@ export class DailyEntry extends BaseEntity {
     // Sem informação em contrário, um humor é uma declaração. O automático é
     // criado explicitamente com `false`.
     this._moodDeclared = props.moodDeclared ?? true;
+    this._note = DailyEntry.normalizeNote(props.note);
     this._contentPieceId = props.contentPieceId;
     this._answer = props.answer;
     this._comprehended = props.comprehended;
@@ -68,6 +71,10 @@ export class DailyEntry extends BaseEntity {
 
   get moodDeclared(): boolean {
     return this._moodDeclared;
+  }
+
+  get note(): string | undefined {
+    return this._note;
   }
 
   get contentPieceId(): string | undefined {
@@ -110,17 +117,30 @@ export class DailyEntry extends BaseEntity {
    * A pessoa declara o humor. Marca `moodDeclared`, então sobrescrever depois
    * um humor automático é permitido, mas sobrescrever um já declarado não —
    * a decisão de bloquear a correção fica no caso de uso, que conhece o estado
-   * anterior.
+   * anterior. A nota é opcional e pessoal: só chega aqui quando a pessoa
+   * escolhe especificar o que está sentindo (#91).
    */
-  changeMood(mood: number): void {
+  changeMood(mood: number, note?: string): void {
     this._mood = mood;
     this._moodDeclared = true;
+    this._note = DailyEntry.normalizeNote(note);
     this.update();
     this.validate(["update"]);
 
     if (this.notification.hasErrors()) {
       throw new EntityValidationError(this.notification.toJSON());
     }
+  }
+
+  /**
+   * Texto vazio ou só espaços não é nota: vira `undefined`, e a coluna guarda
+   * `null`. O trim tira as bordas para o limite de tamanho valer sobre o
+   * conteúdo, não sobre a digitação.
+   */
+  private static normalizeNote(note?: string): string | undefined {
+    if (note === undefined || note === null) return undefined;
+    const trimmed = note.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
   }
 
   validate(fields?: string[]): void {
@@ -164,6 +184,7 @@ export class DailyEntry extends BaseEntity {
       entryDate: this._entryDate,
       mood: this._mood,
       moodDeclared: this._moodDeclared,
+      note: this._note,
       contentPieceId: this._contentPieceId,
       answer: this._answer,
       comprehended: this._comprehended,

@@ -188,6 +188,10 @@ model DailyEntry {
   entryDate      DateTime @map("entry_date") @db.Date
   mood           Int
   moodDeclared   Boolean  @default(true) @map("mood_declared")
+  /// Texto livre e opcional que a pessoa escreve ao declarar o humor ("quer
+  /// especificar mais o que está sentindo?"). Estritamente pessoal: só a
+  /// própria pessoa lê, nunca é agregado nem exposto ao painel do gestor.
+  note           String?
   contentPieceId String?  @map("content_piece_id")
   answer         String?
   comprehended   Boolean?

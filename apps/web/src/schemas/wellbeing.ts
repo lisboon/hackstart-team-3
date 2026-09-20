@@ -56,6 +56,11 @@ export const dailyEntrySchema = z.object({
   entryDate: z.iso.datetime(),
   answered: z.boolean(),
   mood: moodScaleSchema.nullable(),
+  /**
+   * A nota pessoal do humor de hoje, quando a pessoa escolheu especificar o que
+   * está sentindo. É dado só dela: o servidor nunca manda isto ao gestor.
+   */
+  note: z.string().nullable(),
   pieceAnswered: z.boolean(),
   piece: contentPieceSchema.nullable(),
   /**
@@ -68,10 +73,19 @@ export const dailyEntrySchema = z.object({
 
 export type DailyEntry = z.infer<typeof dailyEntrySchema>;
 
+/**
+ * Tamanho máximo da nota opcional do humor, espelhando o limite do backend
+ * (`MAX_MOOD_NOTE_LENGTH`). A tela usa para não deixar digitar além do que o
+ * servidor aceitaria.
+ */
+export const MAX_MOOD_NOTE_LENGTH = 500;
+
 /** O 201 de `POST /me/today/mood` confirma o dia sem repetir `answered`. */
 export const moodRecordSchema = z.object({
   entryDate: z.iso.datetime(),
   mood: moodScaleSchema,
+  /** A nota que a pessoa acabou de registrar, `null` quando não especificou. */
+  note: z.string().nullable(),
 });
 
 /**

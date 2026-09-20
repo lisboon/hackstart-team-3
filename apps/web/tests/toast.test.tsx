@@ -83,7 +83,7 @@ function stubToday(status: number) {
     if (init?.method === "POST" && pathname === "/me/today/mood")
       return status === 201
         ? Response.json(
-            { entryDate: "2026-09-20T00:00:00.000Z", mood: 4 },
+            { entryDate: "2026-09-20T00:00:00.000Z", mood: 4, note: null },
             { status },
           )
         : new Response("{}", { status });

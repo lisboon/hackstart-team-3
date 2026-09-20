@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
@@ -36,6 +36,7 @@ function stubApi({
     entryDate: ENTRY_DATE,
     answered,
     mood,
+    note: null as string | null,
     pieceAnswered: false,
     piece,
     window,
@@ -49,12 +50,14 @@ function stubApi({
       });
     if (pathname === "/me/today") return Response.json({ ...day });
     if (pathname === "/me/today/mood") {
-      const requested = JSON.parse(String(options.body)).mood as number;
+      const body = JSON.parse(String(options.body));
+      const requested = body.mood as number;
       day.answered = true;
       day.mood = moodStatus === 409 ? 1 : requested;
+      day.note = typeof body.note === "string" ? body.note : null;
       if (moodStatus === 409) return new Response("", { status: 409 });
       return Response.json(
-        { entryDate: ENTRY_DATE, mood: requested },
+        { entryDate: ENTRY_DATE, mood: requested, note: day.note },
         { status: 201 },
       );
     }
@@ -84,46 +87,62 @@ async function signIn() {
 }
 
 function supportPaths(overrides: Partial<Parameters<typeof SupportPaths>[0]>) {
-  return render(
-    <SupportPaths
-      lessonSkipped={false}
-      takeFocus={false}
-      onSkipLesson={vi.fn()}
-      onResumeLesson={vi.fn()}
-      {...overrides}
-    />,
-  );
+  return render(<SupportPaths takeFocus={false} {...overrides} />);
 }
 
-it("records the day with a single tap and never shows the scale", async () => {
-  const onSelect = vi.fn();
+it("opens a confirmation popup on tap instead of recording right away", async () => {
+  const onConfirm = vi.fn();
   const { container } = render(
-    <MoodPrompt pending={false} error="" onSelect={onSelect} />,
+    <MoodPrompt pending={false} error="" onConfirm={onConfirm} />,
   );
   expect(screen.getAllByRole("button")).toHaveLength(5);
+  expect(screen.queryByRole("dialog")).toBeNull();
   await userEvent.click(screen.getByRole("button", { name: "Chuva" }));
-  expect(onSelect).toHaveBeenCalledExactlyOnceWith(2);
+  // O toque não registra: abre o <dialog> com a caixa opcional.
+  expect(onConfirm).not.toHaveBeenCalled();
+  const dialog = await screen.findByRole("dialog");
+  expect(dialog.tagName).toBe("DIALOG");
+  expect(dialog).toHaveAttribute("open");
+  expect(screen.getByRole("textbox")).toBeInTheDocument();
   expect(container.textContent).not.toMatch(/[1-5]/);
-  expect(screen.queryByRole("textbox")).toBeNull();
+});
+
+it("registers with an optional note, and without one on 'Não responder'", async () => {
+  const onConfirm = vi.fn();
+  const { rerender } = render(
+    <MoodPrompt pending={false} error="" onConfirm={onConfirm} />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
+  await userEvent.type(screen.getByRole("textbox"), "Aliviado hoje.");
+  await userEvent.click(screen.getByRole("button", { name: "Registrar" }));
+  expect(onConfirm).toHaveBeenCalledExactlyOnceWith(5, "Aliviado hoje.");
+
+  onConfirm.mockClear();
+  rerender(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
+  await userEvent.click(screen.getByRole("button", { name: "Nublado" }));
+  await userEvent.click(screen.getByRole("button", { name: "Não responder" }));
+  expect(onConfirm).toHaveBeenCalledExactlyOnceWith(3, undefined);
 });
 
 it("walking the scale with the keyboard records nothing", async () => {
-  const onSelect = vi.fn();
-  render(<MoodPrompt pending={false} error="" onSelect={onSelect} />);
+  const onConfirm = vi.fn();
+  render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
   await userEvent.tab();
   await userEvent.tab();
   await userEvent.tab();
   expect(screen.getByRole("button", { name: "Nublado" })).toHaveFocus();
-  expect(onSelect).not.toHaveBeenCalled();
+  expect(onConfirm).not.toHaveBeenCalled();
+  // Enter só abre o popup — ainda não registra.
   await userEvent.keyboard("{Enter}");
-  expect(onSelect).toHaveBeenCalledExactlyOnceWith(3);
+  expect(onConfirm).not.toHaveBeenCalled();
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
 });
 
 it("blocks the scale while it records and reports a failure", () => {
-  render(<MoodPrompt pending error="" onSelect={vi.fn()} />);
+  render(<MoodPrompt pending error="" onConfirm={vi.fn()} />);
   for (const option of screen.getAllByRole("button"))
     expect(option).toBeDisabled();
-  render(<MoodPrompt pending={false} error="Falhou" onSelect={vi.fn()} />);
+  render(<MoodPrompt pending={false} error="Falhou" onConfirm={vi.fn()} />);
   expect(screen.getByRole("alert")).toHaveTextContent("Falhou");
 });
 
@@ -140,19 +159,6 @@ it("welcomes without investigating and lets the person choose", () => {
     "tel:188",
   );
   expect(screen.getByText(/não faz diagnóstico/)).toBeInTheDocument();
-});
-
-it("lets the person drop the lesson and take it back", async () => {
-  const onSkipLesson = vi.fn();
-  const onResumeLesson = vi.fn();
-  const { unmount } = supportPaths({ onSkipLesson });
-  await userEvent.click(screen.getByRole("button", { name: /Pular a lição/ }));
-  expect(onSkipLesson).toHaveBeenCalledOnce();
-  unmount();
-  supportPaths({ lessonSkipped: true, onResumeLesson });
-  expect(screen.getByText("Combinado: hoje sem lição.")).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Mudei de ideia" }));
-  expect(onResumeLesson).toHaveBeenCalledOnce();
 });
 
 it("shows the mood question at the top alongside the rest of the home", async () => {
@@ -174,6 +180,10 @@ it("sends the chosen level and opens the app", async () => {
   await signIn();
   await screen.findByRole("heading", { level: 1 });
   await userEvent.click(screen.getByRole("button", { name: "Sol entre nuvens" }));
+  // O popup confirma antes de registrar: sem ele, nada é enviado.
+  await userEvent.click(
+    await screen.findByRole("button", { name: "Não responder" }),
+  );
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
   const post = fetch.mock.calls.find(([url]) =>
     String(url).endsWith("/me/today/mood"),
@@ -192,11 +202,13 @@ it("keeps a page heading after the question leaves the screen", async () => {
   expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
 });
 
-it("welcomes the two lowest levels and still shows her own content", async () => {
+it("does not put the welcome on the home anymore, even on the lowest levels", async () => {
   stubApi({ answered: true, mood: 1 });
   await signIn();
-  expect(await screen.findByText(WELCOME)).toBeInTheDocument();
+  // O acolhimento migrou para o Perfil: a Home não mostra mais o card, nem
+  // mesmo no pior humor. O resto da Home segue.
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByText(WELCOME)).toBeNull();
   expect(document.body.textContent).not.toMatch(INVESTIGATION);
 });
 
@@ -207,21 +219,23 @@ it("keeps the welcome away from a good day", async () => {
   expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
-it("moves focus to the welcome when it answers a tap", async () => {
+it("records the mood on a tap and keeps the home, without a welcome", async () => {
   stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
   await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
-  await waitFor(() =>
-    expect(screen.getByRole("heading", { name: WELCOME })).toHaveFocus(),
+  await userEvent.click(
+    await screen.findByRole("button", { name: "Não responder" }),
   );
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
+  expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
-it("leaves focus alone on a day that was already answered", async () => {
+it("leaves the home without a welcome on a day already answered", async () => {
   stubApi({ answered: true, mood: 1 });
   await signIn();
-  await screen.findByText(WELCOME);
-  expect(screen.getByRole("heading", { name: WELCOME })).not.toHaveFocus();
+  await screen.findByText("Seu mês");
+  expect(screen.queryByText(WELCOME)).toBeNull();
 });
 
 it("treats a day already answered as answered, not as an error", async () => {
@@ -229,6 +243,9 @@ it("treats a day already answered as answered, not as an error", async () => {
   await signIn();
   await screen.findByRole("heading", { level: 1 });
   await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
+  await userEvent.click(
+    await screen.findByRole("button", { name: "Não responder" }),
+  );
   expect(await screen.findByText("Seu mês")).toBeInTheDocument();
   expect(screen.queryByRole("alert")).toBeNull();
 });
@@ -237,8 +254,9 @@ it("records one answer even under a double tap", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  const option = screen.getByRole("button", { name: "Sol" });
-  await Promise.all([userEvent.click(option), userEvent.click(option)]);
+  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
+  const confirm = await screen.findByRole("button", { name: "Não responder" });
+  await Promise.all([userEvent.click(confirm), userEvent.click(confirm)]);
   await screen.findByText("Seu mês");
   const posts = fetch.mock.calls.filter(([url]) =>
     String(url).endsWith("/me/today/mood"),

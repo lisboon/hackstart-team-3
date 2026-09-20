@@ -79,6 +79,40 @@ describe("GetTodayEntryUseCase", () => {
     expect(output.piece?.title).toBe(piece.title);
   });
 
+  it("echoes the personal note back to its owner", async () => {
+    const entry = DailyEntry.create({
+      userId,
+      companyId,
+      entryDate: lateInTheDay,
+      mood: 2,
+      note: "Preocupado com o mês.",
+    });
+
+    const output = await new GetTodayEntryUseCase(
+      dailyGateway(entry),
+      contentGateway(piece),
+      companyGatewayDouble(),
+    ).execute({ userId, companyId, today: lateInTheDay });
+
+    expect(output.note).toBe("Preocupado com o mês.");
+  });
+
+  it("returns a null note when there is none, and none before the mood", async () => {
+    const answered = await new GetTodayEntryUseCase(
+      dailyGateway(entryWithMood()),
+      contentGateway(piece),
+      companyGatewayDouble(),
+    ).execute({ userId, companyId, today: lateInTheDay });
+    expect(answered.note).toBeNull();
+
+    const unanswered = await new GetTodayEntryUseCase(
+      dailyGateway(null),
+      contentGateway(piece),
+      companyGatewayDouble(),
+    ).execute({ userId, companyId, today: lateInTheDay });
+    expect(unanswered.note).toBeNull();
+  });
+
   it("hides the outcome of each option until the person chooses", async () => {
     const output = await new GetTodayEntryUseCase(
       dailyGateway(entryWithMood()),
