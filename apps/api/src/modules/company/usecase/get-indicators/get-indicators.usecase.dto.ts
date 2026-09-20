@@ -25,6 +25,7 @@ export interface GetUnitIndicatorsUseCaseOutputDto extends UnitPeriodIndicators 
   reach: number | null;
   active: number | null;
   frequency: number | null;
+  supportUses: number | null;
   previous: UnitPeriodIndicators | null;
 }
 

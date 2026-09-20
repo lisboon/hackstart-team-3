@@ -4,3 +4,8 @@ export {
   SELF_REPORT_SCORE,
   SelfReportSituation,
 } from "./self-report-situation.enum";
+export {
+  SUPPORT_OPENED_ACTION,
+  SUPPORT_RESOURCES,
+  SupportResource,
+} from "./support-resource.enum";

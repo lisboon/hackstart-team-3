@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Colheita - Perfil</title>
+<!-- Tailwind CSS v3 CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            colheita: {
+              50: '#F0FAF5',
+              100: '#D7F3E5',
+              200: '#B0E7CC',
+              500: '#00A86B',
+              600: '#107048',
+              700: '#0B5335',
+              bg: '#F6F9F7',
+            },
+            amberOrange: '#FF9600',
+            slateDark: '#111827',
+            mutedSlate: '#64748B',
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+          boxShadow: {
+            card: '0 8px 24px -4px rgba(16, 112, 72, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04)',
+            floatBtn: '0 10px 20px -3px rgba(16, 112, 72, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="layout">
+    body {
+      background-color: #E2E8F0;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style data-purpose="decorations">
+    .gradient-hero {
+      background: linear-gradient(135deg, #107048 0%, #15803D 55%, #EAB308 130%);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .bottom-tab-blur {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="flex justify-center items-start min-h-screen p-0 sm:py-6 text-slate-800">
+<!-- BEGIN: Mobile Device Frame -->
+<main class="w-full max-w-[390px] min-h-screen bg-colheita-bg relative flex flex-col shadow-2xl sm:rounded-[44px] overflow-hidden border-0 sm:border-[8px] sm:border-slate-800">
+<!-- BEGIN: iOS Status Bar -->
+<header class="w-full pt-3 px-7 flex justify-between items-center z-30 select-none bg-colheita-bg" data-purpose="status-bar">
+<!-- Time -->
+<span class="text-[15px] font-semibold tracking-tight text-slateDark">9:41</span>
+<!-- Native Icons Right -->
+<div class="flex items-center space-x-2 text-slateDark">
+<!-- Cellular Signal -->
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M2 17h3v4H2v-4zm6-5h3v9H8v-9zm6-4h3v13h-3V8zm6-5h3v18h-3V3z"></path>
+</svg>
+<!-- 5G Badge -->
+<span class="text-[12px] font-bold tracking-tight">5G</span>
+<!-- Battery Icon -->
+<div class="w-6 h-3 rounded-[4px] border border-slateDark p-[1px] flex items-center">
+<div class="w-4 h-full bg-slateDark rounded-[2px]"></div>
+</div>
+</div>
+</header>
+<!-- END: iOS Status Bar -->
+<!-- BEGIN: Scrollable Content -->
+<div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-2 pb-28 space-y-4" data-purpose="main-scroll-area">
+<!-- BEGIN: Profile Top Bar -->
+<section class="flex items-center justify-between pt-2 pb-1" data-purpose="navigation-header">
+<div class="flex items-center space-x-2.5">
+<div class="w-9 h-9 rounded-full bg-emerald-100 flex items-center justify-center text-colheita-600 border border-emerald-200">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 3C7.5 3 4 7 4 12c0 3.86 2.44 7.15 5.86 8.39.38.14.78.25 1.14.33V18c-2.5 0-3.5-1.5-3.5-3 0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5c0 1.5-1 3-3.5 3v2.72c.36-.08.76-.19 1.14-.33C17.56 19.15 20 15.86 20 12c0-5-3.5-9-8-9z"></path>
+</svg>
+</div>
+<div>
+<h1 class="text-2xl font-bold tracking-tight text-slateDark leading-tight">Meu Perfil</h1>
+</div>
+</div>
+<!-- Settings Cog Button -->
+<button aria-label="Configurações do Perfil" class="w-10 h-10 rounded-2xl bg-white shadow-sm border border-slate-200/80 flex items-center justify-center text-slate-600 hover:text-colheita-600 active:scale-95 transition-transform" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</section>
+<!-- END: Profile Top Bar -->
+<!-- BEGIN: User Card Info -->
+<section class="bg-white rounded-3xl p-4 shadow-card border border-slate-100 flex items-center space-x-4 relative overflow-hidden" data-purpose="user-information">
+<div class="relative">
+<!-- Avatar Icon Frame with sprout border -->
+<div class="w-18 h-18 w-[72px] h-[72px] rounded-2xl bg-gradient-to-tr from-emerald-100 to-teal-50 border-2 border-colheita-500 p-1 flex items-center justify-center relative">
+<span aria-label="Avatar fazendeiro" class="text-3xl" role="img">👨🏻‍🌾</span>
+<!-- Sprout Tag Icon -->
+<div class="absolute -bottom-1 -right-1 bg-colheita-600 text-white p-1 rounded-lg shadow-sm">
+<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9s9-4.03 9-9c0-4.97-4.03-9-9-9zm1 14.93V15a3 3 0 0 0-3-3H8a7.002 7.002 0 0 1 5-6.93V7a1 1 0 0 1 2 0v1.07A7.002 7.002 0 0 1 20 15h-2a3 3 0 0 0-3 3v-.07z"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center space-x-1.5">
+<h2 class="text-lg font-bold text-slateDark truncate">Lucas Silva</h2>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-colheita-100 text-colheita-700">PRO</span>
+</div>
+<p class="text-xs text-mutedSlate font-medium">@lucas_colheita</p>
+<p class="text-xs text-slate-600 mt-1 line-clamp-1">Cultivando hábitos saudáveis 🌱</p>
+<div class="flex items-center text-[11px] text-slate-400 mt-1 space-x-1">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span>Membro desde Fev 2025</span>
+</div>
+</div>
+</section>
+<!-- END: User Card Info -->
+<!-- BEGIN: Hero Streak Card (Minha Colheita) -->
+<section class="gradient-hero rounded-3xl p-5 text-white shadow-card relative overflow-hidden" data-purpose="streak-section">
+<!-- Subtle Leaf Background Accents -->
+<svg class="absolute -right-8 -bottom-8 w-44 h-44 text-white/10 pointer-events-none" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path>
+</svg>
+<!-- Header of Streak -->
+<div class="flex items-center justify-between relative z-10">
+<div class="flex items-center space-x-2">
+<span class="inline-flex p-1.5 rounded-xl bg-white/20 backdrop-blur-md">
+<span class="text-base">🔥</span>
+</span>
+<span class="text-xs uppercase font-bold tracking-wider text-emerald-100">Ofensiva Semanal</span>
+</div>
+<div class="bg-amber-400/90 text-amber-950 px-2.5 py-1 rounded-full text-[11px] font-extrabold flex items-center space-x-1 shadow-sm">
+<span>⭐</span>
+<span>Recorde: 47 dias</span>
+</div>
+</div>
+<!-- Big Counter -->
+<div class="mt-4 relative z-10 flex items-baseline space-x-2">
+<span class="text-5xl font-black tracking-tight text-white drop-shadow-sm">47</span>
+<div class="flex flex-col">
+<span class="text-base font-extrabold text-white leading-none">dias seguidos</span>
+<span class="text-xs text-emerald-100 font-medium mt-0.5">de Colheita ativa!</span>
+</div>
+</div>
+<p class="text-xs text-emerald-50 mt-2 leading-relaxed max-w-[280px] font-normal">
+          Você está cultivando sua mente e seus hábitos todos os dias sem interrupções.
+        </p>
+<!-- Weekly Streak Tracker Dots -->
+<div class="mt-5 pt-4 border-t border-white/15 relative z-10" data-purpose="streak-calendar">
+<div class="flex justify-between items-center text-center">
+<!-- Seg -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-semibold text-emerald-200">SEG</span>
+<div class="w-8 h-8 rounded-full bg-white text-colheita-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                ✓
+              </div>
+</div>
+<!-- Ter -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-semibold text-emerald-200">TER</span>
+<div class="w-8 h-8 rounded-full bg-white text-colheita-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                ✓
+              </div>
+</div>
+<!-- Qua -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-semibold text-emerald-200">QUA</span>
+<div class="w-8 h-8 rounded-full bg-white text-colheita-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                ✓
+              </div>
+</div>
+<!-- Qui -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-semibold text-emerald-200">QUI</span>
+<div class="w-8 h-8 rounded-full bg-white text-colheita-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                ✓
+              </div>
+</div>
+<!-- Sex -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-semibold text-emerald-200">SEX</span>
+<div class="w-8 h-8 rounded-full bg-white text-colheita-600 flex items-center justify-center font-bold text-xs shadow-sm">
+                ✓
+              </div>
+</div>
+<!-- Sab (Today: Active) -->
+<div class="flex flex-col items-center space-y-1.5">
+<span class="text-[10px] font-bold text-amber-300">SÁB</span>
+<div class="w-8 h-8 rounded-full bg-amber-400 text-amber-950 ring-2 ring-white flex items-center justify-center font-black text-sm shadow-md animate-pulse">
+                🌱
+              </div>
+</div>
+<!-- Dom -->
+<div class="flex flex-col items-center space-y-1.5 opacity-60">
+<span class="text-[10px] font-semibold text-white">DOM</span>
+<div class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-[10px] text-white">
+                7º
+              </div>
+</div>
+</div>
+</div>
+<!-- Streak Freeze Indicator -->
+<div class="mt-4 bg-white/10 rounded-2xl p-2.5 flex items-center justify-between backdrop-blur-sm border border-white/15">
+<div class="flex items-center space-x-2">
+<span class="text-sm">🛡️</span>
+<div>
+<p class="text-[11px] font-bold text-white leading-tight">Proteção de Colheita Ativa</p>
+<p class="text-[10px] text-emerald-100">1 congelamento disponível para imprevistos</p>
+</div>
+</div>
+<span class="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-md">Equipado</span>
+</div>
+</section>
+<!-- END: Hero Streak Card -->
+<!-- BEGIN: Resources & Stats Grid -->
+<section data-purpose="user-resources">
+<h3 class="text-sm font-bold text-slateDark uppercase tracking-wider mb-2.5 px-1">Recursos Acumulados</h3>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Sementes / Cenouras -->
+<div class="bg-white rounded-2xl p-3 shadow-card border border-slate-100 flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-xl">
+              🥕
+            </div>
+<div>
+<span class="text-xs text-slate-500 font-medium">Sementes</span>
+<p class="text-base font-black text-slateDark leading-tight">480</p>
+</div>
+</div>
+<!-- Dias de Colheita Consecutivos -->
+<div class="bg-white rounded-2xl p-3 shadow-card border border-slate-100 flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-xl">
+              🔥
+            </div>
+<div>
+<span class="text-xs text-slate-500 font-medium">Ofensiva</span>
+<p class="text-base font-black text-slateDark leading-tight">47 dias</p>
+</div>
+</div>
+<!-- Gotas d'água / Atenção -->
+<div class="bg-white rounded-2xl p-3 shadow-card border border-slate-100 flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-xl">
+              💧
+            </div>
+<div>
+<span class="text-xs text-slate-500 font-medium">Gotas d'água</span>
+<p class="text-base font-black text-slateDark leading-tight">1.250</p>
+</div>
+</div>
+<!-- Corações Plenos -->
+<div class="bg-white rounded-2xl p-3 shadow-card border border-slate-100 flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl">
+              ❤️
+            </div>
+<div>
+<span class="text-xs text-slate-500 font-medium">Energia</span>
+<p class="text-base font-black text-rose-600 leading-tight">5 / 5</p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Resources & Stats Grid -->
+<!-- BEGIN: Badges & Achievements Section -->
+<section class="bg-white rounded-3xl p-4 shadow-card border border-slate-100 space-y-3" data-purpose="achievements-section">
+<div class="flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<span class="text-base">🏆</span>
+<h3 class="text-sm font-bold text-slateDark">Conquistas da Colheita</h3>
+</div>
+<span class="text-xs font-bold text-colheita-600">Ver todas (8)</span>
+</div>
+<!-- Badge 1: Primeiro Broto (Completed) -->
+<div class="flex items-center space-x-3 p-2.5 rounded-2xl bg-emerald-50/70 border border-emerald-100/80">
+<div class="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl border border-emerald-100">
+            🌱
+          </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-bold text-slateDark">Primeiro Broto</h4>
+<span class="text-[10px] font-bold text-colheita-600 bg-colheita-100 px-1.5 py-0.5 rounded">Completo ⭐</span>
+</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Completou 3 dias seguidos de reflexão.</p>
+</div>
+</div>
+<!-- Badge 2: Raízes Fortes (Completed) -->
+<div class="flex items-center space-x-3 p-2.5 rounded-2xl bg-emerald-50/70 border border-emerald-100/80">
+<div class="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl border border-emerald-100">
+            🌳
+          </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-bold text-slateDark">Raízes Fortes</h4>
+<span class="text-[10px] font-bold text-colheita-600 bg-colheita-100 px-1.5 py-0.5 rounded">Completo ⭐</span>
+</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Manteve 30 dias contínuos de Colheita.</p>
+</div>
+</div>
+<!-- Badge 3: Guardião da Safra (In Progress) -->
+<div class="flex items-center space-x-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80">
+<div class="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl grayscale opacity-75 border border-slate-200">
+            🌻
+          </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-bold text-slateDark">Guardião da Safra</h4>
+<span class="text-[10px] font-bold text-amber-600">47 / 60 dias</span>
+</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Alcance o marco lendário de 60 dias.</p>
+<!-- Progress Bar -->
+<div class="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
+<div class="bg-amberOrange h-1.5 rounded-full" style="width: 78.3%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Badges & Achievements Section -->
+<!-- BEGIN: Institutional Support Banner -->
+<section class="bg-white rounded-2xl p-3.5 border border-emerald-100 shadow-sm flex items-start space-x-3" data-purpose="mental-health-banner">
+<div class="w-8 h-8 rounded-full bg-emerald-50 text-colheita-600 flex items-center justify-center shrink-0 mt-0.5">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="text-[11px] leading-relaxed">
+<p class="font-bold text-colheita-700">📞 CVV 188 — gratuito, 24 horas</p>
+<p class="text-slate-500 mt-0.5">Este app não faz diagnóstico e não substitui atendimento profissional.</p>
+</div>
+</section>
+<!-- END: Institutional Support Banner -->
+</div>
+<!-- END: Scrollable Content -->
+<!-- BEGIN: Glass Bottom Tab Bar -->
+<nav class="absolute bottom-0 left-0 right-0 bottom-tab-blur border-t border-slate-200/80 px-4 pt-2 pb-6 z-40 flex justify-between items-center select-none" data-purpose="tab-bar">
+<!-- Tab 1: Hoje (Home) -->
+<button class="flex flex-col items-center text-slate-400 hover:text-colheita-600 transition-colors w-12" type="button">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold mt-1">Hoje</span>
+</button>
+<!-- Tab 2: Progresso -->
+<button class="flex flex-col items-center text-slate-400 hover:text-colheita-600 transition-colors w-12" type="button">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="9"></circle>
+<path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold mt-1">Progresso</span>
+</button>
+<!-- Central Highlighted Button (Trilha / Gamification Floating Leaf) -->
+<div class="relative -top-5 flex flex-col items-center">
+<button aria-label="Acessar Trilha Gamificada" class="w-14 h-14 rounded-full bg-colheita-600 text-white flex items-center justify-center shadow-floatBtn ring-4 ring-white active:scale-95 transition-transform" type="button">
+<svg class="w-7 h-7 fill-current" viewbox="0 0 24 24">
+<path d="M12 2a10 10 0 0 0-10 10c0 5.25 4.05 9.55 9.2 9.95v-4.05A4.98 4.98 0 0 1 8 13c0-2.76 2.24-5 5-5 .68 0 1.33.14 1.92.39.05-.45.08-.91.08-1.39 0-4.42-3.58-8-8-8zm1 8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 11.95A10.005 10.005 0 0 0 22 12c0-.52-.05-1.03-.14-1.53A6.98 6.98 0 0 0 14 16.9v3.05c-.33.03-.66.05-1 .05z"></path>
+</svg>
+</button>
+</div>
+<!-- Tab 3: Conquistas -->
+<button class="flex flex-col items-center text-slate-400 hover:text-colheita-600 transition-colors w-12" type="button">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="text-[10px] font-semibold mt-1">Conquistas</span>
+</button>
+<!-- Tab 4: Perfil (ACTIVE TAB) -->
+<button class="flex flex-col items-center text-colheita-600 w-12" type="button">
+<div class="relative">
+<svg class="w-6 h-6 fill-current" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2ZM4 19C4 16.2386 8.47715 15 12 15C15.5228 15 20 16.2386 20 19V20C20 20.5523 19.5523 21 19 21H5C4.44772 21 4 20.5523 4 20V19Z" fill-rule="evenodd"></path>
+</svg>
+<span class="w-1.5 h-1.5 rounded-full bg-colheita-600 absolute -top-0.5 -right-1"></span>
+</div>
+<span class="text-[10px] font-bold mt-1 text-colheita-700">Perfil</span>
+</button>
+</nav>
+<!-- END: Glass Bottom Tab Bar -->
+<!-- BEGIN: iOS Home Indicator -->
+<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900/40 rounded-full z-50 pointer-events-none"></div>
+<!-- END: iOS Home Indicator -->
+</main>
+<!-- END: Mobile Device Frame -->
+<!-- BEGIN: Interactive Simulation Script -->
+<script data-purpose="streak-interactions">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Subtle click feedback for buttons
+      const interactiveBtns = document.querySelectorAll('button');
+      interactiveBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.add('opacity-75');
+          setTimeout(() => btn.classList.remove('opacity-75'), 150);
+        });
+      });
+    });
+  </script>
+<!-- END: Interactive Simulation Script -->
+</body></html>
