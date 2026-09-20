@@ -1,11 +1,11 @@
 import { expect, test, describe } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { CoopsTrail } from "../src/components/track/coops-trail";
-import type { TrackResponse } from "../src/schemas/track";
+import type { Track } from "../src/schemas/track";
 
 describe("CoopsTrail", () => {
   test("shows locked stage when answered is 0 and it is not the current stage", () => {
-    const mockData: TrackResponse = {
+    const mockData: Track = {
       stages: [
         { stage: "CONSCIENTIZAR", total: 6, answered: 6 },
         { stage: "OBSERVAR", total: 6, answered: 6 },
@@ -31,7 +31,7 @@ describe("CoopsTrail", () => {
   });
 
   test("shows 'trancada' when total is 0", () => {
-    const mockData: TrackResponse = {
+    const mockData: Track = {
       stages: [
         { stage: "CONSCIENTIZAR", total: 6, answered: 6 },
         { stage: "OBSERVAR", total: 0, answered: 0 },

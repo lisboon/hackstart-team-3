@@ -1,5 +1,5 @@
 import type { PersonalSummary } from "@/schemas/financial-health";
-import type { Track, TrackStage } from "@/schemas/profile";
+import type { Track, TrackStage } from "@/schemas/track";
 import type { CoopsStage } from "@/schemas/wellbeing";
 
 /**
@@ -25,6 +25,15 @@ export type Milestone = {
   label: string;
   description: string;
   achieved: boolean;
+  /**
+   * Quanto do caminho até o marco já foi andado, entre 0 e 1. Fica aqui, e não
+   * na view, porque só este módulo conhece os limiares — a view teria de
+   * reimplementá-los para desenhar a barra, e duas cópias divergem.
+   *
+   * Serve para dizer "falta pouco" em vez de só "não veio": um marco a caminho
+   * com a barra quase cheia é informação, um cadeado cinza não é.
+   */
+  progress: number;
 };
 
 /**
@@ -92,6 +101,7 @@ export function trajectoryMilestones(
         ? "Você registrou o seu primeiro mês declarado."
         : `Você registrou ${at} meses declarados.`,
     achieved: months >= at,
+    progress: Math.min(months / at, 1),
   }));
 }
 
@@ -109,6 +119,7 @@ export function trackMilestones(track: Track): Milestone[] {
       ? "Etapa concluída na sua trilha."
       : "Esta etapa ainda faz parte do caminho à frente.",
     achieved: isStageComplete(stage),
+    progress: stageRatio(stage),
   }));
 }
 

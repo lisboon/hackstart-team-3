@@ -1,140 +1,115 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import type React from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
+/**
+ * Painel que cobre a moldura do app, com título, fechar e Escape.
+ *
+ * É controlado em React em vez de `dialog.showModal()` porque o jsdom desta
+ * versão não implementa `showModal` — o portão de teste não conseguiria
+ * exercitar nenhum painel do produto. Por isso o mínimo de teclado vive aqui, em
+ * um lugar só: Escape fecha e o foco entra no título ao abrir. Devolver o foco
+ * ao gatilho é de quem abriu, que é quem tem a referência dele.
+ *
+ * `absolute inset-0` e não `fixed`: a moldura de celular é o mundo do app, e um
+ * painel `fixed` escaparia dela no desktop.
+ *
+ * Monte só quando aberto. O foco entra no título no efeito de montagem, e um
+ * painel que existe escondido não teria esse momento.
+ */
+/**
+ * O que conta como parada de tabulação dentro do painel. Lista curta de
+ * propósito: é o que os painéis deste app usam de fato.
+ */
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const Sheet = SheetPrimitive.Root
+export function Sheet({
+  id,
+  title,
+  onClose,
+  children,
+  className,
+}: {
+  id: string;
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+  className?: string;
+}) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
-const SheetTrigger = SheetPrimitive.Trigger
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
 
-const SheetClose = SheetPrimitive.Close
-
-const SheetPortal = SheetPrimitive.Portal
-
-const SheetOverlay = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Overlay
-    className={cn(
-      "fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      className
-    )}
-    {...props}
-    ref={ref}
-  />
-))
-SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
-
-const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
-  {
-    variants: {
-      side: {
-        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-        bottom:
-          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
-        right:
-          "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
-      },
-    },
-    defaultVariants: {
-      side: "right",
-    },
+  /**
+   * `aria-modal="true"` promete que nada fora do painel é alcançável, e sem
+   * prender a tabulação a promessa é falsa: do último campo do formulário de
+   * senha o Tab cairia na lista de Configurações atrás, que continua desenhada.
+   *
+   * O ciclo é feito à mão porque o painel não é um `<dialog>` nativo — o jsdom
+   * desta versão não implementa `showModal`, e sem ele nenhum painel do produto
+   * seria testável.
+   */
+  function trap(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab") return;
+    const stops = panel.current?.querySelectorAll<HTMLElement>(FOCUSABLE);
+    if (!stops || stops.length === 0) return;
+    const first = stops[0];
+    const last = stops[stops.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || active === heading.current)) {
+      event.preventDefault();
+      last.focus();
+      return;
+    }
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
-)
 
-interface SheetContentProps
-  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
-    VariantProps<typeof sheetVariants> {}
-
-const SheetContent = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Content>,
-  SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <SheetPrimitive.Content
-      ref={ref}
-      className={cn(sheetVariants({ side }), className)}
-      {...props}
+  return (
+    <div
+      id={id}
+      ref={panel}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={`${id}-title`}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          onClose();
+          return;
+        }
+        trap(event);
+      }}
+      className={cn(
+        "absolute inset-0 z-10 flex flex-col bg-background",
+        className,
+      )}
     >
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
-      {children}
-    </SheetPrimitive.Content>
-  </SheetPortal>
-))
-SheetContent.displayName = SheetPrimitive.Content.displayName
-
-const SheetHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col space-y-2 text-center sm:text-left",
-      className
-    )}
-    {...props}
-  />
-)
-SheetHeader.displayName = "SheetHeader"
-
-const SheetFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-      className
-    )}
-    {...props}
-  />
-)
-SheetFooter.displayName = "SheetFooter"
-
-const SheetTitle = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Title
-    ref={ref}
-    className={cn("text-lg font-semibold text-foreground", className)}
-    {...props}
-  />
-))
-SheetTitle.displayName = SheetPrimitive.Title.displayName
-
-const SheetDescription = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <SheetPrimitive.Description
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-SheetDescription.displayName = SheetPrimitive.Description.displayName
-
-export {
-  Sheet,
-  SheetPortal,
-  SheetOverlay,
-  SheetTrigger,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetDescription,
+      <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
+        <h2
+          id={`${id}-title`}
+          ref={heading}
+          tabIndex={-1}
+          className="text-lg font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        >
+          {title}
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="min-h-11 min-w-11 rounded-lg px-2 text-sm font-medium text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          Fechar
+        </button>
+      </div>
+      <div className="grid gap-3 overflow-y-auto px-5 py-4">{children}</div>
+    </div>
+  );
 }

@@ -5,7 +5,6 @@ import { ColheitaMark } from "@/components/brand/colheita-mark";
 import { NoticeBell } from "@/components/manager/notice-bell";
 import { ProfileCard } from "@/components/manager/profile-card";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const TITLES: Record<string, string> = {
   "/manager": "Visão geral",
@@ -20,7 +19,6 @@ export function ManagerHeader() {
     <header className="z-40 h-20 print:hidden">
       <div className="relative grid w-full grid-cols-12 items-center justify-between bg-transparent px-2 py-4 md:flex md:px-7 md:pt-6">
         <div className="col-span-3 flex items-center gap-2">
-          <SidebarTrigger className="md:hidden" />
           <h1 className="truncate text-lg font-semibold">
             {TITLES[pathname] ?? "Painel da unidade"}
           </h1>

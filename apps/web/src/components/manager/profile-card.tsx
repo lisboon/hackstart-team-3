@@ -5,7 +5,8 @@ import { LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/auth/use-auth";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ICON_STROKE } from "@/components/ui/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { initials } from "@/components/profile/profile-presentation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,15 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-/** Duas letras bastam, e "Ana Paula Souza" vira AS, não APS. */
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 0 || parts[0] === "") return "?";
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-}
 
 export function ProfileCard() {
   const { user, logout } = useAuth();
@@ -37,14 +29,7 @@ export function ProfileCard() {
           className="flex cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           aria-label="Sua conta"
         >
-          <Avatar className="size-10">
-            {/* Sem `src` por enquanto. Quando as fotos entrarem pela Cloudflare
-                é uma propriedade aqui, não uma refatoração. */}
-            <AvatarImage alt="" />
-            <AvatarFallback className="bg-muted text-sm font-semibold">
-              {initials(name)}
-            </AvatarFallback>
-          </Avatar>
+          <Avatar initials={initials(name)} className="size-10 rounded-full text-sm" />
         </button>
       </DropdownMenuTrigger>
 

@@ -1,50 +1,46 @@
-"use client"
+import type { ComponentProps } from "react";
+import { cn } from "@/lib/utils";
 
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
-
-import { cn } from "@/lib/utils"
-
-const Avatar = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
-Avatar.displayName = AvatarPrimitive.Root.displayName
-
-const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
-
-const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Fallback>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
-      className
-    )}
-    {...props}
-  />
-))
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
-
-export { Avatar, AvatarImage, AvatarFallback }
+/**
+ * Retrato da pessoa, com as iniciais como estado normal e não como falha: a
+ * maioria dos cadastros da demonstração não tem `avatarUrl`, e um contorno
+ * cinza com silhueta genérica faria o perfil parecer incompleto justamente na
+ * tela que deveria dizer "isto é seu".
+ *
+ * As iniciais vêm prontas (ver `initials` em `profile-presentation.ts`): quebrar
+ * nome é regra de texto, testável sem React, e não pertence a uma primitiva.
+ *
+ * O bloco é `aria-hidden` porque quem usa sempre desenha o nome ao lado; um
+ * leitor de tela anunciando "AF" antes de "Ana Ferreira" só atrasa a leitura.
+ */
+export function Avatar({
+  initials,
+  src,
+  className,
+  ...props
+}: {
+  initials: string;
+  src?: string;
+} & Omit<ComponentProps<"span">, "children">) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-muted text-lg font-semibold text-primary",
+        className,
+      )}
+      {...props}
+    >
+      {src ? (
+        /* O endereço vem do cadastro e pode ser de qualquer domínio.
+           `next/image` exigiria uma lista de domínios permitidos para um campo
+           que a demonstração não controla, e a foto tem 56px: não há LCP a
+           salvar aqui. */
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" className="size-full object-cover" />
+      ) : (
+        initials
+      )}
+    </span>
+  );
+}

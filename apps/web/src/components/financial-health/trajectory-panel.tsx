@@ -1,6 +1,7 @@
 import type { PersonalSummary } from "@/schemas/financial-health";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import {
-  averageWidth,
+  averageRatio,
   compareTrajectory,
   describeAverage,
   TRAJECTORY_MESSAGE,
@@ -13,12 +14,11 @@ function Period({ title, average }: { title: string; average: number }) {
         <span className="text-muted-foreground">{title}: </span>
         <span className="font-semibold">{describeAverage(average)}</span>
       </p>
-      <div aria-hidden className="h-2 overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full rounded-full bg-primary"
-          style={{ width: averageWidth(average) }}
-        />
-      </div>
+      {/* Decorativa de propósito: a frase acima já diz como os meses fecharam,
+          em palavras. A barra anunciada repetiria a informação e, pior, teria de
+          dizer um número — e a escala existe só para a média da própria pessoa,
+          nunca para a tela. */}
+      <ProgressBar ratio={averageRatio(average)} decorative />
     </li>
   );
 }

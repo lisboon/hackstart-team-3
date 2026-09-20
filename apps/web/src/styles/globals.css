@@ -14,12 +14,6 @@
   --color-destructive: var(--destructive);
   --color-brand: var(--brand);
   --color-shell: var(--shell);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 :root {
   color-scheme: light;
@@ -46,14 +40,11 @@
   /* Entorno da moldura no desktop. Precisa destoar do fundo do app, senão
      sobra um retângulo branco sobre branco e o aparelho some. */
   --shell: #dfe6dc;
-  /* A sidebar do gestor. Superficie um degrau abaixo do conteudo, para a
-     navegacao nao competir com os numeros. */
-  --sidebar: #fafafa;
-  --sidebar-foreground: #323c32;
-  --sidebar-accent: #f2f4f1;
-  --sidebar-accent-foreground: #146e37;
-  --sidebar-border: #dfe6dc;
-  --sidebar-ring: #146e37;
+  /* Âmbar dos marcos de trajetória — o de prestígio. O tom claro do escuro
+     (#f5c56a) dá 1.6:1 sobre branco e desaparece aqui, então o claro usa o
+     dourado escuro do manual. O marco também diz "Conquistado" em texto: a cor
+     é reforço, nunca o único indicador. */
+  --achievement-trajectory: #8a5112;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -69,15 +60,6 @@
     --border: #5d7c52;
     --destructive: #ff9b84;
     --shell: #060d05;
-    --sidebar: #0f1c0b;
-    --sidebar-foreground: #eff5ea;
-    --sidebar-accent: #1b2c15;
-    --sidebar-accent-foreground: #6acc3a;
-    --sidebar-border: #22301c;
-    --sidebar-ring: #6acc3a;
-    /* Âmbar dos marcos de trajetória — o de prestígio. Usado como acento (ponto e
-       anel), nunca como único indicador de estado: o marco também diz "Conquistado"
-       ou "A caminho" em texto e apaga quando não veio. */
     --achievement-trajectory: #f5c56a;
   }
 }
@@ -94,12 +76,6 @@
   --border: #5d7c52;
   --destructive: #ff9b84;
   --shell: #060d05;
-  --sidebar: #0f1c0b;
-  --sidebar-foreground: #eff5ea;
-  --sidebar-accent: #1b2c15;
-  --sidebar-accent-foreground: #6acc3a;
-  --sidebar-border: #22301c;
-  --sidebar-ring: #6acc3a;
   /* Âmbar dos marcos de trajetória — o de prestígio. Usado como acento (ponto e
      anel), nunca como único indicador de estado: o marco também diz "Conquistado"
      ou "A caminho" em texto e apaga quando não veio. */

@@ -77,10 +77,6 @@ const TEXT_PAIRS = [
   // the one link someone in distress has to be able to read, so it is held to
   // the text threshold rather than the outline one.
   ["primary", "muted"],
-  // A navegacao do gestor vive numa superficie propria, entao ela precisa do
-  // proprio par: o texto do menu e o do item sob o cursor.
-  ["sidebar-foreground", "sidebar"],
-  ["sidebar-accent-foreground", "sidebar-accent"],
 ];
 
 const NON_TEXT_PAIRS = [
@@ -94,6 +90,11 @@ const NON_TEXT_PAIRS = [
   // option or mood button that is currently selected.
   ["primary", "background"],
   ["primary", "card"],
+  // O âmbar dos marcos conquistados contorna a etiqueta "Conquistado" sobre o
+  // cartão. O tom do escuro desaparece sobre branco, então cada tema tem o seu:
+  // sem este par, trocar um deles passaria no CI e sumiria no celular.
+  ["achievement-trajectory", "card"],
+  ["achievement-trajectory", "muted"],
 ];
 
 test("text meets WCAG 2.1 AA contrast in both themes", () => {
