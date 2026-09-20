@@ -41,10 +41,18 @@
   /* Entorno da moldura no desktop. Precisa destoar do fundo do app, senão
      sobra um retângulo branco sobre branco e o aparelho some. */
   --shell: #dfe6dc;
-  /* Ambar do aviso. Nao existe verde que sirva: o verde do produto significa
-     que deu certo. 6.16:1 sobre o cartao claro, entao serve de letra tambem
-     se algum dia precisar. */
+  /* Âmbar do aviso. Não existe verde que sirva: o verde do produto significa
+     que deu certo. 6.16:1 sobre o cartão claro. */
   --warning: #8a5112;
+  /* Âmbar dos marcos de trajetória — o de prestígio. O tom claro do escuro
+     (#f5c56a) dá 1.6:1 sobre branco e desaparece aqui, então o claro usa o
+     dourado escuro do manual. O marco também diz "Conquistado" em texto: a cor
+     é reforço, nunca o único indicador.
+
+     Mesmo valor que --warning, e por enquanto é coincidência da paleta: o
+     manual tem um dourado só. Ninguém deve apontar um para o outro — aviso e
+     conquista são coisas diferentes e podem separar sem aviso prévio. */
+  --achievement-trajectory: #8a5112;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -61,6 +69,7 @@
     --destructive: #ff9b84;
     --shell: #060d05;
     --warning: #f5c56a;
+    --achievement-trajectory: #f5c56a;
   }
 }
 /* Mesma paleta do bloco acima, e tem de continuar sendo.
