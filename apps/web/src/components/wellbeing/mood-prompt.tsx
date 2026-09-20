@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { MAX_MOOD_NOTE_LENGTH, type MoodScale } from "@/schemas/wellbeing";
 import { MOOD_LEVELS, moodLabel } from "./mood-presentation";
+import { WEATHER_ICON } from "./mood-weather-icons";
 
 /**
  * Botão, não rádio: num grupo de rádios a seta do teclado troca a seleção. Aqui
@@ -54,41 +55,40 @@ export function MoodPrompt({
   }
 
   return (
-    <Card aria-labelledby={id} className="min-h-[60vh] place-content-center">
-      <h1 id={id} className="text-xl font-semibold tracking-tight md:text-2xl">
+    <Card aria-labelledby={id} className="gap-3">
+      <h2 id={id} className="text-lg font-semibold tracking-tight">
         Como está o seu tempo hoje?
-      </h1>
+      </h2>
       <p className="text-sm text-muted-foreground">
         Um toque abre a confirmação. Ninguém além de você vê esta resposta.
       </p>
       <div role="group" aria-labelledby={id} className="grid grid-cols-5 gap-2">
-        {MOOD_LEVELS.map((level) => (
-          <button
-            key={level.value}
-            ref={(node) => {
-              triggers.current.set(level.value, node);
-            }}
-            type="button"
-            disabled={pending}
-            aria-haspopup="dialog"
-            onClick={() => setChoice(level.value)}
-            className={cn(
-              "grid min-h-18 justify-items-center gap-1 rounded-xl border p-2 transition-colors",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              "disabled:pointer-events-none",
-              choice === level.value
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border hover:bg-muted disabled:opacity-50",
-            )}
-          >
-            <span aria-hidden className="text-2xl leading-none">
-              {level.emoji}
-            </span>
-            <span className="text-center text-xs leading-tight">
-              {level.label}
-            </span>
-          </button>
-        ))}
+        {MOOD_LEVELS.map((level) => {
+          const Weather = WEATHER_ICON[level.value];
+          return (
+            <button
+              key={level.value}
+              ref={(node) => {
+                triggers.current.set(level.value, node);
+              }}
+              type="button"
+              aria-label={level.label}
+              disabled={pending}
+              aria-haspopup="dialog"
+              onClick={() => setChoice(level.value)}
+              className={cn(
+                "grid aspect-square place-items-center rounded-2xl border p-2 transition",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                "disabled:pointer-events-none",
+                choice === level.value
+                  ? "border-2 border-primary bg-primary/5 text-primary ring-2 ring-primary/10"
+                  : "border-border text-muted-foreground hover:border-foreground/30 disabled:opacity-50",
+              )}
+            >
+              <Weather className="h-6 w-6" />
+            </button>
+          );
+        })}
       </div>
       {error && (
         <p role="alert" className="text-sm text-destructive">

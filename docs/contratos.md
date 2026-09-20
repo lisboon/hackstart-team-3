@@ -129,10 +129,12 @@ Chamado **ao abrir o app**. Diz o que a tela deve mostrar.
 
 | Estado | A tela mostra |
 |---|---|
-| `window.open: false` | o horário da próxima abertura, **antes de tudo** |
-| `answered: false` | **só** a pergunta de humor, ocupando a tela |
-| `answered: true`, `piece` preenchida | o app, com a peça do dia |
+| `window.open: false` | o horário da próxima abertura no topo, **e o resto da Home abaixo** |
+| `answered: false` | a pesquisa de humor no topo da Home, **junto com** ofensiva e resumo |
+| `answered: true`, `piece` preenchida | o app, com o registro do humor no topo e a peça do dia |
 | `answered: true`, `pieceAnswered: true` | o app, sem peça — a diária está completa |
+
+A pesquisa de humor **não ocupa a tela sozinha**: ela é o primeiro cartão da Home, e a ofensiva da semana e o resumo pessoal aparecem abaixo mesmo antes de o humor ser respondido. Fora do expediente, o topo mostra o horário da próxima abertura, mas o resto da Home continua alcançável.
 
 **Sem humor não vem peça.** A pergunta de abertura é pré-requisito, e o `piece` vem `null` até ela ser respondida.
 

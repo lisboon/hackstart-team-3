@@ -70,24 +70,25 @@ export function DailyJourney({
       </Card>
     ) : null;
 
-  // Fora do expediente a pergunta some, mas o resto da tela fica: o rodapé com
-  // o CVV, a barra de abas e a trilha continuam onde estavam. Fecha a escrita,
-  // não a porta.
-  if (!today.window.open)
-    return <WindowClosed opensAt={today.window.opensAt} />;
-
-  if (!today.answered)
-    return <MoodPrompt pending={pending} error={error} onConfirm={answer} />;
-
   return (
     <>
-      {/* Depois da resposta a pergunta sai da tela e levaria o h1 com ela. */}
       <h1 className="sr-only">Seu dia</h1>
-      {/* O humor fica fixo no topo, agora como registro do dia (só leitura). */}
-      {today.mood !== null && <MoodBadge mood={today.mood} />}
-      {today.mood !== null && isSuffering(today.mood) && (
+      {/* No topo, sempre: fora do expediente, o horário da próxima abertura;
+          sem humor, a pesquisa interativa; com humor, o registro do dia
+          (MoodBadge). Em nenhum dos casos o resto da Home some. */}
+      {!today.window.open ? (
+        <WindowClosed opensAt={today.window.opensAt} />
+      ) : today.answered ? (
+        today.mood !== null && <MoodBadge mood={today.mood} />
+      ) : (
+        <MoodPrompt pending={pending} error={error} onConfirm={answer} />
+      )}
+      {/* O acolhimento só quando a pessoa declarou sofrimento (humor 1–2). */}
+      {today.answered && today.mood !== null && isSuffering(today.mood) && (
         <SupportPaths takeFocus={answeredNow} />
       )}
+      {/* Ofensiva e resumo não dependem do humor de hoje: aparecem sempre,
+          mesmo com a pesquisa ainda aberta. */}
       {streak && <WeeklyHarvestCard streak={streak} />}
       <PersonalSummary
         token={token}

@@ -208,16 +208,18 @@ it("lets the person drop the lesson and take it back", async () => {
   expect(onResumeLesson).toHaveBeenCalledOnce();
 });
 
-it("asks the mood alone while the day has no answer", async () => {
+it("shows the mood question alongside the rest of the home", async () => {
   stubApi({ answered: false });
   await signIn();
+  // A pesquisa aparece…
   expect(
     await screen.findByRole("heading", {
-      level: 1,
       name: "Como está o seu tempo hoje?",
     }),
   ).toBeInTheDocument();
-  expect(screen.queryByText("Seu mês")).toBeNull();
+  // …e não sozinha: o resto da Home (o resumo) aparece junto, mesmo sem o
+  // humor do dia registrado.
+  expect(await screen.findByText("Seu mês")).toBeInTheDocument();
 });
 
 it("sends the chosen level and opens the app", async () => {
@@ -235,8 +237,10 @@ it("sends the chosen level and opens the app", async () => {
   );
   expect(post?.[1]?.method).toBe("POST");
   expect(JSON.parse(String(post?.[1]?.body))).toEqual({ mood: 4 });
+  // Depois de registrar, a pesquisa vira o registro do dia (some o título da
+  // pergunta), mas o resto da Home continua.
   expect(
-    screen.queryByRole("heading", { level: 1, name: "Como está o seu tempo hoje?" }),
+    screen.queryByRole("heading", { name: "Como está o seu tempo hoje?" }),
   ).toBeNull();
 });
 
