@@ -194,6 +194,79 @@ tenha tráfego ou não:
 terraform destroy
 ```
 
+## Quando a credencial não permite
+
+A chave entregue pelo hackathon (usuário `hackathon-time3`, conta `404268098465`)
+**não aplica esta infra.** Sondado ação por ação em 2026-09-20, em `us-east-1`,
+`us-east-2`, `us-west-2` e `sa-east-1`:
+
+| Ação | Resultado |
+|---|---|
+| `ecs:CreateCluster`, `ecs:RegisterTaskDefinition` | negado |
+| `ecr:CreateRepository` | negado |
+| `rds:CreateDBSubnetGroup` | negado |
+| `iam:CreateRole` | negado — sem execution role não há Fargate |
+| `ssm:PutParameter` | negado |
+| `ec2:CreateVpc`, `ec2:RunInstances` | negado |
+| `bedrock-mantle:CreateInference` | negado — é a ação que `apps/ai` usa |
+| `bedrock-runtime:Converse` | passa o IAM em alguns ids e devolve `ResourceNotFoundException`: model access não concedido na conta |
+| `logs:CreateLogGroup` | **permitido** (e `Delete`/`Describe` não) |
+| `ec2:Describe*`, `ec2:CreateSecurityGroup`, `elasticloadbalancing:*`, `s3:*` | permitido |
+
+Não há deny explícito em nenhuma: todas dizem *"no identity-based policy allows
+the action"*. É ausência de permissão, então anexar uma policy ao usuário resolve,
+sem conta nova. O que pedir, em ordem de impacto:
+
+1. **`bedrock-mantle:CreateInference`** em `*`, **mais model access habilitado no
+   console do Bedrock**. Sem o segundo passo a permissão não basta, e só o
+   administrador da conta pode dá-lo. É o pedido pequeno que muda a demonstração.
+2. `AdministratorAccess`, ou o conjunto `ecs:*`, `ecr:*`, `rds:*`,
+   `elasticloadbalancing:*`, `cloudfront:*`, `logs:*`, `ssm:*`, `ec2:*` e, em IAM,
+   `CreateRole`, `AttachRolePolicy`, `PutRolePolicy`, `PassRole` e
+   `CreateOpenIDConnectProvider`.
+
+Um efeito colateral da sondagem: `/ecs/colheita/app` **ficou criado** na conta,
+porque `logs:CreateLogGroup` passou e `DeleteLogGroup` não. Ele está vazio e não
+gera custo, mas o primeiro `terraform apply` vai falhar nele com
+`ResourceAlreadyExistsException`. Resolva com um import antes do apply:
+
+```bash
+terraform import aws_cloudwatch_log_group.app /ecs/colheita/app
+```
+
+### O plano B que funciona hoje
+
+O `docker-compose.yml` sobe os mesmos três contêineres, com a mesma semente e o
+mesmo smoke — e desde que o web passou a ser construído com `NEXT_PUBLIC_API_URL`
+em `/api`, ele **atende qualquer dispositivo que alcance a porta 3000 do host**,
+não só o navegador da máquina que subiu. Antes disso o endereço absoluto da API
+era assado na imagem, e `localhost:3001` visto de um celular era o próprio
+celular.
+
+Falta só o HTTPS, de que o service worker depende. Um túnel resolve sem tocar na
+infra, e como ele sai do host para `127.0.0.1:3000`, a publicação do Compose
+continua restrita a localhost:
+
+```bash
+cloudflared tunnel --url http://localhost:3000
+```
+
+Verificado com o próprio smoke do projeto apontado para a mesma origem:
+
+```powershell
+$env:SMOKE_WEB_URL = "http://127.0.0.1:3000"
+$env:SMOKE_API_URL = "http://127.0.0.1:3000/api"
+node scripts/smoke.mjs
+```
+
+Um túnel deixa o app alcançável por quem tiver a URL. A autenticação é a mesma de
+sempre, mas as senhas da semente são conhecidas — troque `SEED_ADMIN_PASSWORD` e
+`SEED_WORKER_PASSWORD` antes de expor, e derrube o túnel ao fim da apresentação.
+
+E para a IA, com o Bedrock negado sobram `LLM_PROVIDER=openai` com chave própria
+ou `LLM_PROVIDER=fake`. O provider do Bedrock continua implementado e ligado na
+infra; o que falta é permissão na conta, não código.
+
 ## Lacunas conhecidas
 
 - `.github/workflows/ci.yml` não constrói a imagem do web, então um
