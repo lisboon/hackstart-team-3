@@ -16,6 +16,7 @@ const tally = (over: Partial<UnitTally> = {}): UnitTally => ({
   moodPeople: 10,
   averageMood: 3.5,
   entries: 42,
+  supportUses: 7,
   ...over,
 });
 
@@ -52,6 +53,9 @@ describe("GetUnitIndicatorsUseCase", () => {
     expect(output.tightRatio).toBe(0.375);
     expect(output.averageMood).toBe(3.5);
     expect(output.frequency).toBe(4.2);
+    // Aberturas de apoio caem com o portão geral, não com uma população própria:
+    // acima do mínimo, a contagem da unidade passa inteira.
+    expect(output.supportUses).toBe(7);
   });
 
   it("hides the whole panel below the minimum group size", async () => {
@@ -66,6 +70,9 @@ describe("GetUnitIndicatorsUseCase", () => {
     expect(output.headcount).toBeNull();
     expect(output.reach).toBeNull();
     expect(output.frequency).toBeNull();
+    // A contagem de apoio cai junto com o painel: abaixo do mínimo, nem o total
+    // da unidade sai.
+    expect(output.supportUses).toBeNull();
     expect(output.tightRatio).toBeNull();
     expect(output.averageMood).toBeNull();
     expect(output.previous).toBeNull();
