@@ -4,6 +4,7 @@ import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-pie
 import { DailyEntry } from "../../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../../gateway/daily-entry.gateway";
 import GetTodayEntryUseCase from "../../../usecase/get-today/get-today.usecase";
+import { companyGatewayDouble } from "@/modules/company/__tests__/company-gateway.double";
 
 const userId = "3f1b2c8e-0f4a-4a1a-9c7d-2f9a1b3c4d5e";
 const companyId = "7a2c4d6e-1b3f-4c5d-8e9f-0a1b2c3d4e5f";
@@ -57,6 +58,7 @@ describe("GetTodayEntryUseCase", () => {
     const output = await new GetTodayEntryUseCase(
       dailyGateway(null),
       content,
+      companyGatewayDouble(),
     ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.answered).toBe(false);
@@ -68,6 +70,7 @@ describe("GetTodayEntryUseCase", () => {
     const output = await new GetTodayEntryUseCase(
       dailyGateway(entryWithMood()),
       contentGateway(piece),
+      companyGatewayDouble(),
     ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.answered).toBe(true);
@@ -80,6 +83,7 @@ describe("GetTodayEntryUseCase", () => {
     const output = await new GetTodayEntryUseCase(
       dailyGateway(entryWithMood()),
       contentGateway(piece),
+      companyGatewayDouble(),
     ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.piece?.options).toEqual([
@@ -95,6 +99,7 @@ describe("GetTodayEntryUseCase", () => {
     const output = await new GetTodayEntryUseCase(
       dailyGateway(entry),
       contentGateway(piece),
+      companyGatewayDouble(),
     ).execute({ userId, companyId, today: lateInTheDay });
 
     expect(output.pieceAnswered).toBe(true);
@@ -104,7 +109,11 @@ describe("GetTodayEntryUseCase", () => {
   it("asks the gateway for the owner, never for the user alone", async () => {
     const daily = dailyGateway(null);
 
-    await new GetTodayEntryUseCase(daily, contentGateway(piece)).execute({
+    await new GetTodayEntryUseCase(
+      daily,
+      contentGateway(piece),
+      companyGatewayDouble(),
+    ).execute({
       userId,
       companyId,
       today: lateInTheDay,

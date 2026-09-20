@@ -11,6 +11,7 @@ import {
   UserRole,
 } from "@/modules/@shared/domain/enums";
 import { Company } from "../domain/company.entity";
+import { JourneyShift, JourneyWindow } from "../domain/journey-window";
 import { TransactionContext } from "@/modules/@shared/domain/transaction/transaction-manager.interface";
 import { normalizeSlug } from "@/modules/@shared/domain/utils/slug";
 import { resolvePrismaClient } from "@/infra/database/prisma-transaction.context";
@@ -72,6 +73,7 @@ export default class CompanyRepository implements CompanyGateway {
             name: company.name,
             slug: company.slug,
             active: company.active,
+            journeyZone: company.journeyZone,
             createdAt: company.createdAt,
             updatedAt: company.updatedAt,
           },
@@ -91,6 +93,7 @@ export default class CompanyRepository implements CompanyGateway {
             name: company.name,
             slug: company.slug,
             active: company.active,
+            journeyZone: company.journeyZone,
             updatedAt: company.updatedAt,
             deletedAt: company.deletedAt,
           },
@@ -98,6 +101,39 @@ export default class CompanyRepository implements CompanyGateway {
       "slug",
       slugAlreadyInUse,
     );
+  }
+
+  async findJourneyWindow(
+    companyId: string,
+    trx?: TransactionContext,
+  ): Promise<JourneyWindow | null> {
+    const row = await resolvePrismaClient(this.prisma, trx).company.findFirst({
+      where: { id: companyId, deletedAt: null },
+      select: {
+        journeyZone: true,
+        journeyShifts: {
+          select: { weekday: true, opensAt: true, closesAt: true },
+        },
+      },
+    });
+
+    // Sem faixa nenhuma a unidade não é "sempre fechada": é uma unidade que
+    // nunca configurou a janela, e quem chama aplica o padrão.
+    if (!row || row.journeyShifts.length === 0) return null;
+    return { zone: row.journeyZone, shifts: row.journeyShifts };
+  }
+
+  async replaceJourneyShifts(
+    companyId: string,
+    shifts: readonly JourneyShift[],
+    trx?: TransactionContext,
+  ): Promise<void> {
+    const client = resolvePrismaClient(this.prisma, trx);
+    await client.companyJourneyShift.deleteMany({ where: { companyId } });
+    if (shifts.length === 0) return;
+    await client.companyJourneyShift.createMany({
+      data: shifts.map((shift) => ({ companyId, ...shift })),
+    });
   }
 
   async findTally(companyId: string, period: UnitPeriod): Promise<UnitTally> {

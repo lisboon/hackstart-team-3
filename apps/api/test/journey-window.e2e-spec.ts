@@ -8,25 +8,38 @@ import { AppModule } from "../src/infra/http/app.module";
 import { configureApp } from "../src/infra/http/app.setup";
 import prisma from "../src/infra/database/prisma.instance";
 import { UserRole } from "../src/modules/@shared/domain/enums";
-import DailyEntryFacade from "../src/modules/daily-entry/facade/daily-entry.facade";
-import DailyEntryFacadeFactory from "../src/modules/daily-entry/factory/facade.factory";
-import { JourneyWindow } from "../src/modules/daily-entry/domain/journey-window";
 
 const PASSWORD = "Sup3rSecret!";
 const SLUG = "e2e-journey-window-company";
 const WORKER = "e2e-journey-window-worker@backend.com.br";
+const ZONE = "America/Cuiaba";
+
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const weekdayIn = (zone: string, instant: Date): number =>
+  WEEKDAYS.indexOf(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: zone,
+      weekday: "short",
+    }).format(instant),
+  );
 
 /**
- * Uma janela que nunca abre. A configuração é lida no escopo do módulo, então
- * trocar variável de ambiente depois do import não teria efeito — sobrepor a
- * fábrica exercita a mesma fiação que produção usa, do HTTP até o domínio.
+ * A janela vem da unidade (#76), então fechá-la aqui é gravar faixa no banco —
+ * não sobrepor provider. É exatamente essa fiação, do HTTP ao Postgres, que o
+ * teste precisa exercitar.
+ *
+ * A única faixa cai **amanhã** no fuso da unidade. Assim hoje não tem faixa
+ * nenhuma e está fechado, qualquer que seja a hora em que o CI rodar — e a
+ * próxima abertura está garantidamente no futuro. Uma faixa de um minuto hoje
+ * abriria uma vez a cada 10.080 execuções, e teste que falha uma vez por mês
+ * é pior que teste nenhum.
  */
-const NEVER_OPEN: JourneyWindow = {
-  zone: "America/Cuiaba",
-  days: [1],
-  opensAt: { hour: 7, minute: 30 },
-  closesAt: { hour: 7, minute: 31 },
-};
+const closedTodayShift = () => ({
+  weekday: weekdayIn(ZONE, new Date(Date.now() + 86_400_000)),
+  opensAt: 7 * 60 + 30,
+  closesAt: 7 * 60 + 31,
+});
 
 describe("Journey window (e2e)", () => {
   let app: INestApplication<App>;
@@ -36,10 +49,7 @@ describe("Journey window (e2e)", () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    })
-      .overrideProvider(DailyEntryFacade)
-      .useValue(DailyEntryFacadeFactory.create(NEVER_OPEN))
-      .compile();
+    }).compile();
     app = moduleFixture.createNestApplication();
     configureApp(app);
     await app.init();
@@ -48,7 +58,13 @@ describe("Journey window (e2e)", () => {
     await prisma.company.deleteMany({ where: { slug: SLUG } });
 
     const company = await prisma.company.create({
-      data: { id: randomUUID(), name: "Journey Window Co", slug: SLUG },
+      data: {
+        id: randomUUID(),
+        name: "Journey Window Co",
+        slug: SLUG,
+        journeyZone: ZONE,
+        journeyShifts: { create: closedTodayShift() },
+      },
     });
     companyId = company.id;
 
@@ -117,5 +133,12 @@ describe("Journey window (e2e)", () => {
   it("writes nothing while the window is closed", async () => {
     const entries = await prisma.dailyEntry.count({ where: { companyId } });
     expect(entries).toBe(0);
+  });
+
+  it("keeps the unit open when the environment default would have closed it", async () => {
+    // A prova de que a janela vem do banco, e não do processo: o e2e roda com
+    // JOURNEY_WINDOW aberto a semana inteira, e mesmo assim esta unidade está
+    // fechada porque foi ela que disse quando abre.
+    expect(process.env.JOURNEY_WINDOW_DAYS).toBe("0,1,2,3,4,5,6");
   });
 });

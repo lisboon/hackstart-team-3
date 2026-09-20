@@ -90,6 +90,8 @@ model Company {
   name      String
   slug      String    @unique
   active    Boolean   @default(true)
+  /// Fuso da unidade. Cuiaba e Belem nao coincidem, e a janela e local.
+  journeyZone String  @default("America/Cuiaba") @map("journey_zone")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -99,9 +101,29 @@ model Company {
   selfReports SelfReport[]
   dailyEntries DailyEntry[]
   savingsGoals SavingsGoal[]
+  journeyShifts CompanyJourneyShift[]
 
   @@index([active])
   @@map("companies")
+}
+
+/// Uma faixa de expediente da unidade, em minutos desde a meia-noite local.
+/// Turno que atravessa a meia-noite sao duas linhas em dias diferentes.
+model CompanyJourneyShift {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  /// 0 = domingo ... 6 = sabado.
+  weekday   Int
+  /// Minutos desde a meia-noite local, de 0 a 1439.
+  opensAt   Int    @map("opens_at")
+  /// Minutos desde a meia-noite local, de 1 a 1440 (1440 e a meia-noite seguinte).
+  closesAt  Int    @map("closes_at")
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, weekday, opensAt])
+  @@index([companyId])
+  @@map("company_journey_shifts")
 }
 
 model AuditEvent {

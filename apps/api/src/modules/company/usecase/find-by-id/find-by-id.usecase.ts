@@ -1,6 +1,7 @@
 import { CompanyGateway } from "../../gateway/company.gateway";
 import { Company } from "../../domain/company.entity";
 import { NotFoundError } from "@/modules/@shared/domain/errors/not-found.error";
+import { describeShifts } from "../../domain/journey-window";
 import {
   FindCompanyByIdUseCaseInputDto,
   FindCompanyByIdUseCaseInterface,
@@ -17,6 +18,14 @@ export default class FindCompanyByIdUseCase implements FindCompanyByIdUseCaseInt
     if (!company) {
       throw new NotFoundError(data.id, Company);
     }
-    return company;
+
+    // Sem faixa própria a unidade roda no padrão do processo, e a tela mostra
+    // a lista vazia — que é a verdade: não há configuração desta unidade.
+    const window = await this.companyGateway.findJourneyWindow(data.id);
+
+    return {
+      ...company.toJSON(),
+      journeyShifts: describeShifts(window?.shifts ?? []),
+    };
   }
 }

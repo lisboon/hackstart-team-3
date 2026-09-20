@@ -57,6 +57,8 @@ try {
     "GoalsResponseDto",
     "UpdateGoalResponseDto",
     "StreakResponseDto",
+    "JourneyShiftBodyDto",
+    "JourneyShiftResponseDto",
   ];
 
   for (const name of requiredSchemas) {

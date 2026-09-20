@@ -7,7 +7,10 @@ import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-pie
 import { DailyEntry } from "../../../domain/daily-entry.entity";
 import { DailyEntryGateway } from "../../../gateway/daily-entry.gateway";
 import AnswerPieceUseCase from "../../../usecase/answer-piece/answer-piece.usecase";
-import { JourneyWindow } from "../../../domain/journey-window";
+import {
+  alwaysOpenUnit,
+  companyGatewayDouble,
+} from "@/modules/company/__tests__/company-gateway.double";
 
 const userId = "3f1b2c8e-0f4a-4a1a-9c7d-2f9a1b3c4d5e";
 const companyId = "7a2c4d6e-1b3f-4c5d-8e9f-0a1b2c3d4e5f";
@@ -55,17 +58,11 @@ const entryWithMood = () =>
   DailyEntry.create({ userId, companyId, entryDate: lateInTheDay, mood: 3 });
 
 /**
- * Estes testes provam a regra do humor e da colheita, nao o horario. Uma janela
- * sempre aberta mantem cada teste sobre uma coisa so — a janela tem os seus em
- * `__tests__/domain/journey-window.spec.ts`, e a recusa fora dela tem o seu
- * caso proprio no fim deste arquivo.
+ * Estes testes provam a regra do humor e da colheita, nao o horario. Uma
+ * unidade sempre aberta mantem cada teste sobre uma coisa so — a janela tem os
+ * seus em `modules/company/__tests__/domain/journey-window.spec.ts`, e a
+ * recusa fora dela tem o seu caso proprio no fim deste arquivo.
  */
-const ALWAYS_OPEN: JourneyWindow = {
-  zone: "UTC",
-  days: [0, 1, 2, 3, 4, 5, 6],
-  opensAt: { hour: 0, minute: 0 },
-  closesAt: { hour: 23, minute: 59 },
-};
 
 const input = (answer: string) => ({
   userId,
@@ -83,7 +80,7 @@ describe("AnswerPieceUseCase", () => {
     const output = await new AnswerPieceUseCase(
       daily,
       contentGateway(piece),
-      ALWAYS_OPEN,
+      alwaysOpenUnit(),
     ).execute(input("Guardo"));
 
     expect(output.comprehended).toBe(true);
@@ -96,7 +93,7 @@ describe("AnswerPieceUseCase", () => {
     const output = await new AnswerPieceUseCase(
       dailyGateway(entryWithMood()),
       contentGateway(piece),
-      ALWAYS_OPEN,
+      alwaysOpenUnit(),
     ).execute(input("Deixo na conta"));
 
     // A pessoa aprende vendo a consequência: escolher diferente não é erro,
@@ -111,7 +108,7 @@ describe("AnswerPieceUseCase", () => {
     const output = await new AnswerPieceUseCase(
       daily,
       contentGateway(piece),
-      ALWAYS_OPEN,
+      alwaysOpenUnit(),
     ).execute(input("Guardo"));
 
     // Colheita não depende do humor: sem dia aberto, a resposta cria a entrada
@@ -132,7 +129,7 @@ describe("AnswerPieceUseCase", () => {
       new AnswerPieceUseCase(
         dailyGateway(entry),
         contentGateway(piece),
-        ALWAYS_OPEN,
+        alwaysOpenUnit(),
       ).execute(input("Deixo na conta")),
     ).rejects.toBeInstanceOf(ConflictError);
   });
@@ -142,7 +139,7 @@ describe("AnswerPieceUseCase", () => {
       new AnswerPieceUseCase(
         dailyGateway(entryWithMood()),
         contentGateway(piece),
-        ALWAYS_OPEN,
+        alwaysOpenUnit(),
       ).execute(input("Compro parcelado")),
     ).rejects.toBeInstanceOf(NotFoundError);
   });
@@ -152,7 +149,7 @@ describe("AnswerPieceUseCase", () => {
       new AnswerPieceUseCase(
         dailyGateway(entryWithMood()),
         contentGateway(null),
-        ALWAYS_OPEN,
+        alwaysOpenUnit(),
       ).execute(input("Guardo")),
     ).rejects.toBeInstanceOf(NotFoundError);
   });
@@ -161,9 +158,11 @@ describe("AnswerPieceUseCase", () => {
     const daily = dailyGateway(entryWithMood());
 
     await expect(
-      new AnswerPieceUseCase(daily, contentGateway(piece)).execute(
-        input("Guardo"),
-      ),
+      new AnswerPieceUseCase(
+        daily,
+        contentGateway(piece),
+        companyGatewayDouble(),
+      ).execute(input("Guardo")),
     ).rejects.toBeInstanceOf(ForbiddenError);
 
     expect(daily.update).not.toHaveBeenCalled();
