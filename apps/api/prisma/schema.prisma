@@ -227,10 +227,12 @@ model ContentPiece {
   @@map("content_pieces")
 }
 
-/// Meta de guarda pessoal. Mede intenção e hábito de guarda, NUNCA valor em
-/// dinheiro: não há, e não deve haver, nenhum campo monetário. O cumprimento
-/// mensal deriva da declaração do mês (SelfReport), não de saldo. Recurso
-/// estritamente pessoal — nunca agregado nem exposto ao gestor.
+/// Meta de guarda pessoal, com valor-alvo autodeclarado em centavos (#71,
+/// que reverteu conscientemente a regra "sem cifra" da #63). O valor e uma
+/// intencao que a pessoa define: nunca e verificado contra saldo, porque o
+/// produto nao acessa conta, extrato nem transacao. O cumprimento mensal
+/// continua vindo da declaracao do mes (SelfReport). Recurso estritamente
+/// pessoal — valor, meta e motivo nunca sao agregados nem expostos ao gestor.
 model SavingsGoal {
   id           String                   @id @default(uuid())
   userId       String                   @map("user_id")
