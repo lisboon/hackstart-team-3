@@ -57,7 +57,7 @@ export function MoodPrompt({
   return (
     <Card aria-labelledby={id} className="gap-3">
       <h2 id={id} className="text-lg font-semibold tracking-tight">
-        Como está o seu tempo hoje?
+        Como você está se sentindo hoje?
       </h2>
       <p className="text-sm text-muted-foreground">
         Um toque abre a confirmação. Ninguém além de você vê esta resposta.
@@ -97,9 +97,9 @@ export function MoodPrompt({
       )}
 
       {choice !== null && (
-        <Sheet id={`${id}-confirm`} title="Confirmar o seu tempo" onClose={close}>
+        <Sheet id={`${id}-confirm`} title="Confirmar como você está" onClose={close}>
           <p className="text-sm">
-            Oi! Que bom que você compartilhou que o seu tempo hoje está{" "}
+            Oi! Que bom que você compartilhou que está{" "}
             <strong>{moodLabel(choice).toLowerCase()}</strong>. Quer especificar
             mais o que está sentindo?
           </p>

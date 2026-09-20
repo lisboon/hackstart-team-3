@@ -21,7 +21,7 @@ export function MoodBadge({ mood }: { mood: MoodScale }) {
   return (
     <Card aria-labelledby={id} className="gap-2 rounded-b-none rounded-t-2xl">
       <h2 id={id} className="text-sm font-semibold text-muted-foreground">
-        Seu tempo hoje
+        Como você está hoje
       </h2>
       <div className="flex items-center gap-3">
         <span

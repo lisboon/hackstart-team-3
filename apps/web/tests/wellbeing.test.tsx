@@ -100,7 +100,7 @@ it("opens a confirmation popup on tap instead of recording right away", async ()
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByRole("textbox")).toBeNull();
 
-  await userEvent.click(screen.getByRole("button", { name: "Chuva" }));
+  await userEvent.click(screen.getByRole("button", { name: "Triste" }));
 
   // O toque não registra: só abre o popup com a caixa opcional.
   expect(onConfirm).not.toHaveBeenCalled();
@@ -113,7 +113,7 @@ it("registers the mood with the optional note when the person writes one", async
   const onConfirm = vi.fn();
   render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
 
-  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
+  await userEvent.click(screen.getByRole("button", { name: "Ótimo" }));
   await userEvent.type(
     screen.getByRole("textbox"),
     "Aliviado depois de organizar as contas.",
@@ -130,7 +130,7 @@ it("registers without a note when the person chooses not to answer", async () =>
   const onConfirm = vi.fn();
   render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
 
-  await userEvent.click(screen.getByRole("button", { name: "Nublado" }));
+  await userEvent.click(screen.getByRole("button", { name: "Mais ou menos" }));
   await userEvent.click(
     screen.getByRole("button", { name: "Não responder" }),
   );
@@ -142,7 +142,7 @@ it("records nothing when the popup is dismissed", async () => {
   const onConfirm = vi.fn();
   render(<MoodPrompt pending={false} error="" onConfirm={onConfirm} />);
 
-  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
+  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
   expect(await screen.findByRole("dialog")).toBeInTheDocument();
   await userEvent.keyboard("{Escape}");
 
@@ -156,7 +156,7 @@ it("walking the scale with the keyboard records nothing and opens no popup", asy
   await userEvent.tab();
   await userEvent.tab();
   await userEvent.tab();
-  expect(screen.getByRole("button", { name: "Nublado" })).toHaveFocus();
+  expect(screen.getByRole("button", { name: "Mais ou menos" })).toHaveFocus();
   expect(onConfirm).not.toHaveBeenCalled();
   // Enter só abre o popup — ainda não registra.
   await userEvent.keyboard("{Enter}");
@@ -194,7 +194,7 @@ it("shows the mood question alongside the rest of the home", async () => {
   // A pesquisa aparece…
   expect(
     await screen.findByRole("heading", {
-      name: "Como está o seu tempo hoje?",
+      name: "Como você está se sentindo hoje?",
     }),
   ).toBeInTheDocument();
   // …e não sozinha: o resto da Home (o resumo) aparece junto, mesmo sem o
@@ -206,7 +206,7 @@ it("sends the chosen level and opens the app", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Sol entre nuvens" }));
+  await userEvent.click(screen.getByRole("button", { name: "Bem" }));
   // O popup confirma antes de registrar: sem ele, nada é enviado.
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
@@ -220,7 +220,7 @@ it("sends the chosen level and opens the app", async () => {
   // Depois de registrar, a pesquisa vira o registro do dia (some o título da
   // pergunta), mas o resto da Home continua.
   expect(
-    screen.queryByRole("heading", { name: "Como está o seu tempo hoje?" }),
+    screen.queryByRole("heading", { name: "Como você está se sentindo hoje?" }),
   ).toBeNull();
 });
 
@@ -228,7 +228,7 @@ it("sends the note the person specified in the confirmation popup", async () => 
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Chuva" }));
+  await userEvent.click(screen.getByRole("button", { name: "Triste" }));
   await userEvent.type(
     await screen.findByRole("textbox"),
     "Semana difícil.",
@@ -270,7 +270,7 @@ it("moves focus to the welcome when it answers a tap", async () => {
   stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
+  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
   );
@@ -290,7 +290,7 @@ it("treats a day already answered as answered, not as an error", async () => {
   stubApi({ answered: false, moodStatus: 409 });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Tempestade" }));
+  await userEvent.click(screen.getByRole("button", { name: "Muito triste" }));
   await userEvent.click(
     await screen.findByRole("button", { name: "Não responder" }),
   );
@@ -302,7 +302,7 @@ it("records one answer even under a double confirm", async () => {
   const fetch = stubApi({ answered: false });
   await signIn();
   await screen.findByRole("heading", { level: 1 });
-  await userEvent.click(screen.getByRole("button", { name: "Sol" }));
+  await userEvent.click(screen.getByRole("button", { name: "Ótimo" }));
   const confirm = await screen.findByRole("button", { name: "Não responder" });
   await Promise.all([userEvent.click(confirm), userEvent.click(confirm)]);
   await screen.findByText("Seu mês");
