@@ -16,9 +16,11 @@ import {
 export function PersonalSummary({
   token,
   onUnauthorized,
+  className,
 }: {
   token: string;
   onUnauthorized: () => void;
+  className?: string;
 }) {
   const { summary, error, loading, pending, declare, reload } =
     usePersonalSummary(token, onUnauthorized);
@@ -39,7 +41,7 @@ export function PersonalSummary({
   }
 
   return (
-    <Card className="gap-6">
+    <Card className={`gap-6${className ? ` ${className}` : ""}`}>
       <header className="grid gap-1">
         <p className="text-sm text-muted-foreground">Seu mês</p>
         <h2 className="text-xl font-semibold tracking-tight md:text-2xl">

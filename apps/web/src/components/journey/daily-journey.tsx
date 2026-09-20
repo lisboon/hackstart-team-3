@@ -89,7 +89,11 @@ export function DailyJourney({
         <SupportPaths takeFocus={answeredNow} />
       )}
       {streak && <WeeklyHarvestCard streak={streak} />}
-      <PersonalSummary token={token} onUnauthorized={onUnauthorized} />
+      <PersonalSummary
+        token={token}
+        onUnauthorized={onUnauthorized}
+        className="rounded-none rounded-b-2xl"
+      />
     </>
   );
 }
