@@ -23,6 +23,27 @@ export function moodLabel(mood: MoodScale): string {
   return MOOD_LEVELS.find((level) => level.value === mood)?.label ?? "";
 }
 
+/**
+ * A mensagem de acolhimento do popup, uma por sentimento. Acolhe sem investigar
+ * nem cobrar: valida o que a pessoa sente, seja qual for, e só então convida
+ * (sem obrigar) a especificar. Nos dias difíceis o tom é de cuidado; nos bons,
+ * de celebração leve.
+ */
+export function moodPromptMessage(mood: MoodScale): string {
+  switch (mood) {
+    case 1:
+      return "Sinto muito que hoje esteja tão difícil. Obrigado por confiar isso aqui. Se quiser, conte um pouco do que está pesando.";
+    case 2:
+      return "Dias tristes também merecem espaço. Obrigado por compartilhar. Quer contar um pouco do que está sentindo?";
+    case 3:
+      return "Nem todo dia é sol ou tempestade, e tudo bem ficar no meio do caminho. Quer especificar como está se sentindo?";
+    case 4:
+      return "Que bom que hoje está sendo um bom dia! Quer contar um pouco do que está te fazendo bem?";
+    case 5:
+      return "Que alegria saber que você está ótimo hoje! Quer compartilhar o que está deixando o dia tão bom?";
+  }
+}
+
 /** Na dúvida, acolher: os dois níveis mais baixos abrem o acolhimento. */
 export function isSuffering(mood: MoodScale): boolean {
   return mood <= 2;

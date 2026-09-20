@@ -104,7 +104,13 @@ it("opens a confirmation popup on tap instead of recording right away", async ()
 
   // O toque não registra: só abre o popup com a caixa opcional.
   expect(onConfirm).not.toHaveBeenCalled();
-  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  const dialog = await screen.findByRole("dialog");
+  expect(dialog).toBeInTheDocument();
+  // É um <dialog> nativo, aberto.
+  expect(dialog.tagName).toBe("DIALOG");
+  expect(dialog).toHaveAttribute("open");
+  // A mensagem é do sentimento escolhido (Triste), não uma frase genérica.
+  expect(dialog).toHaveTextContent(/dias tristes também merecem espaço/i);
   expect(screen.getByRole("textbox")).toBeInTheDocument();
   expect(container.textContent).not.toMatch(/[1-5]/);
 });

@@ -8,7 +8,7 @@ import type { MoodScale } from "@/schemas/wellbeing";
  * nunca é o único sinal — o rótulo vai no `aria-label` de cada botão.
  *
  * Cada nível de 1 (pior) a 5 (melhor) tem o seu, na ordem do mock:
- * Tempestade · Chuva · Nublado · Brisa e Renovação · Sol.
+ * Tempestade · Chuva · Nuvem com sol · Brisa e Renovação · Sol.
  */
 type WeatherIcon = ComponentType<{ className?: string }>;
 
@@ -38,11 +38,22 @@ function RainIcon({ className }: { className?: string }) {
   );
 }
 
-/** 3 — Nublado: só a nuvem. */
-function CloudIcon({ className }: { className?: string }) {
+/** 3 — Mais ou menos: nuvem com sol atrás (parcialmente nublado). */
+function PartlyCloudyIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} strokeWidth={1.8} {...base} aria-hidden>
-      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+    <svg
+      className={className}
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...base}
+      aria-hidden
+    >
+      {/* Sol espiando atrás, com alguns raios. */}
+      <circle cx="7" cy="8" r="3" />
+      <path d="M7 2v1.5M7 12.5V14M2 8h1.5M10.5 8H12M3.6 4.6l1 1M9.4 4.6l-1 1" />
+      {/* Nuvem à frente. */}
+      <path d="M17.5 20H10a5 5 0 0 1-.5-9.975A6 6 0 0 1 20.9 12.2 4 4 0 0 1 17.5 20Z" />
     </svg>
   );
 }
@@ -78,7 +89,7 @@ function SunIcon({ className }: { className?: string }) {
 export const WEATHER_ICON: Record<MoodScale, WeatherIcon> = {
   1: StormIcon,
   2: RainIcon,
-  3: CloudIcon,
+  3: PartlyCloudyIcon,
   4: BreezeIcon,
   5: SunIcon,
 };

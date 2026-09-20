@@ -1,25 +1,28 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sheet } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { MAX_MOOD_NOTE_LENGTH, type MoodScale } from "@/schemas/wellbeing";
-import { MOOD_LEVELS, moodLabel } from "./mood-presentation";
+import {
+  MAX_MOOD_NOTE_LENGTH,
+  type MoodScale,
+} from "@/schemas/wellbeing";
+import { MOOD_LEVELS, moodLabel, moodPromptMessage } from "./mood-presentation";
 import { WEATHER_ICON } from "./mood-weather-icons";
 
 /**
  * Botão, não rádio: num grupo de rádios a seta do teclado troca a seleção. Aqui
- * o toque não registra mais o dia direto (#91): ele abre um popup de
- * confirmação, onde a pessoa pode especificar em texto livre o que está
- * sentindo — ou seguir sem dizer. Registrar é sempre uma escolha explícita, e
- * fechar o popup não grava nada.
+ * o toque não registra mais o dia direto (#91): abre um `<dialog>` de
+ * confirmação, com uma mensagem própria para o sentimento escolhido e um campo
+ * opcional para especificar. Registrar é sempre uma escolha explícita, e fechar
+ * o diálogo não grava nada.
  *
- * A resposta é uma por dia e não se corrige, então a tela só existe enquanto o
- * dia está sem resposta. O toque é confirmado em texto porque cor sozinha não
- * comunica estado para quem não distingue o verde.
+ * É um `<dialog>` nativo renderizado com o atributo `open` (sem `showModal`,
+ * que o jsdom dos testes não implementa): mantém a semântica de diálogo e o
+ * Escape/fecha tratados aqui. O foco entra no título ao abrir e volta ao ícone
+ * escolhido ao fechar.
  */
 export function MoodPrompt({
   pending,
@@ -32,16 +35,28 @@ export function MoodPrompt({
 }) {
   const id = useId();
   const noteId = useId();
-  // O humor escolhido fica pendente de confirmação até a pessoa registrar ou
-  // desistir: enquanto isso, o popup está aberto sobre ele.
+  const titleId = useId();
+  // O sentimento escolhido fica pendente de confirmação até a pessoa registrar
+  // ou desistir: enquanto isso, o diálogo está aberto sobre ele.
   const [choice, setChoice] = useState<MoodScale | null>(null);
   const [note, setNote] = useState("");
   const triggers = useRef(new Map<MoodScale, HTMLButtonElement | null>());
+  const dialog = useRef<HTMLDialogElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+
+  // Ao abrir, o foco entra no título do diálogo.
+  useEffect(() => {
+    if (choice !== null) heading.current?.focus();
+  }, [choice]);
+
+  function reset() {
+    setChoice(null);
+    setNote("");
+  }
 
   function close() {
     const focusBack = choice;
-    setChoice(null);
-    setNote("");
+    reset();
     if (focusBack !== null) triggers.current.get(focusBack)?.focus();
   }
 
@@ -50,8 +65,32 @@ export function MoodPrompt({
     onConfirm(choice, withNote ? note : undefined);
     // Não devolve o foco: a confirmação recarrega o dia e a pergunta sai da
     // tela. Só limpamos o estado local.
-    setChoice(null);
-    setNote("");
+    reset();
+  }
+
+  const FOCUSABLE =
+    'a[href], button:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  /** Prende a tabulação dentro do diálogo: `aria-modal` promete isso. */
+  function trap(event: KeyboardEvent<HTMLDialogElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const stops = dialog.current?.querySelectorAll<HTMLElement>(FOCUSABLE);
+    if (!stops || stops.length === 0) return;
+    const first = stops[0];
+    const last = stops[stops.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && (active === first || active === heading.current)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   return (
@@ -97,46 +136,83 @@ export function MoodPrompt({
       )}
 
       {choice !== null && (
-        <Sheet id={`${id}-confirm`} title="Confirmar como você está" onClose={close}>
-          <p className="text-sm">
-            Oi! Que bom que você compartilhou que está{" "}
-            <strong>{moodLabel(choice).toLowerCase()}</strong>. Quer especificar
-            mais o que está sentindo?
-          </p>
-          <label htmlFor={noteId} className="text-sm font-medium">
-            Se quiser, conte um pouco (opcional)
-          </label>
-          <Textarea
-            id={noteId}
-            value={note}
-            maxLength={MAX_MOOD_NOTE_LENGTH}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="O que está pesando ou animando hoje…"
+        <>
+          {/* Fundo escuro: um toque fora do diálogo fecha sem registrar. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 z-10 bg-foreground/40"
+            onClick={close}
           />
-          <p aria-live="polite" className="text-xs text-muted-foreground">
-            É só seu. Nunca aparece para o gestor.
-          </p>
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Button
-              type="button"
-              disabled={pending}
-              onClick={() => confirm(true)}
+          <dialog
+            ref={dialog}
+            open
+            aria-modal="true"
+            aria-labelledby={titleId}
+            onKeyDown={trap}
+            className="absolute inset-x-4 top-1/2 z-20 m-0 grid max-w-[calc(100%-2rem)] -translate-y-1/2 gap-3 rounded-2xl border border-border bg-card p-5 text-foreground shadow-xl"
+          >
+            <h3
+              id={titleId}
+              ref={heading}
+              tabIndex={-1}
+              className="flex items-center gap-2 text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
-              Registrar
-            </Button>
-            <Button
+              <span
+                aria-hidden
+                className="grid size-9 place-items-center rounded-xl border border-primary bg-primary/5 text-primary"
+              >
+                {(() => {
+                  const Weather = WEATHER_ICON[choice];
+                  return <Weather className="h-5 w-5" />;
+                })()}
+              </span>
+              {moodLabel(choice)}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {moodPromptMessage(choice)}
+            </p>
+            <label htmlFor={noteId} className="text-sm font-medium">
+              Se quiser, conte um pouco (opcional)
+            </label>
+            <Textarea
+              id={noteId}
+              value={note}
+              maxLength={MAX_MOOD_NOTE_LENGTH}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="O que está pesando ou animando hoje…"
+            />
+            <p className="text-xs text-muted-foreground">
+              É só seu. Nunca aparece para o gestor.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button
+                type="button"
+                disabled={pending}
+                onClick={() => confirm(true)}
+              >
+                Registrar
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={pending}
+                onClick={() => confirm(false)}
+              >
+                Não responder
+              </Button>
+            </div>
+            <button
               type="button"
-              variant="secondary"
-              disabled={pending}
-              onClick={() => confirm(false)}
+              onClick={close}
+              className="justify-self-center text-sm font-medium text-muted-foreground underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              Não responder
-            </Button>
-          </div>
-          <p role="status" aria-live="polite" className="text-sm">
-            {pending ? `Registrando: ${moodLabel(choice)}` : ""}
-          </p>
-        </Sheet>
+              Voltar
+            </button>
+            <p role="status" aria-live="polite" className="text-sm">
+              {pending ? `Registrando: ${moodLabel(choice)}` : ""}
+            </p>
+          </dialog>
+        </>
       )}
     </Card>
   );
