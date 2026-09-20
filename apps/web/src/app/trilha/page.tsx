@@ -17,6 +17,12 @@ import { useJourney } from "@/hooks/wellbeing/use-journey";
 import { useAnswerPiece } from "@/hooks/wellbeing/use-answer-piece";
 import type { ContentPiece, JourneyNode } from "@/schemas/wellbeing";
 
+/**
+ * O respiro lateral é da tela, e não mais do `AppShell`: ele deixou de impor um
+ * `px-` global para que a Home pudesse ter cartão de ponta a ponta. A trilha
+ * não é feita de cartão — são faixas e nós soltos —, então ela precisa do seu.
+ */
+
 /** O nó atual carrega tudo que a pergunta precisa; vira a peça respondível. */
 function toPiece(node: JourneyNode): ContentPiece {
   return {
@@ -103,7 +109,7 @@ function TrilhaPageContent({
   if (reviewing) {
     const place = placeOf(reviewing);
     return (
-      <div className="mx-auto w-full max-w-md pb-24">
+      <div className="mx-auto w-full max-w-md px-5 pb-24">
         <LessonShell
           stage={reviewing.stage}
           position={place.position}
@@ -120,7 +126,7 @@ function TrilhaPageContent({
   if (answering) {
     const place = placeOf(answering);
     return (
-      <div className="mx-auto w-full max-w-md pb-24">
+      <div className="mx-auto w-full max-w-md px-5 pb-24">
         <LessonShell
           stage={answering.stage}
           position={place.position}
@@ -154,7 +160,7 @@ function TrilhaPageContent({
   }
 
   return (
-    <div className="mx-auto w-full max-w-md pb-24">
+    <div className="mx-auto w-full max-w-md px-5 pb-24">
       <header className="flex items-baseline justify-between gap-3 px-1 pb-4 pt-2">
         <h1 className="font-serif text-[1.2rem] leading-tight">Trilha COOPS</h1>
         <p className="shrink-0 text-xs text-muted-foreground">

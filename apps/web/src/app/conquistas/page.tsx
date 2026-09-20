@@ -4,7 +4,9 @@ import { AchievementsWorkspace } from "@/components/profile/achievements-workspa
 export default function ConquistasPage() {
   return (
     <AppShell>
-      <AchievementsWorkspace />
+      <div className="flex min-h-full w-full flex-col pb-24">
+        <AchievementsWorkspace />
+      </div>
     </AppShell>
   );
 }
