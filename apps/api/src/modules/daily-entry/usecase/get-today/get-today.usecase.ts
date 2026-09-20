@@ -22,13 +22,16 @@ export default class GetTodayEntryUseCase implements GetTodayEntryUseCaseInterfa
     const entryDate = normalizeToDayStart(data.today);
     const entry = await this.dailyEntryGateway.findByDate(owner, entryDate);
 
-    // Sem humor não há peça: a pergunta de abertura vem antes do conteúdo.
-    if (!entry) {
+    // "Respondido" é ter declarado o humor — não a entrada que a colheita
+    // possa ter aberto automaticamente. Enquanto o humor for o neutro
+    // automático, a abertura ainda pede a declaração.
+    const moodDeclared = entry?.moodDeclared ?? false;
+    if (!entry || !moodDeclared) {
       return {
         entryDate,
         answered: false,
         mood: null,
-        pieceAnswered: false,
+        pieceAnswered: entry?.pieceAnswered ?? false,
         piece: null,
       };
     }

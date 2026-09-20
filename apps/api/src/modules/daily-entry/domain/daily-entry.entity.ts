@@ -10,6 +10,7 @@ export interface DailyEntryProps {
   companyId: string;
   entryDate: Date;
   mood: number;
+  moodDeclared?: boolean;
   contentPieceId?: string;
   answer?: string;
   comprehended?: boolean;
@@ -24,6 +25,7 @@ export class DailyEntry extends BaseEntity {
   private _companyId: string;
   private _entryDate: Date;
   private _mood: number;
+  private _moodDeclared: boolean;
   private _contentPieceId: string | undefined;
   private _answer: string | undefined;
   private _comprehended: boolean | undefined;
@@ -40,6 +42,9 @@ export class DailyEntry extends BaseEntity {
     this._companyId = props.companyId;
     this._entryDate = normalizeToDayStart(props.entryDate);
     this._mood = props.mood;
+    // Sem informação em contrário, um humor é uma declaração. O automático é
+    // criado explicitamente com `false`.
+    this._moodDeclared = props.moodDeclared ?? true;
     this._contentPieceId = props.contentPieceId;
     this._answer = props.answer;
     this._comprehended = props.comprehended;
@@ -59,6 +64,10 @@ export class DailyEntry extends BaseEntity {
 
   get mood(): number {
     return this._mood;
+  }
+
+  get moodDeclared(): boolean {
+    return this._moodDeclared;
   }
 
   get contentPieceId(): string | undefined {
@@ -97,8 +106,15 @@ export class DailyEntry extends BaseEntity {
     this.update();
   }
 
+  /**
+   * A pessoa declara o humor. Marca `moodDeclared`, então sobrescrever depois
+   * um humor automático é permitido, mas sobrescrever um já declarado não —
+   * a decisão de bloquear a correção fica no caso de uso, que conhece o estado
+   * anterior.
+   */
   changeMood(mood: number): void {
     this._mood = mood;
+    this._moodDeclared = true;
     this.update();
     this.validate(["update"]);
 
@@ -123,6 +139,23 @@ export class DailyEntry extends BaseEntity {
     return entry;
   }
 
+  /**
+   * A entrada aberta pela colheita quando a pessoa ainda não disse como está.
+   * O humor é neutro e fica marcado como NÃO declarado: existe só para o dia
+   * ter uma linha, e é sobrescrito assim que a pessoa declarar de verdade. Não
+   * conta como declaração no painel do gestor.
+   */
+  static createAutomatic(
+    props: Omit<DailyEntryProps, "mood" | "moodDeclared">,
+    neutralMood: number,
+  ): DailyEntry {
+    return DailyEntry.create({
+      ...props,
+      mood: neutralMood,
+      moodDeclared: false,
+    });
+  }
+
   toJSON() {
     return {
       id: this._id,
@@ -130,6 +163,7 @@ export class DailyEntry extends BaseEntity {
       companyId: this._companyId,
       entryDate: this._entryDate,
       mood: this._mood,
+      moodDeclared: this._moodDeclared,
       contentPieceId: this._contentPieceId,
       answer: this._answer,
       comprehended: this._comprehended,

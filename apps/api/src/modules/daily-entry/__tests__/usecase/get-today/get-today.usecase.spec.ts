@@ -34,12 +34,14 @@ const piece: ContentPiece = {
 const dailyGateway = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
   findAnsweredPieceIds: jest.fn().mockResolvedValue([]),
+  findAnswers: jest.fn().mockResolvedValue(new Map<string, string>()),
   create: jest.fn(),
   update: jest.fn(),
 });
 
 const contentGateway = (next: ContentPiece | null): ContentPieceGateway => ({
   findById: jest.fn().mockResolvedValue(next),
+  findAll: jest.fn().mockResolvedValue(next ? [next] : []),
   findNext: jest.fn().mockResolvedValue(next),
   countByStage: jest.fn(),
 });

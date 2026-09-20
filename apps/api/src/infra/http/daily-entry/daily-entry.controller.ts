@@ -25,6 +25,7 @@ import {
   TodayEntryResponseDto,
 } from "./dto/daily-entry.response.dto";
 import { TrackResponseDto } from "./dto/track.response.dto";
+import { JourneyResponseDto } from "./dto/journey.response.dto";
 import { AnswerPieceBodyDto } from "./dto/answer-piece.body.dto";
 import { RecordMoodBodyDto } from "./dto/record-mood.body.dto";
 
@@ -62,6 +63,20 @@ export class DailyEntryController {
   @ApiOkResponse({ type: TrackResponseDto })
   getTrack(@CurrentSession() session: AuthenticatedSession) {
     return this.dailyEntries.getTrack({
+      userId: session.userId,
+      companyId: session.companyId,
+    });
+  }
+
+  @Get("journey")
+  @ApiOperation({
+    summary: "The whole COOPS trail as nodes, for the journey map screen",
+    description:
+      "Every piece comes back in method order with a derived state: answered (read-only, with its outcome), current (the only answerable one), or locked. Answered pieces are never reopened for a new answer.",
+  })
+  @ApiOkResponse({ type: JourneyResponseDto })
+  getJourney(@CurrentSession() session: AuthenticatedSession) {
+    return this.dailyEntries.getJourney({
       userId: session.userId,
       companyId: session.companyId,
     });

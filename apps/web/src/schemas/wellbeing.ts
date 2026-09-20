@@ -73,3 +73,48 @@ export const pieceAnswerSchema = z.object({
 });
 
 export type PieceAnswer = z.infer<typeof pieceAnswerSchema>;
+
+/**
+ * Contrato de `GET /me/journey`. A trilha inteira vira nós, um por peça, na
+ * ordem do COOPS. O estado de cada nó decide o que a tela mostra e o que ela
+ * deixa fazer:
+ *
+ * - `answered`: já respondida. Volta em leitura, com o rótulo escolhido e a
+ *   consequência daquela escolha. Não traz `options` — a decisão não se refaz.
+ * - `current`: a próxima a responder, a única com `options` (só rótulos) e sem
+ *   consequência à vista.
+ * - `locked`: ainda trancada. Só o rótulo do nó, nada do corpo.
+ *
+ * Os campos vêm anuláveis porque a presença deles depende do estado. Um mapa
+ * que revelasse o corpo de uma peça trancada, ou a consequência da atual antes
+ * da escolha, entregaria gabarito.
+ */
+export const journeyNodeStateSchema = z.enum([
+  "answered",
+  "current",
+  "locked",
+]);
+
+export type JourneyNodeState = z.infer<typeof journeyNodeStateSchema>;
+
+export const journeyNodeSchema = z.object({
+  id: z.uuid(),
+  stage: coopsStageSchema,
+  orderInStage: z.number().int(),
+  title: z.string().min(1),
+  state: journeyNodeStateSchema,
+  body: z.string().nullable(),
+  prompt: z.string().nullable(),
+  options: z.array(z.object({ label: z.string().min(1) })).nullable(),
+  answer: z.string().nullable(),
+  outcome: z.string().nullable(),
+  sourceUrl: z.url(),
+});
+
+export type JourneyNode = z.infer<typeof journeyNodeSchema>;
+
+export const journeySchema = z.object({
+  nodes: z.array(journeyNodeSchema),
+});
+
+export type Journey = z.infer<typeof journeySchema>;

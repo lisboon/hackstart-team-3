@@ -112,3 +112,23 @@ body {
     box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--primary) 50%, transparent);
   }
 }
+
+/* Flutuação suave da chamada "COMEÇAR" no nó atual do mapa da trilha, como no
+   home.html. Continua sendo o único movimento além do botão central. */
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce-gentle {
+    animation: none;
+  }
+}
