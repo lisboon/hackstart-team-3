@@ -57,7 +57,11 @@ export class SavingsGoalController {
   ) {}
 
   @Post("goals")
-  @ApiOperation({ summary: "Create a personal savings goal (no money value)" })
+  @ApiOperation({
+    summary: "Create a personal savings goal with a self-declared target",
+    description:
+      "The amount is in cents, chosen by the person and never checked against a balance: the product has no access to accounts, statements or transactions. It is strictly personal and never reaches the manager dashboard.",
+  })
   @ApiCreatedResponse({ type: CreateGoalResponseDto })
   async create(
     @CurrentSession() session: AuthenticatedSession,
