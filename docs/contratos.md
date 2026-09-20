@@ -376,6 +376,69 @@ Criar, estender e encerrar geram `AuditEvent` com ação e recurso, **sem teor**
 
 ---
 
+## `GET /me/streak`
+
+A Colheita Semanal da Home: a ofensiva, o recorde pessoal, os sete dias da
+semana e a proteção. **Contra o próprio passado, nunca contra outras pessoas.**
+
+```json
+{
+  "currentStreak": 4,
+  "longestStreak": 11,
+  "week": [
+    { "date": "2026-09-14T00:00:00.000Z", "weekday": 0, "state": "done" },
+    { "date": "2026-09-15T00:00:00.000Z", "weekday": 1, "state": "protected" },
+    { "date": "2026-09-16T00:00:00.000Z", "weekday": 2, "state": "today" },
+    { "date": "2026-09-17T00:00:00.000Z", "weekday": 3, "state": "future" },
+    { "date": "2026-09-18T00:00:00.000Z", "weekday": 4, "state": "future" },
+    { "date": "2026-09-19T00:00:00.000Z", "weekday": 5, "state": "closed" },
+    { "date": "2026-09-20T00:00:00.000Z", "weekday": 6, "state": "closed" }
+  ],
+  "freezesAvailable": 0,
+  "freezeApplied": true
+}
+```
+
+| Campo | O quê |
+|---|---|
+| `currentStreak` | dias seguidos até hoje — ou até ontem, se hoje ainda não foi registrado |
+| `longestStreak` | a maior sequência que **a própria pessoa** já alcançou |
+| `week` | os sete dias da semana corrente, sempre de segunda a domingo |
+| `freezesAvailable` | congelamentos disponíveis nesta semana |
+| `freezeApplied` | se um congelamento está segurando a ofensiva agora |
+
+`weekday` é 0 para segunda e 6 para domingo — é a ordem em que a tela desenha, e
+não o `getDay()` do JavaScript. `date` é o início do dia em UTC.
+
+### Os seis estados de um dia
+
+| `state` | O quê | Como a tela mostra |
+|---|---|---|
+| `done` | registrado | cheio |
+| `today` | é hoje, e ainda está em aberto | destacado, sem cobrança |
+| `future` | ainda não chegou | apagado |
+| `missed` | dia útil sem registro | apagado, **sem vermelho e sem rótulo de falha** |
+| `protected` | um dia perdido que o congelamento cobriu | ícone de proteção |
+| `closed` | a unidade não abriu — fim de semana, feriado, recesso | mais apagado que `missed` |
+
+### Por que a ofensiva não zera
+
+O congelamento é **um por semana, aplicado sozinho**. Ele existe para não punir:
+perder um dia sob estresse não pode zerar a sequência de quem mais precisa
+(aversão à perda, [`ia-e-limitacoes.md`](ia-e-limitacoes.md)). **Não é moeda nem
+prêmio comprável** — é folga concedida pela regra, sem loja e sem ranking.
+
+Dia em que a unidade não abriu não gasta congelamento e não interrompe a
+sequência: ele não é dia perdido, é dia que não existiu.
+
+### O que nunca sai daqui
+
+Nada disso chega ao painel do gestor. Não há comparação, classificação nem
+posição entre pessoas — o recorde é da pessoa contra ela mesma. A leitura exige
+dono e empresa juntos, como todo recurso pessoal.
+
+---
+
 ## `GET /organizations/current` · `PATCH /organizations/current`
 
 A organização da sessão. O `PATCH` é **só `ADMIN`**, e o id vem da sessão: não
