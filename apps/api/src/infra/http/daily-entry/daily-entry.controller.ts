@@ -26,6 +26,7 @@ import {
 } from "./dto/daily-entry.response.dto";
 import { TrackResponseDto } from "./dto/track.response.dto";
 import { JourneyResponseDto } from "./dto/journey.response.dto";
+import { StreakResponseDto } from "./dto/streak.response.dto";
 import { AnswerPieceBodyDto } from "./dto/answer-piece.body.dto";
 import { RecordMoodBodyDto } from "./dto/record-mood.body.dto";
 
@@ -79,6 +80,22 @@ export class DailyEntryController {
     return this.dailyEntries.getJourney({
       userId: session.userId,
       companyId: session.companyId,
+    });
+  }
+
+  @Get("streak")
+  @ApiOperation({
+    summary:
+      "The person's harvest streak, personal record and week, for the home card",
+    description:
+      "Current streak, personal longest streak, the seven days of the current week, and the weekly protection (freeze) that keeps a missed day from resetting the streak. Never compared with other people, never sent to the manager.",
+  })
+  @ApiOkResponse({ type: StreakResponseDto })
+  getStreak(@CurrentSession() session: AuthenticatedSession) {
+    return this.dailyEntries.getStreak({
+      userId: session.userId,
+      companyId: session.companyId,
+      today: new Date(),
     });
   }
 

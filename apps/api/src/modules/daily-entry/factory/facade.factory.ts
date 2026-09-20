@@ -5,6 +5,7 @@ import AnswerPieceUseCase from "../usecase/answer-piece/answer-piece.usecase";
 import GetTodayEntryUseCase from "../usecase/get-today/get-today.usecase";
 import GetTrackUseCase from "../usecase/get-track/get-track.usecase";
 import GetJourneyUseCase from "../usecase/get-journey/get-journey.usecase";
+import GetStreakUseCase from "../usecase/get-streak/get-streak.usecase";
 import RecordMoodUseCase from "../usecase/record-mood/record-mood.usecase";
 import DailyEntryFacade from "../facade/daily-entry.facade";
 
@@ -18,6 +19,7 @@ export default class DailyEntryFacadeFactory {
       new AnswerPieceUseCase(dailyEntryRepository, contentPieceRepository),
       new GetTrackUseCase(dailyEntryRepository, contentPieceRepository),
       new GetJourneyUseCase(dailyEntryRepository, contentPieceRepository),
+      new GetStreakUseCase(dailyEntryRepository),
     );
   }
 }

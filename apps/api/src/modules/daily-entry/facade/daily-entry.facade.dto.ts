@@ -7,6 +7,10 @@ import {
   GetJourneyUseCaseOutputDto,
 } from "../usecase/get-journey/get-journey.usecase.dto";
 import {
+  GetStreakUseCaseInputDto,
+  GetStreakUseCaseOutputDto,
+} from "../usecase/get-streak/get-streak.usecase.dto";
+import {
   AnswerPieceUseCaseInputDto,
   AnswerPieceUseCaseOutputDto,
 } from "../usecase/answer-piece/answer-piece.usecase.dto";
@@ -33,6 +37,9 @@ export type GetTrackFacadeOutputDto = GetTrackUseCaseOutputDto;
 export type GetJourneyFacadeInputDto = GetJourneyUseCaseInputDto;
 export type GetJourneyFacadeOutputDto = GetJourneyUseCaseOutputDto;
 
+export type GetStreakFacadeInputDto = GetStreakUseCaseInputDto;
+export type GetStreakFacadeOutputDto = GetStreakUseCaseOutputDto;
+
 export interface DailyEntryFacadeInterface {
   recordMood(
     data: RecordMoodFacadeInputDto,
@@ -47,4 +54,5 @@ export interface DailyEntryFacadeInterface {
   getJourney(
     data: GetJourneyFacadeInputDto,
   ): Promise<GetJourneyFacadeOutputDto>;
+  getStreak(data: GetStreakFacadeInputDto): Promise<GetStreakFacadeOutputDto>;
 }

@@ -8,6 +8,8 @@ import { MoodPrompt } from "@/components/wellbeing/mood-prompt";
 import { SupportPaths } from "@/components/wellbeing/support-paths";
 import { isSuffering } from "@/components/wellbeing/mood-presentation";
 import { DailyCard } from "@/components/journey/daily-card";
+import { WeeklyHarvestCard } from "@/components/streak/weekly-harvest-card";
+import { useStreak } from "@/hooks/streak/use-streak";
 import { PersonalSummary } from "@/components/financial-health/personal-summary";
 import type { MoodScale } from "@/schemas/wellbeing";
 
@@ -38,6 +40,7 @@ export function DailyJourney({
   } = useDailyMood(token, onUnauthorized);
   const [lessonSkipped, setLessonSkipped] = useState(false);
   const [answeredNow, setAnsweredNow] = useState(false);
+  const { streak } = useStreak(token, onUnauthorized);
 
   async function answer(mood: MoodScale) {
     if (await record(mood)) setAnsweredNow(true);
@@ -88,6 +91,7 @@ export function DailyJourney({
           onResumeLesson={() => setLessonSkipped(false)}
         />
       )}
+      {streak && <WeeklyHarvestCard streak={streak} />}
       {!lessonSkipped && today.piece && (
         <DailyCard
           piece={today.piece}

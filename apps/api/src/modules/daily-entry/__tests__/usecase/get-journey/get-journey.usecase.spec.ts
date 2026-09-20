@@ -44,6 +44,7 @@ const dailyGateway = (answers: Map<string, string>): DailyEntryGateway => ({
   findByDate: jest.fn(),
   findAnsweredPieceIds: jest.fn(),
   findAnswers: jest.fn().mockResolvedValue(answers),
+  findEntryDates: jest.fn().mockResolvedValue([]),
   create: jest.fn(),
   update: jest.fn(),
 });
