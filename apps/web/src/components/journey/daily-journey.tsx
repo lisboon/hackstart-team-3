@@ -15,6 +15,9 @@ import type { MoodScale } from "@/schemas/wellbeing";
  * `GET /me/today` decide a tela: dia sem resposta mostra só a pergunta; dia
  * respondido mostra o app. Como é uma resposta por dia, sem correção, a
  * pergunta deixa de existir depois de respondida.
+ *
+ * A trilha inteira não vive aqui: ela é a rota `/trilha`, alcançada pelo botão
+ * central da barra. A Home é o dia — humor, a peça de hoje e o resumo pessoal.
  */
 export function DailyJourney({
   token,

@@ -3,6 +3,10 @@ import {
   GetTrackUseCaseOutputDto,
 } from "../usecase/get-track/get-track.usecase.dto";
 import {
+  GetJourneyUseCaseInputDto,
+  GetJourneyUseCaseOutputDto,
+} from "../usecase/get-journey/get-journey.usecase.dto";
+import {
   AnswerPieceUseCaseInputDto,
   AnswerPieceUseCaseOutputDto,
 } from "../usecase/answer-piece/answer-piece.usecase.dto";
@@ -26,6 +30,9 @@ export type GetTodayEntryFacadeOutputDto = GetTodayEntryUseCaseOutputDto;
 export type GetTrackFacadeInputDto = GetTrackUseCaseInputDto;
 export type GetTrackFacadeOutputDto = GetTrackUseCaseOutputDto;
 
+export type GetJourneyFacadeInputDto = GetJourneyUseCaseInputDto;
+export type GetJourneyFacadeOutputDto = GetJourneyUseCaseOutputDto;
+
 export interface DailyEntryFacadeInterface {
   recordMood(
     data: RecordMoodFacadeInputDto,
@@ -37,4 +44,7 @@ export interface DailyEntryFacadeInterface {
     data: AnswerPieceFacadeInputDto,
   ): Promise<AnswerPieceFacadeOutputDto>;
   getTrack(data: GetTrackFacadeInputDto): Promise<GetTrackFacadeOutputDto>;
+  getJourney(
+    data: GetJourneyFacadeInputDto,
+  ): Promise<GetJourneyFacadeOutputDto>;
 }
