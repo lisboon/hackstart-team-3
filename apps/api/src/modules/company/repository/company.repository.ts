@@ -104,6 +104,9 @@ export default class CompanyRepository implements CompanyGateway {
     const window = { gte: period.from, lt: period.to };
     const reports = { companyId, deletedAt: null, referenceMonth: window };
     const entries = { companyId, deletedAt: null, entryDate: window };
+    // O humor só conta quando a pessoa o declarou: o neutro automático, aberto
+    // pela colheita, não é declaração e não pode puxar a média do gestor.
+    const declaredMood = { ...entries, moodDeclared: true };
     const unit = member(companyId);
 
     // Cada indicador vem com o tamanho da própria população, porque é ela que
@@ -137,13 +140,13 @@ export default class CompanyRepository implements CompanyGateway {
         },
       }),
       this.prisma.user.count({
-        where: { ...unit, dailyEntries: { some: entries } },
+        where: { ...unit, dailyEntries: { some: declaredMood } },
       }),
       this.prisma.dailyEntry.aggregate({
         _avg: { mood: true },
-        where: entries,
+        where: declaredMood,
       }),
-      this.prisma.dailyEntry.count({ where: entries }),
+      this.prisma.dailyEntry.count({ where: declaredMood }),
       // Os eventos de apoio não guardam ator, então contar é tudo o que dá
       // para fazer com eles — e é tudo o que o painel precisa.
       this.prisma.auditEvent.count({

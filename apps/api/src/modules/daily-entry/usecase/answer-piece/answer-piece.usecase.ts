@@ -4,6 +4,7 @@ import { normalizeToDayStart } from "@/modules/@shared/domain/utils/day";
 import { findOption } from "@/modules/content-piece/domain/content-piece.entity";
 import { ContentPieceGateway } from "@/modules/content-piece/gateway/content-piece.gateway";
 import { DailyEntry } from "../../domain/daily-entry.entity";
+import { NEUTRAL_MOOD } from "../../domain/mood";
 import { DailyEntryGateway } from "../../gateway/daily-entry.gateway";
 import {
   AnswerPieceUseCaseInputDto,
@@ -22,18 +23,18 @@ export default class AnswerPieceUseCase implements AnswerPieceUseCaseInterface {
   ): Promise<AnswerPieceUseCaseOutputDto> {
     const owner = { userId: data.userId, companyId: data.companyId };
     const entryDate = normalizeToDayStart(data.today);
-    const entry = await this.dailyEntryGateway.findByDate(owner, entryDate);
+    let entry = await this.dailyEntryGateway.findByDate(owner, entryDate);
+    let isNew = false;
 
-    // O humor abre o dia. Sem ele não há onde guardar a resposta, e a tela
-    // não deveria ter chegado até aqui.
+    // Colheita e humor são independentes: responder não exige o dia aberto.
+    // Sem entrada ainda, a colheita abre o dia com humor neutro automático
+    // (não declarado), que o registro real de humor sobrescreve depois (#64).
     if (!entry) {
-      throw new ConflictError("Today's mood has not been answered yet");
-    }
-
-    // Antes de olhar a peca: se o dia ja foi respondido, nada mais importa.
-    // Validar a opcao primeiro faria um envio repetido responder 404 em vez
-    // de 409, escondendo o motivo real.
-    if (entry.pieceAnswered) {
+      entry = DailyEntry.createAutomatic({ ...owner, entryDate }, NEUTRAL_MOOD);
+      isNew = true;
+    } else if (entry.pieceAnswered) {
+      // Se o dia já tem colheita respondida, nada mais importa: validar a peça
+      // primeiro faria um envio repetido responder 404 em vez de 409.
       throw new ConflictError("Today's piece is already answered");
     }
 
@@ -48,7 +49,12 @@ export default class AnswerPieceUseCase implements AnswerPieceUseCaseInterface {
     }
 
     entry.answerPiece(piece.id, option.label, option.demonstratesComprehension);
-    await this.dailyEntryGateway.update(entry);
+    // Entrada nova (aberta pela colheita) é criada; existente é atualizada.
+    if (isNew) {
+      await this.dailyEntryGateway.create(entry);
+    } else {
+      await this.dailyEntryGateway.update(entry);
+    }
 
     return {
       outcome: option.outcome,

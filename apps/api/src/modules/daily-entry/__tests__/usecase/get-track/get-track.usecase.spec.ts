@@ -14,6 +14,7 @@ const full: StageCount[] = COOPS_ORDER.map((stage) => ({ stage, count: 6 }));
 const dailyGateway = (answeredIds: string[]): DailyEntryGateway => ({
   findByDate: jest.fn(),
   findAnsweredPieceIds: jest.fn().mockResolvedValue(answeredIds),
+  findAnswers: jest.fn().mockResolvedValue(new Map<string, string>()),
   create: jest.fn(),
   update: jest.fn(),
 });
@@ -23,6 +24,7 @@ const contentGateway = (
   answered: StageCount[],
 ): ContentPieceGateway => ({
   findById: jest.fn(),
+  findAll: jest.fn().mockResolvedValue([]),
   findNext: jest.fn(),
   countByStage: jest
     .fn()

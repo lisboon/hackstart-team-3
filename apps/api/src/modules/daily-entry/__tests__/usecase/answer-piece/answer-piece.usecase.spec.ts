@@ -36,12 +36,14 @@ const piece: ContentPiece = {
 const dailyGateway = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
   findAnsweredPieceIds: jest.fn().mockResolvedValue([]),
+  findAnswers: jest.fn().mockResolvedValue(new Map<string, string>()),
   create: jest.fn(),
   update: jest.fn(),
 });
 
 const contentGateway = (found: ContentPiece | null): ContentPieceGateway => ({
   findById: jest.fn().mockResolvedValue(found),
+  findAll: jest.fn().mockResolvedValue(found ? [found] : []),
   findNext: jest.fn(),
   countByStage: jest.fn(),
 });
@@ -85,12 +87,22 @@ describe("AnswerPieceUseCase", () => {
     expect(output.outcome).toBe("Costuma somer no meio do mês seguinte.");
   });
 
-  it("refuses to answer before the mood opens the day", async () => {
-    await expect(
-      new AnswerPieceUseCase(dailyGateway(null), contentGateway(piece)).execute(
-        input("Guardo"),
-      ),
-    ).rejects.toBeInstanceOf(ConflictError);
+  it("opens the day with an automatic, undeclared mood when there is none yet", async () => {
+    const daily = dailyGateway(null);
+
+    const output = await new AnswerPieceUseCase(
+      daily,
+      contentGateway(piece),
+    ).execute(input("Guardo"));
+
+    // Colheita não depende do humor: sem dia aberto, a resposta cria a entrada
+    // com humor neutro automático (não declarado), em vez de recusar.
+    expect(output.comprehended).toBe(true);
+    expect(daily.create).toHaveBeenCalledTimes(1);
+    expect(daily.update).not.toHaveBeenCalled();
+    const created = (daily.create as jest.Mock).mock.calls[0][0] as DailyEntry;
+    expect(created.moodDeclared).toBe(false);
+    expect(created.pieceAnswered).toBe(true);
   });
 
   it("refuses a second answer on the same day", async () => {

@@ -10,6 +10,7 @@ const lateInTheDay = new Date(Date.UTC(2026, 8, 19, 22, 40));
 const gatewayWith = (existing: DailyEntry | null): DailyEntryGateway => ({
   findByDate: jest.fn().mockResolvedValue(existing),
   findAnsweredPieceIds: jest.fn().mockResolvedValue([]),
+  findAnswers: jest.fn().mockResolvedValue(new Map<string, string>()),
   create: jest.fn(),
   update: jest.fn(),
 });
@@ -29,7 +30,7 @@ describe("RecordMoodUseCase", () => {
     expect(output.entryDate.toISOString()).toBe("2026-09-19T00:00:00.000Z");
   });
 
-  it("refuses a second answer on the same day", async () => {
+  it("refuses a second answer on the same day once the mood was declared", async () => {
     const existing = DailyEntry.create({
       userId,
       companyId,
@@ -51,6 +52,29 @@ describe("RecordMoodUseCase", () => {
     expect(gateway.create).not.toHaveBeenCalled();
     expect(gateway.update).not.toHaveBeenCalled();
     expect(existing.mood).toBe(2);
+  });
+
+  it("overwrites an automatic mood the harvest opened, and marks it declared", async () => {
+    // A colheita abriu o dia com humor neutro automático; agora a pessoa
+    // declara de verdade. O real sobrescreve o neutro, sem 409.
+    const automatic = DailyEntry.createAutomatic(
+      { userId, companyId, entryDate: lateInTheDay },
+      3,
+    );
+    const gateway = gatewayWith(automatic);
+
+    const output = await new RecordMoodUseCase(gateway).execute({
+      userId,
+      companyId,
+      entryDate: lateInTheDay,
+      mood: 5,
+    });
+
+    expect(gateway.update).toHaveBeenCalledTimes(1);
+    expect(gateway.create).not.toHaveBeenCalled();
+    expect(automatic.mood).toBe(5);
+    expect(automatic.moodDeclared).toBe(true);
+    expect(output.mood).toBe(5);
   });
 
   it("looks the day up by owner, never by user alone", async () => {

@@ -9,6 +9,7 @@ export class DailyEntryModelMapper {
       companyId: data.companyId,
       entryDate: data.entryDate,
       mood: data.mood,
+      moodDeclared: data.moodDeclared,
       contentPieceId: data.contentPieceId ?? undefined,
       answer: data.answer ?? undefined,
       comprehended: data.comprehended ?? undefined,

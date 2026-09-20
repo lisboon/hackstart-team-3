@@ -120,6 +120,7 @@ model DailyEntry {
   companyId String    @map("company_id")
   entryDate      DateTime @map("entry_date") @db.Date
   mood           Int
+  moodDeclared   Boolean  @default(true) @map("mood_declared")
   contentPieceId String?  @map("content_piece_id")
   answer         String?
   comprehended   Boolean?
