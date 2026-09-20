@@ -40,6 +40,11 @@
   /* Entorno da moldura no desktop. Precisa destoar do fundo do app, senão
      sobra um retângulo branco sobre branco e o aparelho some. */
   --shell: #dfe6dc;
+  /* Âmbar dos marcos de trajetória — o de prestígio. O tom claro do escuro
+     (#f5c56a) dá 1.6:1 sobre branco e desaparece aqui, então o claro usa o
+     dourado escuro do manual. O marco também diz "Conquistado" em texto: a cor
+     é reforço, nunca o único indicador. */
+  --achievement-trajectory: #8a5112;
 }
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -55,6 +60,7 @@
     --border: #5d7c52;
     --destructive: #ff9b84;
     --shell: #060d05;
+    --achievement-trajectory: #f5c56a;
   }
 }
 :root.dark {

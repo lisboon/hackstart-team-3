@@ -97,8 +97,16 @@ export function describeAverage(average: number): string {
 
 const HIGHEST_SITUATION_SCORE = 3;
 
-/** Largura da barra comparativa. Proporção, nunca número na tela. */
+/**
+ * A média como razão entre 0 e 1, para a barra comparativa. Proporção, nunca
+ * número na tela: a escala de quatro degraus existe só para a média da própria
+ * pessoa e não é para ser lida.
+ */
+export function averageRatio(average: number): number {
+  return Math.min(Math.max(average / HIGHEST_SITUATION_SCORE, 0), 1);
+}
+
+/** A mesma razão em porcentagem, para quem precisa de largura em CSS. */
 export function averageWidth(average: number): string {
-  const ratio = Math.min(Math.max(average / HIGHEST_SITUATION_SCORE, 0), 1);
-  return `${Math.round(ratio * 100)}%`;
+  return `${Math.round(averageRatio(average) * 100)}%`;
 }
