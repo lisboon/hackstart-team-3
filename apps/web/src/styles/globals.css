@@ -12,8 +12,52 @@
   --color-input: var(--border);
   --color-ring: var(--primary);
   --color-destructive: var(--destructive);
+  --color-brand: var(--brand);
+  --color-shell: var(--shell);
 }
 :root {
+  color-scheme: light;
+  /* Paleta do manual de identidade do Sicredi. O branco é o fundo principal
+     de aplicação da marca, e o respiro em volta é o que põe o foco na
+     informação destacada — que aqui é a decisão do dia. */
+  --background: #ffffff;
+  --foreground: #323c32;
+  --card: #fafafa;
+  /* O Verde Sicredi (#3fa110) dá 3.32:1 sobre branco: passa como contorno e
+     preenchimento, reprova como texto. Como --primary também pinta letra (o
+     link do CVV, a aba ativa), a primária é o Verde Escuro do manual, e o
+     verde da marca fica em --brand, só ornamento. */
+  --primary: #146e37;
+  --primary-foreground: #ffffff;
+  --brand: #3fa110;
+  --muted: #f2f4f1;
+  --muted-foreground: #55655a;
+  /* Contorno de campo e de opção: WCAG 2.1 SC 1.4.11 pede 3:1, e os neutros
+     claros do manual ficam em 1.3:1. tests/contrast.test.mjs guarda os dois
+     temas. */
+  --border: #7d8a7f;
+  --destructive: #b3253c;
+  /* Entorno da moldura no desktop. Precisa destoar do fundo do app, senão
+     sobra um retângulo branco sobre branco e o aparelho some. */
+  --shell: #dfe6dc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --background: #0c1608;
+    --foreground: #eff5ea;
+    --card: #16240f;
+    --primary: #6acc3a;
+    --primary-foreground: #08210c;
+    --brand: #6acc3a;
+    --muted: #1b2c15;
+    --muted-foreground: #9db096;
+    --border: #5d7c52;
+    --destructive: #ff9b84;
+    --shell: #060d05;
+  }
+}
+:root.dark {
   color-scheme: dark;
   --background: #07100f;
   --foreground: #f3f7f5;

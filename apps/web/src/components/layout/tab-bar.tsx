@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, Home, Route, Trophy, User } from "lucide-react";
 import { useAuth } from "@/hooks/auth/use-auth";
+import { ICON_STROKE } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -48,10 +49,10 @@ export function TabBar() {
                  ação que o produto quer que aconteça, e a única coisa do app
                  que se move sozinha. */
               <span className="animate-tab-float -mt-7 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground">
-                <Icon aria-hidden className="size-6" strokeWidth={2.2} />
+                <Icon aria-hidden className="size-6" strokeWidth={ICON_STROKE} />
               </span>
             ) : (
-              <Icon aria-hidden className="size-5" />
+              <Icon aria-hidden className="size-5" strokeWidth={ICON_STROKE} />
             )}
             {label}
           </Link>

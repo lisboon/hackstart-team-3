@@ -50,7 +50,7 @@ describe("AppShell", () => {
     // A largura maxima e o que separa "app de celular" de "pagina esticada"
     // num monitor de 1920px.
     const frame = container.querySelector("main");
-    expect(frame?.className).toMatch(/max-w-\[420px\]/);
+    expect(frame?.className).toMatch(/max-w-\[393px\]/);
   });
 
   it("measures height in dvh, not vh", () => {
@@ -75,5 +75,21 @@ describe("AppShell", () => {
     );
 
     expect(container.querySelector(".overflow-y-auto")).toBeInTheDocument();
+  });
+
+  it("sizes the frame like an iPhone 16, and lets it give way", () => {
+    const { container } = render(
+      <AppShell>
+        <p>conteúdo</p>
+      </AppShell>,
+    );
+
+    const frame = container.querySelector("main");
+    // 393 x 852 sao os pontos logicos do aparelho. A altura cede pelo min():
+    // travada, em janela baixa a moldura passa do fim da tela.
+    expect(frame?.className).toMatch(/md:h-\[min\(852px,/);
+    // Largura e teto, nao medida: num aparelho de 375 pontos ela encolhe.
+    expect(frame?.className).toMatch(/\bw-full\b/);
+    expect(frame?.className).not.toMatch(/(?<!max-)\bw-\[\d+px\]/);
   });
 });

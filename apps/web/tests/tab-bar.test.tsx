@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { TabBar } from "@/components/layout/tab-bar";
+import { ICON_STROKE } from "@/components/ui/icon";
 
 const pathname = vi.hoisted(() => ({ current: "/" }));
 vi.mock("next/navigation", () => ({
@@ -94,5 +95,20 @@ describe("TabBar", () => {
     expect(
       await screen.findByRole("navigation", { name: "Navegação principal" }),
     ).toBeInTheDocument();
+  });
+
+  it("draws icons at the weight the Sicredi system uses", async () => {
+    signedIn();
+    const { container } = render(<TabBar />);
+
+    await screen.findByRole("link", { name: "Hoje" });
+    // O manual constroi sobre grid de 104px com traco de 6,5px: 6,25% do
+    // tamanho. O padrao do lucide e 2 em viewBox 24, que da 8,33% e sai mais
+    // pesado que o resto do sistema.
+    const icons = container.querySelectorAll("svg[stroke-width]");
+    expect(icons.length).toBeGreaterThan(0);
+    for (const icon of icons) {
+      expect(icon.getAttribute("stroke-width")).toBe(String(ICON_STROKE));
+    }
   });
 });

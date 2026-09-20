@@ -21,9 +21,12 @@ export const metadata: Metadata = {
 
 // themeColor and viewport belong to this export, not to metadata.
 export const viewport: Viewport = {
-  // Matches --background in globals.css so the Android status bar blends with
-  // the app instead of framing it.
-  themeColor: "#07100f",
+  // Um por esquema: a barra de status acompanha o tema em vez de emoldurar o
+  // app com a cor do outro.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1608" },
+  ],
   width: "device-width",
   initialScale: 1,
   // The journey has to survive a user who enlarges text: zoom stays available.
@@ -40,6 +43,14 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        {/* Aplica o tema guardado antes da primeira pintura. Sem isto a tela
+            nasce clara e pisca para escura em quem escolheu escuro. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('colheita_theme');if(t==='dark'||t==='light'){document.documentElement.classList.add(t)}}catch(e){}",
+          }}
+        />
         {children}
         <ServiceWorkerRegistration />
       </body>
