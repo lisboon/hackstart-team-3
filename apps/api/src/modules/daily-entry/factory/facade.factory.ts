@@ -6,6 +6,7 @@ import GetTodayEntryUseCase from "../usecase/get-today/get-today.usecase";
 import GetTrackUseCase from "../usecase/get-track/get-track.usecase";
 import GetJourneyUseCase from "../usecase/get-journey/get-journey.usecase";
 import GetStreakUseCase from "../usecase/get-streak/get-streak.usecase";
+import GetProgressUseCase from "../usecase/get-progress/get-progress.usecase";
 import RecordMoodUseCase from "../usecase/record-mood/record-mood.usecase";
 import DailyEntryFacade from "../facade/daily-entry.facade";
 import CompanyRepository from "@/modules/company/repository/company.repository";
@@ -50,6 +51,7 @@ export default class DailyEntryFacadeFactory {
         companyRepository,
         fallbackWindow,
       ),
+      new GetProgressUseCase(dailyEntryRepository),
     );
   }
 }

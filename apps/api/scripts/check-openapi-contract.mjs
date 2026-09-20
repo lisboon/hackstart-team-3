@@ -57,6 +57,7 @@ try {
     "GoalsResponseDto",
     "UpdateGoalResponseDto",
     "StreakResponseDto",
+    "ProgressResponseDto",
     "StreakWeekDayResponseDto",
     "JourneyResponseDto",
     "JourneyNodeResponseDto",
@@ -103,6 +104,7 @@ try {
     ["/me/goals", "get", "200"],
     ["/me/goals/{id}", "patch", "200"],
     ["/me/streak", "get", "200"],
+    ["/me/progress", "get", "200"],
     ["/me/track", "get", "200"],
     ["/me/journey", "get", "200"],
   ];
@@ -148,6 +150,7 @@ try {
     ["/me/goals", "get", ["401", "403", "422", "429"]],
     ["/me/goals/{id}", "patch", ["401", "403", "404", "409", "422", "429"]],
     ["/me/streak", "get", ["401", "403", "422", "429"]],
+    ["/me/progress", "get", ["401", "403", "422", "429"]],
     ["/me/track", "get", ["401", "403", "422", "429"]],
     ["/me/journey", "get", ["401", "403", "422", "429"]],
   ];

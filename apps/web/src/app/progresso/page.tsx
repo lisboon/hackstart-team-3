@@ -3,6 +3,7 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { GoalsWorkspace } from "@/components/savings-goal/goals-workspace";
+import { MonthProgress } from "@/components/progress/month-progress";
 
 export default function ProgressoPage() {
   return (
@@ -15,6 +16,7 @@ export default function ProgressoPage() {
                 Progresso
               </h1>
             </header>
+            <MonthProgress token={token} onUnauthorized={onUnauthorized} />
             <GoalsWorkspace token={token} onUnauthorized={onUnauthorized} />
           </div>
         </AppShell>

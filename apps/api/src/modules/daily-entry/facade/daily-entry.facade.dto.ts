@@ -7,6 +7,10 @@ import {
   GetJourneyUseCaseOutputDto,
 } from "../usecase/get-journey/get-journey.usecase.dto";
 import {
+  GetProgressUseCaseInputDto,
+  GetProgressUseCaseOutputDto,
+} from "../usecase/get-progress/get-progress.usecase.dto";
+import {
   GetStreakUseCaseInputDto,
   GetStreakUseCaseOutputDto,
 } from "../usecase/get-streak/get-streak.usecase.dto";
@@ -39,6 +43,8 @@ export type GetJourneyFacadeOutputDto = GetJourneyUseCaseOutputDto;
 
 export type GetStreakFacadeInputDto = GetStreakUseCaseInputDto;
 export type GetStreakFacadeOutputDto = GetStreakUseCaseOutputDto;
+export type GetProgressFacadeInputDto = GetProgressUseCaseInputDto;
+export type GetProgressFacadeOutputDto = GetProgressUseCaseOutputDto;
 
 export interface DailyEntryFacadeInterface {
   recordMood(
@@ -55,4 +61,7 @@ export interface DailyEntryFacadeInterface {
     data: GetJourneyFacadeInputDto,
   ): Promise<GetJourneyFacadeOutputDto>;
   getStreak(data: GetStreakFacadeInputDto): Promise<GetStreakFacadeOutputDto>;
+  getProgress(
+    data: GetProgressFacadeInputDto,
+  ): Promise<GetProgressFacadeOutputDto>;
 }
