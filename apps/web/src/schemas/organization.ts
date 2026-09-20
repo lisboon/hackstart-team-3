@@ -13,18 +13,27 @@ const periodIndicatorsSchema = z.object({
   averageMood: z.number().nullable(),
 });
 
+/** Um dia da série de acessos: a data pura e quantas pessoas usaram o app. */
+const accessDaySchema = z.object({
+  date: z.string().min(1),
+  people: z.number().int().min(0),
+});
+
 export const unitIndicatorsSchema = z.object({
   suppressed: z.boolean(),
   headcount: z.number().nullable(),
   reach: z.number().nullable(),
   active: z.number().nullable(),
   frequency: z.number().nullable(),
+  supportUses: z.number().nullable(),
   tightRatio: z.number().nullable(),
   averageMood: z.number().nullable(),
+  accessSeries: z.array(accessDaySchema).nullable(),
   previous: periodIndicatorsSchema.nullable(),
 });
 
 export type UnitIndicators = z.infer<typeof unitIndicatorsSchema>;
+export type AccessDay = z.infer<typeof accessDaySchema>;
 
 /**
  * Contrato de `GET /organizations/current`. O perfil usa só o nome da unidade

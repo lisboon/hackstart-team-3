@@ -77,19 +77,22 @@ describe("AppShell", () => {
     expect(container.querySelector(".overflow-y-auto")).toBeInTheDocument();
   });
 
-  it("sizes the frame like an iPhone 16, and lets it give way", () => {
+  it("is a phone below md and a web page above it", () => {
     const { container } = render(
       <AppShell>
-        <p>conteúdo</p>
+        <p>conteudo</p>
       </AppShell>,
     );
 
     const frame = container.querySelector("main");
-    // 393 x 852 sao os pontos logicos do aparelho. A altura cede pelo min():
-    // travada, em janela baixa a moldura passa do fim da tela.
-    expect(frame?.className).toMatch(/md:h-\[min\(852px,/);
-    // Largura e teto, nao medida: num aparelho de 375 pontos ela encolhe.
-    expect(frame?.className).toMatch(/\bw-full\b/);
-    expect(frame?.className).not.toMatch(/(?<!max-)\bw-\[\d+px\]/);
+    // No celular: largura de aparelho e rolagem presa dentro da moldura.
+    expect(frame?.className).toMatch(/max-w-\[393px\]/);
+    expect(frame?.className).toMatch(/\bh-\[100dvh\]/);
+    // No desktop: sem teto de aparelho, altura livre, rolagem da propria
+    // pagina, e nenhuma moldura. Quem quiser ver o celular abre o modo
+    // dispositivo do navegador.
+    expect(frame?.className).toMatch(/md:max-w-none/);
+    expect(frame?.className).toMatch(/md:h-auto/);
+    expect(frame?.className).not.toMatch(/md:rounded/);
   });
 });

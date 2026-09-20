@@ -77,6 +77,10 @@ const TEXT_PAIRS = [
   // the one link someone in distress has to be able to read, so it is held to
   // the text threshold rather than the outline one.
   ["primary", "muted"],
+  // A navegacao do gestor vive numa superficie propria, entao ela precisa do
+  // proprio par: o texto do menu e o do item sob o cursor.
+  ["sidebar-foreground", "sidebar"],
+  ["sidebar-accent-foreground", "sidebar-accent"],
 ];
 
 const NON_TEXT_PAIRS = [

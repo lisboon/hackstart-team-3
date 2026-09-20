@@ -252,6 +252,12 @@ test("activate drops caches from older versions", async () => {
 
   await worker.activate();
 
-  assert.deepEqual([...worker.caches.keys()], ["colheita-verde-shell-v1"]);
+  // A versao nao entra no literal: prender o teste a "v1" faria ele reprovar
+  // justamente quem faz o bump certo, e o incentivo vira nao bumpar. O que
+  // importa e que sobre um cache so, e que nao seja o velho.
+  const keys = [...worker.caches.keys()];
+  assert.equal(keys.length, 1);
+  assert.notEqual(keys[0], "colheita-verde-shell-v0");
+  assert.match(keys[0], /^colheita-verde-shell-v\d+$/);
   assert.ok(worker.claimed.clients);
 });

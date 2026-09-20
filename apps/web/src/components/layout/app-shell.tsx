@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { AppHeader } from "@/components/layout/app-header";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 import { TabBar } from "@/components/layout/tab-bar";
 import {
   CARE_DISCLAIMER,
@@ -7,26 +9,31 @@ import {
 import { SupportSheet } from "@/components/wellbeing/support-sheet";
 
 /**
- * A jornada é de celular, e continua sendo de celular no desktop: a moldura
- * prende a largura e desenha um aparelho em volta, em vez de esticar o
- * conteúdo por uma tela de 1920px.
+ * Duas formas, uma árvore.
  *
- * 393 x 852 são os pontos lógicos do iPhone 16. A largura é teto, não medida:
- * num aparelho de 375 pontos a moldura encolhe em vez de empurrar a página
- * para o lado. A altura cede junto pelo `min()`, senão em janela baixa a
- * moldura passa do fim da tela.
+ * **Celular:** largura de aparelho (393, os pontos lógicos do iPhone 16, teto e
+ * não medida — num aparelho de 375 ela encolhe), altura em `100dvh` porque a
+ * barra do navegador aparece e some, rolagem presa dentro da moldura, barra de
+ * abas e rodapé de cuidado embaixo.
  *
- * `100dvh` no lugar de `100vh` porque a barra do navegador móvel aparece e
- * some — com `vh` o rodapé fica cortado metade do tempo.
+ * **Desktop:** menu lateral, cabeçalho com a conta, conteúdo largo e rolagem
+ * da própria página. Quem quiser ver o celular abre o modo dispositivo do
+ * navegador.
+ *
+ * As duas moldura trocam por CSS, mas `children` é montado **uma vez**:
+ * duplicar a árvore como a referência faz criaria dois formulários com o mesmo
+ * `id` e dobraria toda requisição da tela.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] justify-center bg-shell md:py-8">
-      <main className="relative flex h-[100dvh] w-full max-w-[393px] flex-col overflow-hidden bg-background md:h-[min(852px,calc(100dvh-4rem))] md:rounded-[2rem] md:border md:border-border md:shadow-2xl">
-        {/* A rolagem vive aqui dentro, nunca na página: é o que mantém o
-            rodapé do CVV à vista enquanto o conteúdo corre. */}
-        <div className="flex-1 overflow-y-auto px-5 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
-          {children}
+    <div className="flex min-h-[100dvh] justify-center bg-background md:justify-start">
+      <AppSidebar />
+      <main className="relative flex h-[100dvh] w-full max-w-[393px] flex-col overflow-hidden bg-background md:h-auto md:min-h-[100dvh] md:max-w-none md:flex-1 md:overflow-visible">
+        <AppHeader />
+        {/* No celular a rolagem vive aqui dentro, para o rodapé do CVV nunca
+            sair de vista. No desktop quem rola é a página. */}
+        <div className="flex-1 overflow-y-auto px-5 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))] md:overflow-visible md:px-8 md:pb-10 md:pt-0">
+          <div className="md:max-w-3xl">{children}</div>
         </div>
         <SafetyFooter />
         <TabBar />
