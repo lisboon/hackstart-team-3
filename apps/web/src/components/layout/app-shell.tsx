@@ -7,24 +7,15 @@ import {
 import { SupportSheet } from "@/components/wellbeing/support-sheet";
 
 /**
- * A jornada é de celular, e continua sendo de celular no desktop: a moldura
- * prende a largura e desenha um aparelho em volta, em vez de esticar o
- * conteúdo por uma tela de 1920px.
- *
- * 393 x 852 são os pontos lógicos do iPhone 16. A largura é teto, não medida:
- * num aparelho de 375 pontos a moldura encolhe em vez de empurrar a página
- * para o lado. A altura cede junto pelo `min()`, senão em janela baixa a
- * moldura passa do fim da tela.
- *
- * `100dvh` no lugar de `100vh` porque a barra do navegador móvel aparece e
- * some — com `vh` o rodapé fica cortado metade do tempo.
+ * A moldura de celular: 393 pontos lógicos como teto, não como medida — num
+ * aparelho de 375 ela encolhe. `100dvh` porque a barra do navegador aparece e
+ * some, e a rolagem vive dentro da moldura para o rodapé do CVV nunca sair de
+ * vista.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] justify-center bg-shell md:py-8">
-      <main className="relative flex h-[100dvh] w-full max-w-[393px] flex-col overflow-hidden bg-background md:h-[min(852px,calc(100dvh-4rem))] md:rounded-[2rem] md:border md:border-border md:shadow-2xl">
-        {/* A rolagem vive aqui dentro, nunca na página: é o que mantém o
-            rodapé do CVV à vista enquanto o conteúdo corre. */}
+    <div className="flex min-h-[100dvh] justify-center bg-background">
+      <main className="relative flex h-[100dvh] w-full max-w-[393px] flex-col overflow-hidden bg-background">
         <div className="flex-1 overflow-y-auto px-5 pb-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
           {children}
         </div>

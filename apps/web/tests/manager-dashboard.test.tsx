@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { ManagerDashboard } from "@/components/manager/manager-dashboard";
+import { ManagerDataProvider } from "@/components/manager/manager-data";
 import type { UnitIndicators } from "@/schemas/organization";
 
 const OPEN: UnitIndicators = {
@@ -10,6 +11,8 @@ const OPEN: UnitIndicators = {
   reach: 14,
   active: 10,
   frequency: 4.2,
+  supportUses: 23,
+  accessSeries: [{ date: "2026-09-01", people: 8 }],
   tightRatio: 0.375,
   averageMood: 3.5,
   previous: { tightRatio: 0.7, averageMood: 2.5 },
@@ -21,6 +24,8 @@ const SUPPRESSED: UnitIndicators = {
   reach: null,
   active: null,
   frequency: null,
+  supportUses: null,
+  accessSeries: null,
   tightRatio: null,
   averageMood: null,
   previous: null,
@@ -52,12 +57,25 @@ function stubApi(indicators: UnitIndicators) {
   );
 }
 
+/**
+ * Os indicadores vêm do provedor da rota, que busca uma vez e reparte entre o
+ * gráfico, o sino e estes cartões. Montar o painel sem ele testaria um estado
+ * que não existe em produção.
+ */
+function panel() {
+  return render(
+    <ManagerDataProvider>
+      <ManagerDashboard />
+    </ManagerDataProvider>,
+  );
+}
+
 afterEach(cleanup);
 
 describe("ManagerDashboard", () => {
   it("shows the unit indicators once they arrive", async () => {
     stubApi(OPEN);
-    render(<ManagerDashboard />);
+    panel();
 
     expect(await screen.findByText("38%")).toBeInTheDocument();
     expect(screen.getByText("3.5")).toBeInTheDocument();
@@ -67,7 +85,7 @@ describe("ManagerDashboard", () => {
 
   it("shows no number at all when the unit is suppressed", async () => {
     stubApi(SUPPRESSED);
-    const { container } = render(<ManagerDashboard />);
+    const { container } = panel();
 
     expect(
       await screen.findByText(/Dados insuficientes para preservar o anonimato/),
@@ -79,7 +97,7 @@ describe("ManagerDashboard", () => {
 
   it("never states how many people are missing", async () => {
     stubApi(SUPPRESSED);
-    render(<ManagerDashboard />);
+    panel();
 
     await screen.findByText(/Dados insuficientes/);
     // Dizer "faltam 2 pessoas" entrega o tamanho do grupo pela porta de trás.
@@ -88,7 +106,7 @@ describe("ManagerDashboard", () => {
 
   it("treats a single missing indicator as no data, not as zero", async () => {
     stubApi({ ...OPEN, tightRatio: null });
-    render(<ManagerDashboard />);
+    panel();
 
     await screen.findByText("3.5");
     expect(screen.queryByText("0%")).toBeNull();
@@ -100,7 +118,7 @@ describe("ManagerDashboard", () => {
 
   it("tells the manager the action is never individual", async () => {
     stubApi(OPEN);
-    render(<ManagerDashboard />);
+    panel();
 
     await screen.findByText("38%");
     expect(
@@ -114,7 +132,7 @@ describe("ManagerDashboard", () => {
       "fetch",
       vi.fn(async () => new Response("boom", { status: 500 })),
     );
-    render(<ManagerDashboard />);
+    panel();
 
     await waitFor(() =>
       expect(screen.getByRole("alert")).toBeInTheDocument(),

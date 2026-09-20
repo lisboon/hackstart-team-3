@@ -11,19 +11,29 @@ const variants = cva(
         default: "bg-primary text-primary-foreground hover:opacity-90",
         secondary:
           "border border-border bg-card text-foreground hover:bg-muted",
+        // Usado pelo gatilho da sidebar: sem preenchimento nem borda, só o
+        // realce no toque.
+        ghost: "text-foreground hover:bg-muted",
+      },
+      // O padrao repete o espacamento que a base ja tinha, entao nenhum botao
+      // existente muda de tamanho ao ganhar a variante.
+      size: {
+        default: "",
+        icon: "size-9 p-0",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: { variant: "default", size: "default" },
   },
 );
 
 export function Button({
   className,
   variant,
+  size,
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof variants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "button";
-  return <Comp className={cn(variants({ variant }), className)} {...props} />;
+  return <Comp className={cn(variants({ variant, size }), className)} {...props} />;
 }

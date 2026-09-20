@@ -90,9 +90,9 @@
   --destructive: #ff9b84;
   --shell: #060d05;
   --warning: #f5c56a;
-  /* Ambar dos marcos de trajetoria, o de prestigio. Usado como acento (ponto e
-     anel), nunca como unico indicador: o marco tambem diz "Conquistado" ou
-     "A caminho" em texto. */
+  /* Âmbar dos marcos de trajetória — o de prestígio. Usado como acento (ponto e
+     anel), nunca como único indicador de estado: o marco também diz "Conquistado"
+     ou "A caminho" em texto e apaga quando não veio. */
   --achievement-trajectory: #f5c56a;
 }
 

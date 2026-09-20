@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/auth/use-auth";
 import { ICON_STROKE } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 
-const TABS = [
+const DESTINATIONS = [
   { href: "/", label: "Hoje", Icon: Home },
   { href: "/progresso", label: "Progresso", Icon: Activity },
   { href: "/trilha", label: "Trilha", Icon: Route, center: true },
@@ -31,7 +31,7 @@ export function TabBar() {
       aria-label="Navegação principal"
       className="grid grid-cols-5 items-center border-t border-border bg-background/70 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl"
     >
-      {TABS.map(({ href, label, Icon, ...tab }) => {
+      {DESTINATIONS.map(({ href, label, Icon, ...tab }) => {
         const current = pathname === href;
         const center = "center" in tab;
         return (

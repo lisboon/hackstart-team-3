@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useAuth } from "@/hooks/auth/use-auth";
-import { fetchUnitIndicators } from "@/services/organization/organization-service";
+import { useManagerData } from "@/components/manager/manager-data";
 import type { UnitIndicators } from "@/schemas/organization";
 import { Card } from "@/components/ui/card";
 import { ICON_STROKE } from "@/components/ui/icon";
@@ -28,34 +28,11 @@ const whole = (value: number | null) =>
   value === null ? EMPTY : String(value);
 
 export function ManagerDashboard() {
-  const { token, user } = useAuth();
-  const [data, setData] = useState<UnitIndicators | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!token) return;
-
-    const controller = new AbortController();
-    fetchUnitIndicators(token, controller.signal)
-      .then((indicators) => {
-        setData(indicators);
-        setError("");
-      })
-      .catch((cause) => {
-        if (controller.signal.aborted) return;
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : "Não foi possível carregar o painel.",
-        );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [token]);
+  const { user } = useAuth();
+  // Os indicadores vêm do provedor da rota: o gráfico, o sino e estes cartões
+  // leem a mesma resposta, então não há como um dizer um número e outro dizer
+  // outro.
+  const { data, loading, error } = useManagerData();
 
   if (loading) {
     return (

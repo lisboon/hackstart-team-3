@@ -5,6 +5,11 @@ export interface GetUnitIndicatorsUseCaseInputDto {
   today: Date;
 }
 
+export interface AccessDayDto {
+  date: string;
+  people: number;
+}
+
 export interface UnitPeriodIndicators {
   tightRatio: number | null;
   averageMood: number | null;
@@ -26,6 +31,12 @@ export interface GetUnitIndicatorsUseCaseOutputDto extends UnitPeriodIndicators 
   active: number | null;
   frequency: number | null;
   supportUses: number | null;
+  /**
+   * Quantas pessoas usaram o app em cada dia do mês. Cai junto com o resto
+   * quando a unidade é suprimida: uma série diária de grupo pequeno entrega
+   * mais do que a média, não menos.
+   */
+  accessSeries: AccessDayDto[] | null;
   previous: UnitPeriodIndicators | null;
 }
 

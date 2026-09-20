@@ -10,9 +10,15 @@
 // file's handlers against a stub scope. Change a strategy here and that test
 // tells you whether you also changed what reaches the disk.
 
-// Bump this when the precache list or the strategies change. The activate
-// handler deletes every cache that does not match.
-const VERSION = "v1";
+// Bump this em toda entrega que mude o que a pessoa ve: a lista de precache
+// guarda o HTML de "/", e ele aponta para os arquivos daquele build. Sem o
+// bump, um navegador que instalou a v1 continua servindo a aparencia da v1
+// mesmo depois de tudo mudar no servidor — foi o que aconteceu entre a
+// identidade nova e o painel do gestor.
+//
+// O activate apaga todo cache cuja chave nao seja a atual, entao subir o
+// numero e o que limpa.
+const VERSION = "v2";
 const SHELL_CACHE = `colheita-verde-shell-${VERSION}`;
 const OFFLINE_URL = "/offline";
 
