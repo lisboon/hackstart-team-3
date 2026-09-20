@@ -190,3 +190,24 @@ body {
     animation: none;
   }
 }
+
+/* A folha da consequencia sobe. E o momento que faltava na licao: sem ele a
+   tela trocava de conteudo sem avisar que algo tinha acontecido. */
+@keyframes sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 220ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-up {
+    animation: none;
+  }
+}

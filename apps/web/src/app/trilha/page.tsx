@@ -8,6 +8,7 @@ import { JourneyMap } from "@/components/journey/journey-map";
 import { LessonShell } from "@/components/journey/lesson-shell";
 import { AnsweredPieceReview } from "@/components/journey/answered-piece-review";
 import { DailyCard } from "@/components/journey/daily-card";
+import { GrowthBadge } from "@/components/journey/growth-badge";
 import {
   coopsSections,
   journeyPoints,
@@ -132,15 +133,21 @@ function TrilhaPageContent({
             answer={answer}
             pending={pending}
             onDecide={(label) => void onDecide(answering.id, label)}
+            onContinue={backToMap}
           />
-          <Button
-            type="button"
-            variant="secondary"
-            className="w-full sm:w-auto sm:justify-self-start"
-            onClick={backToMap}
-          >
-            {answer ? "Voltar à trilha" : "Cancelar"}
-          </Button>
+          {/* Antes da escolha há saída; depois dela quem leva adiante é o
+              "Continuar" da folha, para não haver dois caminhos para a mesma
+              porta. */}
+          {!answer && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full sm:w-auto sm:justify-self-start"
+              onClick={backToMap}
+            >
+              Cancelar
+            </Button>
+          )}
         </LessonShell>
       </div>
     );
@@ -166,6 +173,9 @@ function TrilhaPageContent({
           </span>
         </p>
       </header>
+      <div className="mb-6">
+        <GrowthBadge points={points} />
+      </div>
       <JourneyMap nodes={journey.nodes} onOpen={openNode} />
     </div>
   );

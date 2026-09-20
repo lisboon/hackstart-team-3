@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useId, useState } from "react";
 import { Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ICON_STROKE } from "@/components/ui/icon";
 import { STAGE_LABEL } from "@/components/journey/coops-presentation";
+import { OutcomeSheet } from "@/components/journey/outcome-sheet";
 import type { ContentPiece, PieceAnswer } from "@/schemas/wellbeing";
 
 /**
@@ -18,18 +19,28 @@ export function DailyCard({
   answer,
   pending,
   onDecide,
+  onContinue,
 }: {
   piece: ContentPiece;
   answer: PieceAnswer | null;
   pending: boolean;
   onDecide: (label: string) => void;
+  /** O que fazer quando a pessoa fecha a folha da consequência. */
+  onContinue?: () => void;
 }) {
   const id = useId();
+  const [chosen, setChosen] = useState<string | null>(null);
 
-  if (answer) return <Outcome answer={answer} pieceTitle={piece.title} />;
+  function choose(label: string) {
+    // Guardar o rótulo aqui é o que permite devolvê-lo na folha com as
+    // palavras que a pessoa tocou; o servidor só responde a consequência.
+    setChosen(label);
+    onDecide(label);
+  }
 
   return (
-    <Card aria-labelledby={`${id}-title`}>
+    <div className="relative">
+      <Card aria-labelledby={`${id}-title`}>
       <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-primary">
         <span>{STAGE_LABEL[piece.stage]}</span>
         {/* Ponto que pulsa: a marca de "é esta, agora". O bloco de movimento
@@ -70,8 +81,8 @@ export function DailyCard({
             // decide — não há confirmação depois, e por isso não há estado
             // "selecionada" a desenhar.
             className="h-auto w-full justify-start gap-3 whitespace-normal rounded-2xl border-2 p-4 text-left shadow-[0_3px_0_0_var(--border)] transition-all active:translate-y-[3px] active:shadow-none"
-            disabled={pending}
-            onClick={() => onDecide(option.label)}
+            disabled={pending || answer !== null}
+            onClick={() => choose(option.label)}
           >
             <span
               aria-hidden
@@ -84,47 +95,19 @@ export function DailyCard({
         ))}
       </fieldset>
 
-      <Source href={piece.sourceUrl} />
-    </Card>
-  );
-}
+        {/* Com a folha aberta é ela que credita a fonte: repetir aqui
+            deixaria dois links iguais na mesma tela, e o de baixo coberto. */}
+        {!answer && <Source href={piece.sourceUrl} />}
+      </Card>
 
-function Outcome({
-  answer,
-  pieceTitle,
-}: {
-  answer: PieceAnswer;
-  pieceTitle: string;
-}) {
-  const id = useId();
-  const heading = useRef<HTMLHeadingElement>(null);
-
-  /**
-   * A consequência substitui a pergunta no mesmo lugar da tela. Sem mover o
-   * foco, quem usa leitor de tela não saberia que o conteúdo trocou.
-   */
-  useEffect(() => {
-    heading.current?.focus();
-  }, []);
-
-  return (
-    <Card aria-labelledby={id}>
-      <h2
-        id={id}
-        ref={heading}
-        tabIndex={-1}
-        className="text-lg font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-      >
-        {pieceTitle}
-      </h2>
-      <p role="status" className="text-sm leading-relaxed">
-        {answer.outcome}
-      </p>
-      <p className="text-sm text-muted-foreground">
-        Sua diária de hoje está completa. Amanhã tem a próxima.
-      </p>
-      <Source href={answer.sourceUrl} />
-    </Card>
+      {answer && (
+        <OutcomeSheet
+          answer={answer}
+          choice={chosen}
+          onContinue={() => onContinue?.()}
+        />
+      )}
+    </div>
   );
 }
 
