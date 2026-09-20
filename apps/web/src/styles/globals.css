@@ -44,3 +44,27 @@ body {
      have not been written yet. */
   overflow-wrap: break-word;
 }
+
+/* O botão central do rodapé flutua de leve, com a sombra acompanhando: é o que
+   dá a impressão de solto, e é o único movimento contínuo do app. Cinco pixels
+   porque acima disso vira distração numa tela que a pessoa abre todo dia. */
+@keyframes tab-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+  50% {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 20px -8px color-mix(in srgb, var(--primary) 32%, transparent);
+  }
+}
+.animate-tab-float {
+  animation: tab-float 3.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-tab-float {
+    animation: none;
+    box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+}
