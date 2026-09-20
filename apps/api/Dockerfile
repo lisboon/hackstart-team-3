@@ -22,13 +22,15 @@ COPY apps/api/ ./apps/api/
 RUN pnpm --dir apps/api prisma:generate \
   && pnpm --dir apps/api build
 
-FROM dependencies AS migrator
+# Deriva do builder, e não de dependencies, porque `prisma db seed` importa
+# `../generated/prisma/client` — que só existe depois do prisma:generate. Sem
+# isso a imagem aplica migrations e falha na semente, que é justamente o que
+# povoa as 30 peças do COOPS e a coorte da demonstração.
+FROM builder AS migrator
 
 ENV NODE_ENV=production
 
 WORKDIR /app/apps/api
-COPY --chown=node:node apps/api/prisma.config.ts ./
-COPY --chown=node:node apps/api/prisma/ ./prisma/
 
 USER node
 

@@ -1,0 +1,242 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  # Nunca cancelar um rollout do ECS pela metade.
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  DEPLOY_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+  AWS_REGION: us-east-1
+  PROJECT: colheita
+  CLUSTER: colheita
+  SERVICE: colheita-app
+  TASK_FAMILY: colheita-app
+  MIGRATE_FAMILY: colheita-migrate
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v4
+
+      # ------------------------------------------------------ build e push
+      # Contexto é a raiz nas três primeiras: os Dockerfiles instalam pelo
+      # workspace do pnpm. provenance off para o ECR não ganhar manifest sem tag.
+      #
+      # NEXT_PUBLIC_API_URL=/api é o que põe a Core API na mesma origem do web:
+      # o navegador nunca fala com a 3001 e não há CORS. API_URL é o destino do
+      # rewrite dentro da task, onde os containers dividem o localhost. Os dois
+      # entram no build, não no runtime.
+      - name: Build and push web
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=/api
+            API_URL=http://localhost:3001
+          tags: ${{ steps.ecr.outputs.registry }}/colheita-web:${{ env.DEPLOY_SHA }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: Build and push api
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          target: runner
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/colheita-api:${{ env.DEPLOY_SHA }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+      # Mesmo Dockerfile da API, stage `migrator`: ele carrega prisma/, o client
+      # gerado e o ts-node de que a semente precisa.
+      - name: Build and push migrate
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          target: migrator
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/colheita-migrate:${{ env.DEPLOY_SHA }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=migrate
+
+      - name: Build and push ai
+        uses: docker/build-push-action@v7
+        with:
+          context: apps/ai
+          file: apps/ai/Dockerfile
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/colheita-ai:${{ env.DEPLOY_SHA }}
+          cache-from: type=gha,scope=ai
+          cache-to: type=gha,mode=max,scope=ai
+
+      # --------------------------------------------------- migrations + seed
+      # Task própria, não sidecar: migration que falha tem de reprovar o job em
+      # vez de deixar um deploy verde com o banco atrás do schema.
+      - name: Run migrations
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          SHA: ${{ env.DEPLOY_SHA }}
+        run: |
+          set -euo pipefail
+
+          NET=$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" \
+            --query 'services[0].networkConfiguration.awsvpcConfiguration' --output json)
+          SUBNETS=$(echo "$NET" | jq -c '.subnets')
+          SGS=$(echo "$NET" | jq -c '.securityGroups')
+
+          # containerOverrides não troca imagem — só name, command, environment,
+          # cpu, memory e resourceRequirements. Apontar a migration para este
+          # commit exige registrar uma revisão antes.
+          aws ecs describe-task-definition --task-definition "$MIGRATE_FAMILY" \
+            --query 'taskDefinition' --output json > migrate-td.json
+
+          jq --arg img "$REGISTRY/colheita-migrate:$SHA" '
+            del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+            | .containerDefinitions |= map(.image = $img)
+          ' migrate-td.json > migrate-td-new.json
+
+          MIGRATE_TD=$(aws ecs register-task-definition --cli-input-json file://migrate-td-new.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+
+          TASK_ARN=$(aws ecs run-task \
+            --cluster "$CLUSTER" \
+            --task-definition "$MIGRATE_TD" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=$SUBNETS,securityGroups=$SGS,assignPublicIp=ENABLED}" \
+            --query 'tasks[0].taskArn' --output text)
+
+          echo "task: $TASK_ARN"
+          aws ecs wait tasks-stopped --cluster "$CLUSTER" --tasks "$TASK_ARN"
+
+          aws logs tail "/ecs/$PROJECT/migrate" --since 15m \
+            --log-stream-names "migrate/migrate/${TASK_ARN##*/}" || true
+
+          CODE=$(aws ecs describe-tasks --cluster "$CLUSTER" --tasks "$TASK_ARN" \
+            --query 'tasks[0].containers[0].exitCode' --output text)
+          [ "$CODE" = "0" ] || { echo "::error::migrations falharam (exit $CODE)"; exit 1; }
+
+      # -------------------------------------------------------- nova revisão
+      - name: Render task definition
+        id: render
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          SHA: ${{ env.DEPLOY_SHA }}
+        run: |
+          set -euo pipefail
+
+          aws ecs describe-task-definition --task-definition "$TASK_FAMILY" \
+            --query 'taskDefinition' --output json > td.json
+
+          jq --arg reg "$REGISTRY" --arg sha "$SHA" '
+            del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+            | .containerDefinitions |= map(
+                if   .name == "web" then .image = "\($reg)/colheita-web:\($sha)"
+                elif .name == "api" then .image = "\($reg)/colheita-api:\($sha)"
+                elif .name == "ai"  then .image = "\($reg)/colheita-ai:\($sha)"
+                else . end)
+          ' td.json > td-new.json
+
+          ARN=$(aws ecs register-task-definition --cli-input-json file://td-new.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "arn=$ARN" >> "$GITHUB_OUTPUT"
+
+      - name: Roll the service
+        run: |
+          set -euo pipefail
+          aws ecs update-service \
+            --cluster "$CLUSTER" --service "$SERVICE" \
+            --task-definition "${{ steps.render.outputs.arn }}" \
+            --force-new-deployment > /dev/null
+          aws ecs wait services-stable --cluster "$CLUSTER" --services "$SERVICE"
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          # URL completa, com esquema: terraform output -raw app_url
+          URL="${{ vars.APP_URL }}"
+
+          curl -fsS --retry 5 --retry-delay 5 -o /dev/null "$URL/"
+
+          # Atravessa web -> rewrite /api/* -> Core API -> RDS num pedido só. Se
+          # o rewrite não estiver no manifest, aqui volta o HTML do 404 do Next.
+          curl -fsS --retry 3 --retry-delay 5 "$URL/api/health/ready" | grep -q '"status":"up"'
+
+          # /health/ready não confere senha, então ficaria verde com o login
+          # quebrado. Credencial inexistente tem de voltar 401: 5xx aqui é a Core
+          # API caindo antes de comparar o hash.
+          LOGIN=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/api/auth/login" \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"smoke-nao-existe@demo.invalid","password":"x"}')
+          test "$LOGIN" = "401" || { echo "::error::login devolveu $LOGIN, esperado 401"; exit 1; }
+
+          # O contrato diz que a identidade vem da sessão. Sem token, 401 — e não
+          # um stream aberto para quem passar na rota.
+          AI=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$URL/api/ai/runs/stream" \
+            -H 'Content-Type: application/json' \
+            -d '{"messages":[{"role":"user","content":"smoke"}]}')
+          test "$AI" = "401" || { echo "::error::/ai/runs/stream sem token devolveu $AI, esperado 401"; exit 1; }
+
+          # Swagger não escapa: NODE_ENV=production não o registra e a regra do
+          # ALB responde 404 mesmo que alguém troque isso.
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$URL/api/api-docs")" = "404"
+
+          echo "smoke ok: web, rewrite, banco, login, guarda da IA e swagger fechado."
+
+      - name: Diagnostics
+        if: failure()
+        run: |
+          aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" \
+            --query 'services[0].events[0:10].[createdAt,message]' --output table || true
+          TASKS=$(aws ecs list-tasks --cluster "$CLUSTER" --service-name "$SERVICE" \
+            --query 'taskArns' --output text) || true
+          if [ -n "${TASKS:-}" ]; then
+            read -ra TASK_ARNS <<< "$TASKS"
+            aws ecs describe-tasks --cluster "$CLUSTER" --tasks "${TASK_ARNS[@]}" \
+              --query 'tasks[].{stopped:stoppedReason,containers:containers[].{n:name,s:lastStatus,e:exitCode,r:reason}}' \
+              --output json || true
+          fi
+          aws logs tail "/ecs/$PROJECT/app" --since 15m || true

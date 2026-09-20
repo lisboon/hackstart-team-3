@@ -17,8 +17,14 @@ RUN pnpm install --filter @hackathon-star/web... --frozen-lockfile
 FROM dependencies AS builder
 COPY apps/web/ ./apps/web/
 
+# NEXT_PUBLIC_API_URL é o endereço que o navegador usa; API_URL é o destino do
+# rewrite `/api/*`, que o servidor Next resolve. Em AWS o primeiro é `/api`
+# (mesma origem, sem CORS e sem expor a 3001) e o segundo aponta para o
+# container vizinho. Ambos entram no bundle/manifest no build, não no runtime.
 ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ARG API_URL=http://localhost:3001
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    API_URL=${API_URL}
 
 RUN pnpm --dir apps/web build
 

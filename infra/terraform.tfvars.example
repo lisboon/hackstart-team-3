@@ -1,0 +1,39 @@
+# Copie para terraform.tfvars (que é gitignored) e preencha.
+
+github_repo = "lisboon/hackstart-team-3"
+
+# Necessário quando o repositório emite subject OIDC imutável, que carrega os
+# ids numéricos de dono e repositório. Sem isto a role de deploy recusa o token
+# com "Not authorized to perform sts:AssumeRoleWithWebIdentity".
+#   gh api repos/lisboon/hackstart-team-3/actions/oidc/customization/sub --jq .sub_claim_prefix
+github_subject_prefix = "repo:owner@00000000/name@0000000000"
+
+# O sha do git das imagens que você empurrou. Sobrescrito na linha de comando:
+#   terraform apply -var="image_tag=$(git rev-parse HEAD)"
+image_tag = "bootstrap"
+
+# Senhas da demonstração. Quem apresenta precisa delas em mão: o gestor entra
+# com a primeira, a pessoa do pitch com a segunda. Mínimo de 12 caracteres.
+seed_admin_password  = "troque-esta-senha-do-gestor"
+seed_worker_password = "troque-esta-senha-do-colaborador"
+
+# bedrock gasta o crédito desta conta e não guarda chave: a task role assina uma
+# chave de curta duração por requisição. Confirme que o modelo é alcançável
+# antes do primeiro deploy — a habilitação varia por conta, e um id que funciona
+# no InvokeModel não é necessariamente servido em /chat/completions:
+#   curl https://bedrock-mantle.us-east-1.api.aws/v1/models \
+#     -H "Authorization: Bearer $AWS_BEARER_TOKEN_BEDROCK"
+llm_provider  = "bedrock"
+bedrock_model = "openai.gpt-oss-120b"
+
+# Só para llm_provider = "openai". Cobrado em platform.openai.com, não pela AWS,
+# então os créditos do hackathon não cobrem.
+# openai_api_key = "sk-proj-..."
+
+# HTTPS em <id>.cloudfront.net, sem domínio e sem trabalho de DNS. Deixe ligado:
+# o PWA só registra o service worker em contexto seguro.
+enable_cloudfront = true
+
+# Domínio próprio, se houver. A hosted zone tem de existir antes. Preenchido,
+# vence o CloudFront.
+# domain_name = "colheita.app"
